@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 
 const Services = () => {
   return (
-    <div style={{ paddingTop: '100px' }}>
-      <section id="key-features" style={{ padding: '80px 0 60px 0' }}>
+    <div >
+      <section id="key-features" >
         <Container className="text-center">
           <Row>
                         <Col xs={12}>
@@ -48,7 +48,9 @@ const Services = () => {
                   leaving your property clean and ready for new possibilities.
                 </p>
                 <div className="html_button mt-auto">
-                  <Link to="/shed-removal">
+                  <Link to="/shed-removal"
+                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  >
                     <Button 
                       variant="primary"
                       style={{
@@ -102,7 +104,9 @@ const Services = () => {
                   to removing rubbish so you can have a hassle-free experience.
                 </p>
                 <div className="html_button mt-auto">
-                  <Link to="/deck-removal">
+                  <Link to="/deck-removal"
+                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  >
                     <Button 
                       variant="primary"
                       style={{
@@ -156,7 +160,9 @@ const Services = () => {
                   installations or open spaces.
                 </p>
                 <div className="html_button mt-auto">
-                  <Link to="/fence-removal">
+                  <Link to="/fence-removal"
+                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  >
                     <Button 
                       variant="primary"
                       style={{
@@ -210,7 +216,9 @@ const Services = () => {
                   your space for new construction.
                 </p>
                 <div className="html_button mt-auto">
-                  <Link to="/interior-demo">
+                  <Link to="/interior-demo"
+                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  >
                     <Button 
                       variant="primary"
                       style={{
@@ -263,7 +271,9 @@ const Services = () => {
                   from your home or business, including furniture, appliances, and general junk.
                 </p>
                 <div className="html_button mt-auto">
-                  <Link to="/junk-removal">
+                  <Link to="/junk-removal"
+                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  >
                     <Button 
                       variant="primary"
                       style={{
@@ -317,7 +327,9 @@ const Services = () => {
                   leaving your property clean and ready.
                 </p>
                 <div className="html_button mt-auto">
-                  <Link to="/cleanout">
+                  <Link to="/cleanout"
+                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  >
                     <Button 
                       variant="primary"
                       style={{

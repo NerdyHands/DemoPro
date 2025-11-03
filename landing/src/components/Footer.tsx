@@ -13,7 +13,9 @@ const Footer = () => {
         <Row className="align-items-center">
           {/* Important Links Section */}
           <Col lg={4} md={6} sm={12} className="mb-4 mb-md-0">
-            <div className="footer-section">
+       
+         <div className="footer-section text-center text-md-start">
+
               <h3 style={{ 
                 color: '#ffffff', 
                 fontWeight: '600',
@@ -33,6 +35,7 @@ const Footer = () => {
                 <li style={{ marginBottom: '0.5rem' }}>
                   <Link 
                     to="/services" 
+                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     style={{ 
                       color: '#fff', 
                       textDecoration: 'none',
@@ -48,6 +51,7 @@ const Footer = () => {
                 <li style={{ marginBottom: '0.5rem' }}>
                   <Link 
                     to="/contact" 
+                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     style={{ 
                       color: '#fff', 
                       textDecoration: 'none',
@@ -63,6 +67,7 @@ const Footer = () => {
                 <li style={{ marginBottom: '0.5rem' }}>
                   <Link 
                     to="/faqs" 
+                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     style={{ 
                       color: '#fff', 
                       textDecoration: 'none',
@@ -78,6 +83,7 @@ const Footer = () => {
                 <li style={{ marginBottom: '0.5rem' }}>
                   <Link 
                     to="/terms" 
+                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     style={{ 
                       color: '#fff', 
                       textDecoration: 'none',
@@ -93,6 +99,7 @@ const Footer = () => {
                 <li style={{ marginBottom: '0.5rem' }}>
                   <Link 
                     to="/privacy" 
+                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     style={{ 
                       color: '#fff', 
                       textDecoration: 'none',
@@ -107,6 +114,7 @@ const Footer = () => {
                 </li>
               </ul>
             </div>
+           
           </Col>
 
           {/* Logo and Back to Top Section */}
@@ -114,13 +122,14 @@ const Footer = () => {
             <div style={{ textAlign: 'center' }}>
               <img 
                 src="/footer-logo.png" 
+                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 alt="Mr Demo Pro footer logo"
                 style={{
                   width: '120px',
                   height: '120px',
                   maxWidth: '100%',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                  // borderRadius: '12px',
+                  // boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
                   marginBottom: '1rem'
                 }}
               />

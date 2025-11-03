@@ -7,7 +7,7 @@ const JunkRemoval = () => {
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <div style={{ paddingTop: '100px' }}>
+    <div >
       {/* Hero Section */}
       <section style={{ 
         padding: '80px 0 60px 0',

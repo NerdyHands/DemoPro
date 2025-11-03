@@ -1,7 +1,23 @@
 /* Reset and Base Styles */
+
+
+
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
+
+body, html {
+  overflow-x: hidden; /* Prevents right clipping on mobile */
+}
+
+#hero-area {
+  width: 100%;
+  padding-inline: 1rem; /* modern padding shorthand for L/R */
+}
+
+
 
 :root {
   /* Professional Typography System */

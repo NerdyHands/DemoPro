@@ -7,7 +7,7 @@ const FenceRemoval = () => {
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <div style={{ paddingTop: '100px' }}>
+    <div >
       {/* Hero Section */}
       <section style={{ 
         padding: '80px 0 60px 0',
@@ -421,7 +421,8 @@ const FenceRemoval = () => {
                 transition={{ duration: 0.6 }}
                 style={{ 
                   marginBottom: '30px',
-                  fontSize: 'var(--font-size-3xl)'
+                  fontSize: 'var(--font-size-3xl)',
+                 
                 }}
               >
                 Ready to Transform Your Property?
@@ -434,7 +435,8 @@ const FenceRemoval = () => {
                 style={{
                   fontSize: 'var(--font-size-lg)',
                   marginBottom: '40px',
-                  opacity: 0.9
+                  opacity: 0.9,
+                   color:"#fff"
                 }}
               >
                 Get your free quote today and clear the way for new possibilities!

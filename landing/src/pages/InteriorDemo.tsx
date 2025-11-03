@@ -7,7 +7,7 @@ const InteriorDemo = () => {
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <div style={{ paddingTop: '100px' }}>
+    <div >
       {/* Hero Section */}
       <section style={{ 
         backgroundColor: 'var(--color-primary)', 

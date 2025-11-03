@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const FAQs = () => {
   return (
-    <div style={{ paddingTop: '100px' }}>
+    <div style={{  }}>
       {/* Hero Section */}
       <section style={{ 
         padding: '80px 0 60px 0',
@@ -235,8 +235,10 @@ const FAQs = () => {
                 transition={{ delay: 0.3, duration: 0.6 }}
                 style={{
                   fontSize: 'var(--font-size-lg)',
+                  color:"#fff",
                   marginBottom: '40px',
-                  opacity: 0.9
+                  opacity: 0.9,
+               
                 }}
               >
                 Can't find the answer you're looking for? Contact us directly and we'll be happy to help!
@@ -262,6 +264,8 @@ const FAQs = () => {
                   </button>
                 </Link>
                 <a href="tel:757-848-4559">
+
+                  
                   <button 
                     className="btn btn-outline-light btn-lg"
                     style={{
@@ -269,10 +273,23 @@ const FAQs = () => {
                       fontSize: 'var(--font-size-lg)',
                       fontWeight: 'var(--font-weight-semibold)',
                       borderRadius: '12px',
-                      border: '2px solid white'
+                      border: '2px solid white',
+                      gap:"10px"
                     }}
                   >
-                    📞 Call 757-848-4559
+                     <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.06 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 3.08 4.18 2 2 0 0 1 5 2h3a2 2 0 0 1 2 1.72c.12 1.05.35 2.07.68 3.05a2 2 0 0 1-.45 2.11L9.91 9.91a16 16 0 0 0 6 6l1.03-1.03a2 2 0 0 1 2.11-.45c.98.33 2 .56 3.05.68A2 2 0 0 1 22 16.92z"
+      fill="#fff"
+    />
+  </svg>
+                  757-848-4559
                   </button>
                 </a>
               </motion.div>
