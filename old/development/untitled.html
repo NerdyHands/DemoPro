@@ -1,0 +1,84 @@
+<html>
+  <body>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        var isAuthenticated = false /* Your authentication check logic */
+      // Function to handle authentication status
+      function checkAuthentication() {
+        // Check if the user is authenticated (you might have your own authentication logic here)
+
+        if (!isAuthenticated) {
+          // You may also redirect to a login page using window.location.href = "login.html";
+          hideDisplayContent()
+        } else {
+          // If authenticated, display the content
+          displayContent();
+        }
+      }
+
+      // Function to handle the authentication response
+      function handleCredentialResponse(response) {
+        isAuthenticated=true
+        checkAuthentication();
+        console.log("Encoded JWT ID token: " + response.credential);
+        var tokens = response.credential.split(".");
+        var payload = JSON.parse(atob(tokens[1]));
+        console.log(`user id ${payload.sub}`)
+        console.log(`user name ${payload.name}`)
+        console.log(`user picture ${payload.picture}`)
+      }
+
+      // Function to display the content after authentication
+      function displayContent() {
+        // Show your locked content here or perform any other actions
+        document.getElementById("lockedContent").style.display = "block";
+        document.getElementById("unlocked-content").style.display = "none";
+      }
+      // Function to display the content after authentication
+      function hideDisplayContent() {
+        // Show your locked content here or perform any other actions
+        document.getElementById("unlocked-content").style.display = "block";
+        document.getElementById("lockedContent").style.display = "none";
+      }
+
+      function handleSignOut() {
+        google.accounts.id.disableAutoSelect();
+        google.accounts.id.prompt();
+        google.accounts.id.cancel();
+        isAuthenticated=false      }
+
+      window.onload = function () {
+        // Initialize Google Sign-In API
+        google.accounts.id.initialize({
+            client_id: "322841377665-ukrb99lh8d013u5dcrllk8gseguf3t3f.apps.googleusercontent.com",
+          callback: handleCredentialResponse
+        });
+
+        // Render Google Sign-In button
+        google.accounts.id.renderButton(
+          document.getElementById("buttonDiv"),
+          { theme: "outline", size: "large" }
+        );
+
+        // Prompt the user to sign in
+        google.accounts.id.prompt();
+        // Call the checkAuthentication function on page load
+        checkAuthentication();
+      }
+
+    </script>
+
+<div id="unlocked-content">
+    <p>You need to login to access the locked content</p>
+
+    <div id="buttonDiv" ></div>
+</div>
+
+
+    <!-- Locked content that will be displayed if authenticated -->
+    <div id="lockedContent" style="display: none;">
+      <p>This is the locked content that is only visible to authenticated users.</p>
+      <button onclick="handleSignOut()">Sign Out</button>
+    </div>
+  </body>
+</html>

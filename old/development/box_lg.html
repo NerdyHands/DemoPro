@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+	<!--[if lt IE 7]><html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+	<!--[if IE 7]><html class="lt-ie9 lt-ie8"> <![endif]-->
+	<!--[if IE 8]><html class="lt-ie9"> <![endif]-->
+	<!--[if gt IE 8]><!--> 
+	
+<html>
+
+	<!--<![endif]-->
+	<!-- Head -->
+	<head>
+
+		<!-- Meta -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- Title -->
+		<title>Banner Box Large Modal Popup</title>
+
+		<!-- Short-Cut Icon -->
+		<link rel="shortcut icon" href="#" />
+
+		<!-- Google Web Fonts -->
+		<link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600,700,900' rel='stylesheet' type='text/css'>
+		
+		<!-- Font Awesome -->
+		<link href="modal/fontawesome/webfonts/fontawesome-all.min.css" rel="stylesheet" media="all">
+
+		<!-- Bootstrap Style Sheet -->
+		<link href="modal/css/bootstrap.min.css" rel="stylesheet" media="all">
+
+		<!-- Plugin Style Sheet -->
+		<link href="modal/css/bs4_modal.min.css" rel="stylesheet" media="all">
+
+	</head>
+
+<body>
+
+	<!--
+		|-------------------|
+			00 - Trigger
+		|-------------------|
+		First of all set data-modal-id="" on a controller element, like button, link, block or image etc. to target a specific modal to toggle. data-modal-id="" attribute must have the id="" of modal that you want to trigger on click.
+
+		As you can see in this example we are using :
+
+		Trigger :
+		data-modal-id="bs4_banner_box_lg"
+
+		Modal :
+		id="bs4_banner_box_lg"
+
+		|-------------------|
+			01 - BackDrop
+		|-------------------|
+		data-modal-backdrop="" attribute specifies whether the modal should have a dark overlay (the background color of the current page) or not. You can change value from ( true ) to following :
+		( false ) || ( static )
+
+		|---------------------------------------------------------------------------------------|
+			02 - Triggering Modal After Page Load, Before Leaving Page, On Hover And On click
+		|---------------------------------------------------------------------------------------|
+		data-show-on="" attribute specifies when a modal should appear. You can trigger a modal in four ways :
+			1 - On Click 		: data-show-on="click"
+			2 - On Hover 		: data-show-on="hover"
+			3 - After Page Load : data-show-on="load"
+			4 - On Page Leave	: data-show-on="leave"
+
+		|---------------------------------------|
+			03 - Delay After Triggering Modal
+		|---------------------------------------|
+		data-modal-delay="" attribute specifies the value in milliseconds of delay after triggering a modal. You can delete
+		this attribute or set the value false or "0" to remove delay and appear modal immediately after triggering it.
+
+		|---------------------------------------|
+			04 - Duration Of Modal Appearance
+		|---------------------------------------|
+		data-modal-duration="" attribute specifies the value in milliseconds of duration of modal, when a modal should
+		close automatically after it appears. You can delete this attribute or set the value "false" remove this effect.
+
+		|------------------------|
+			05 - Color Schemes
+		|------------------------|
+		We have used Five Colors Schemes Green, Blue, Red, Gold And Brown. You can change whole color scheme by changing a class name ( bs4_blue ) with the following :
+		(bs4_red) || (bs4_green) || (bs4_Gold) || (bs4_Brown)
+
+		|-------------------------------------------------|
+			06 - Background Color Of Modal Content Area
+		|-------------------------------------------------|
+		You can change background color of modal content area by changing a class name ( bs4_bg_black ) with the following :
+		(bs4_bg_light_black) || (bs4_bg_light_white) || (bs4_bg_white)
+
+		|---------------------------------------|
+			07 - BackDrop Area Color Of Modal
+		|---------------------------------------|
+		You can change backdrop area color of modal by changing a class name ( bs4_bd_black ) with the following :
+		(bs4_bd_white) || (bs4_bd_gray)
+
+		|----------------------------------------------|
+			08 - BackDrop Area Transparency Of Modal
+		|----------------------------------------------|
+		You can change transparency of backdrop area of modal by changing a class name ( bs4_bd_semi_trnsp ) with the following :
+		(bs4_bd_trnsp) || (bs4_bd_less_trnsp) || (bs4_bd_dark_trnsp) || (bs4_bd_thick)
+
+		|------------------------|
+			09 - Border Radius
+		|------------------------|
+		You can change border radius of modal by changing a class name ( bs4_none_radius ) with the following :
+		(bs4_less_radius) || (bs4_semi_radius) || (bs4_full_radius)
+
+		|-----------------------|
+			10 - Modal Shadow
+		|-----------------------|
+		You can remove modal shadow by adding the class name ( bs4_shadow_none ).
+
+		|----------------------------|
+			11 - Modal Positioning
+		|----------------------------|
+		You can change positioning of modal by changing a class name ( bs4_center ) with the following :
+		(bs4_top_left)    || (bs4_top_right)    || (bs4_top_center)
+		(bs4_bottom_left) || (bs4_bottom_right) || (bs4_bottom_center)
+		(bs4_left)        || (bs4_right)
+
+		|----------------------------------|
+			12 - Modal Animation Effects
+		|----------------------------------|
+		You can change animation effects of modal by changing a class name ( bs4ZoomIn ) with the following :
+		(bs4BounceIn)       || (bs4BounceInDown)    || (bs4BounceInLeft)  || (bs4BounceInRight)    || (bs4BounceInUp)
+		(bs4FadeInDown)     || (bs4FadeInLeft)      || (bs4FadeInUp)      || (bs4FadeInRight)      || (bs4FlipX)
+		(bs4FlipY)          || (bs4SpeedIn)         || (bs4RotateIn)      || (bs4RotateInDownLeft) || (bs4RotateInDownRight)
+		(bs4RotateInUpLeft) || (bs4RotateInUpRight) || (bs4RollIn)        || (bs4ZoomOut)          || (bs4ZoomInRight)
+		(bs4ZoomInRotate)   || (bs4ZoomOutRotate)   || (bs4RollIn)        || (bs4ZoomInDown)       || (bs4ZoomInUp)
+		(bs4ZoomInLeft)		|| (bs4SlideInLeft)     || (bs4SlideInRight)  || (bs4SlideInUp)        || (bs4SlideInUpLeft) 
+		(bs4SlideInUpRight) || (bs4SlideInDown)     || (bs4SlideInDownLeft)    || (bs4SlideInDownRight)
+
+		|-----------------------------------|
+			13 - Modal Animation Duration
+		|-----------------------------------|
+		You can change animation duration of modal by changing a class name ( bs4_duration_md ) with the following :
+		(bs4_duration_lg) || (bs4_duration_vl) || (bs4_duration_sm)
+		
+		Or Remove all above classes to make animation duration fastest.
+
+		|------------------------------------------|
+			14 - Modal Animation Timing Function
+		|------------------------------------------|
+		You can change animation timing function of modal by changing a class name ( bs4_easeOutQuint ) with the following :
+		(bs4_ease) 		   || (bs4_easeInOut) 	   || (bs4_speedy) 	      || (bs4_slowSpeedy)     || (bs4_easeOutInCubic)
+		(bs4_easeOutCubic) || (bs4_easeInOutCubic) || (bs4_easeOutCirc)   || (bs4_easeOutExpo)    || (bs4_easeInQuad)
+		(bs4_easeOutQuad)  || (bs4_easeInOutQuad)  || (bs4_easeOutQuart)  || (bs4_easeInOutQuart) || (bs4_swing)
+		(bs4_easeInSine)   || (bs4_easeOutSine)    || (bs4_easeInOutSine)
+
+		|------------------------------------|
+			15 - Buttons Animation Effects
+		|------------------------------------|
+		You can change animation of buttons by adding a class name from the following :
+		(bs4_btn_x_in_shtr) || (bs4_btn_y_in_shtr) || (bs4_btn_x_out_shtr) || (bs4_btn_y_out_shtr)
+
+		|-------------------------------------|
+			16 - Modal Size For Box Banners
+		|-------------------------------------|
+		You can change size of modal box by changing a class name ( bs4_size_banner_box_lg ) with the following :
+		(bs4_size_banner_box_sm)
+
+		For More Detail Read The Documentation
+
+	-->
+
+	<!--
+	In this example we have used a link to Trigger the Modal.
+	You can also use images, links, buttons etc to Trigger the Modal.
+	-->
+
+	<!-- Trigger Part Start -->
+	<a data-modal-id="bs4_banner_box_lg" href="#" class="bs4_modal_trigger" data-toggle="modal">Trigger</a>
+	<!-- Trigger Part End -->
+
+	<!-- Modal Part Start -->
+	<div id="bs4_banner_box_lg" class="modal fade bs4_modal bs4_blue bs4_bg_black bs4_bd_black bs4_bd_semi_trnsp bs4_none_radius bs4_shadow_none bs4_center bs4_animate bs4ZoomIn bs4_duration_md bs4_easeOutQuint bs4_size_banner_box_lg" role="dialog" data-modal-backdrop="true" data-show-on="click" data-modal-delay="false" data-modal-duration="false">
+
+		<!-- Modal Dialog -->
+		<div class="modal-dialog">
+			<!-- Modal Content -->
+			<div class="modal-content">
+
+				<!-- Close Button -->
+				<a href="#" class="bs4_btn_x_out_shtr bs4_bnr_close bs4_bnr_cl_btn" data-dismiss="modal">
+					<span class="fas fa-times"></span>
+				</a>
+
+					<!-- Large Banner Content -->
+					<div class="bs4_bnr_content">
+						<div class="bs4_bnr_img bs4_bnr_box_lg_img">
+							<img src="modal/images/bs4_banner_box_lg_01.jpg" alt="bs4_banner_box_lg_01">
+						</div>
+						<div class="bs4_bnr_txt bs4_bnr_box_lg_txt">
+							<img src="modal/images/company_logo.png" alt="company_logo">
+							<h1>1 main title of the banner</h1>
+							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam nibh.</p>
+							<a href="#" class="bs4_btn_x_out_shtr bs4_bnr_btn">learn more</a>
+							<span>www.envato.com</span>
+						</div>
+					</div> <!-- /.bs4_bnr_content -->
+
+			</div> <!-- /Modal content-->
+		</div> <!-- /Modal Dialog-->
+	</div> <!-- .modal -->
+	<!-- Modal Part End -->
+
+	<!-- jQuery -->
+	<script src="modal/js/jquery.js"></script>
+
+	<!-- Bootstrap JS -->
+	<script src="modal/js/bootstrap.min.js"></script>
+
+	<!-- Plugin JS File -->
+	<script src="modal/js/bs4_modal.min.js"></script>
+
+</body>
+
+</html>
+
+ <!-- End -->

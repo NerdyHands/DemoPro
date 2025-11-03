@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lawn Services in Hampton Roads, VA - The Pro Lawn </title>
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16x16.png">
+    <link rel="manifest" href="assets/img/site.webmanifest">
+    <!-- Revolution Slider CSS Files -->
+
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+
+    <link rel="stylesheet" type="text/css" media="screen"
+        href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
+    <!--Icon Font-->
+    <link rel="stylesheet" media="screen" href="assets/fonts/font-awesome/font-awesome.min.css" />
+    <!-- Extras -->
+    <link rel="stylesheet" type="text/css" href="assets/extras/animate.css">
+    <!-- Plugin Style Sheet -->
+    <link href="assets/css/footer.css" rel="stylesheet" media="all">
+    <!-- Page Style Sheet -->
+    <link href="assets/css/mowplans_spring.css" rel="stylesheet" media="all">
+    <!-- jQuery Load -->
+    <script src="assets/js/jquery-min.js"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- Google map's Api -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <link href="assets/css/styles_slider.css" rel="stylesheet">
+
+
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-THVJ8XP2');</script>
+    <!-- End Google Tag Manager -->
+
+
+</head>
+
+<body class="plan_content">
+
+    <!-- included header file -->
+    <div id="header-container"></div>
+    <!-- included header file -->
+
+
+    <div id="initialContent">
+        <!--
+        <section class="questions py-5" style="padding: 0px;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="">
+                            <br>
+                            <div class="form-group" style="margin-bottom: 0px;"></div>
+                            <h3 class="text-center"><b>Spring Flower Bed Care, Bush Trimming, and
+                                    Yard Clean-Up!</b>
+                                <h5 class="text-center"><b>Click below to Get a Quote.</b></h5>
+                            </h3>
+                            <div class="heading-area pb-3 text-center">
+                                <div class="container">
+                                    
+                                    <div id="pricegridForShed"></div>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+               
+            </div>
+    </div>
+    </section>
+    </div> -->
+
+
+    <div id="contentToToggle" class="wow fadeInRight" data-wow-offset="10 ">  
+        <div id="nobackground"
+            class=" bs4_bd_semi_trnsp bs4_none_radius bs4_shadow_none bs4_center bs4_animate bs4FadeInLeft bs4_duration_md bs4_easeOutQuint bs4_form_general">
+
+            <!-- Modal Dialog-->
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div style="padding: 1rem 5rem; position: relative; border-radius: 8px;">
+                        <h4 class="text-center" style="padding:1px; color: rgb(236 65 0 / 85%); text-transform: capitalize;">
+                            <b>Please
+                                provide Contact and Property Information</b>
+                        </h4>
+                        <hr>
+                        <form method="post" action="recap-submit.php" id="customerData" name="customerData"
+                            onsubmit="return validateRecaptcha()">
+
+                            <div class="bs4_input_txt">
+                                <label>Your Name</label>
+                                <input type="text" id="CustomerName" name="CustomerName" required required
+                                    maxlength="50" />
+                                <span id="name-error"
+                                    style="color: rgba(235, 144, 110, 0.937); display: none; text-align: center; margin: 0px;">
+                                    Please enter a valid name (letters only)
+                                </span>
+                            </div>
+
+                            <div class="bs4_input_txt">
+                                <label>Email</label>
+                                <input type="email" id="CustomerEmail" name="CustomerEmail" required />
+                                <span id="email-error"
+                                    style="color: rgba(235, 144, 110, 0.937); display: none; text-align: center; margin: 0px;">
+                                    Please enter a valid email address
+                                </span>
+                            </div>
+
+                            <div class="bs4_input_txt">
+                                <label>Phone Number</label>
+                                <input type="text" id="phone" name="phone" required required maxlength="10" />
+                                <span id="phone-error"
+                                    style="color: rgba(235, 144, 110, 0.937); display: none; text-align: center; margin: 0px;">
+                                    Please enter a valid phone number (numbers only 10 digit)
+                                </span>
+                            </div>
+
+                            <div class="bs4_input_txt">
+                                <label for="address"
+                                    title="Start typing your address and select it from the suggestions.">Address</label>
+                                <small id="address-help">
+                                    Please select your address from the suggestions below
+                                </small>
+                                <input type="text" id="address"
+                                    title="Start typing your address and select it from the suggestions."
+                                    placeholder="Start typing to see suggestions..." name="address" autocomplete="on"
+                                    required />
+                                <span id="address-error"
+                                    style="color: rgba(235, 144, 110, 0.937); display: none; text-align: center; margin: 0px;">
+                                    Please select a valid address from the suggestions
+                                </span>
+                            </div>
+
+
+                            <input type="hidden" name="servicePlan" id="servicePlan">
+                            <!-- .........................................................9Mar.................................................................................... -->
+                            <input type="hidden" name="serviceDay" id="serviceDay">
+                            <input type="hidden" id="zipcode" name="zipcode">
+                            <input type="hidden" id="city" name="city">
+                            <!-- .........................................................9Mar.................................................................................... -->
+                            <input type="hidden" id="productCode" name="productCode">
+
+                            <!-- Newly added hidden input field for price -->
+                            <input type="hidden" id="price" name="price">
+                            <input type="hidden" id="cutFreq" name="cutFreq">
+                            <input type="hidden" id="priceStripe" name="priceStripe">
+
+                            <!-- ................................................................Newly added code sir👇  ............................................................................................ -->
+                            <input type="hidden" id="Property type" name="Property type">
+                            <input type="hidden" id="Yard size" name="Yard size">
+                            <input type="hidden" id="propertyType" name="propertyType">
+                            <!-- ................................................................New code Newly added code sir☝️............................................................................................ -->
+
+                            <div class="g-recaptcha d-flex justify-content-center align-items-center mt_30"
+                                data-sitekey="6LdhTXYpAAAAAMIWVMUUGsgt7aD0uhkxzCOYgizy">
+                            </div>
+
+                            <br />
+                            <div class="bs4_form_submit">
+                                <div style="display: flex; justify-content: center;">
+                                    <button id="nextButton2" type="submit" onclick="ShedRemoval_button()" disabled
+                                        class="nxt_btn bs4_btn_x_out_shtr btn customButton large"
+                                        style="text-align: center; width: 50%; transition: background-color 0.3s ease 0s, color 0.3s ease 0s, border-color 0.3s ease 0s; border-radius: 5px; font-weight: bold;  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px; background-color: rgb(236 65 0)!important; color: #ffffff; border: none; padding: 10px; margin: 10px; font-size: 18px; line-height: 1.33;"
+                                        onmouseover="this.style.color='#000000';"
+                                        onmouseout="this.style.color='#ffffff';">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <button type="button" id="backButton"
+                            style="position: absolute; width: 3rem; top: 0; left: 0; background-color: transparent; border: none;"
+                            onclick="window.location.href='http://mrdemopro.com/services.html';">
+                            <i class="fa fa-arrow-left" aria-hidden="true"
+                                style="color: #ff7f27; font-size: 24px; padding-top: 20px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        let placeSelected = false; // Global variable to track address selection
+
+        function validateForm() {
+            // Initialize all input elements and error spans
+            const nameInput = document.getElementById('CustomerName');
+            const emailInput = document.getElementById('CustomerEmail');
+            const phoneInput = document.getElementById('phone');
+            const nameError = document.getElementById('name-error');
+            const emailError = document.getElementById('email-error');
+            const phoneError = document.getElementById('phone-error');
+            let isValid = true;
+
+            // Validate Name
+            const nameValue = nameInput.value.trim();
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!nameRegex.test(nameValue) || nameValue === '') {
+                nameError.style.display = 'block';
+                isValid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            // Validate Email
+            const emailValue = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailValue)) {
+                emailError.style.display = 'block';
+                isValid = false;
+            } else {
+                emailError.style.display = 'none';
+            }
+
+            // Validate Phone Number
+            const phoneValue = phoneInput.value.trim();
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phoneValue)) {
+                phoneError.style.display = 'block';
+                isValid = false;
+            } else {
+                phoneError.style.display = 'none';
+            }
+
+            return isValid;
+        }
+
+        // Event listeners for real-time validation
+        document.getElementById('CustomerName').addEventListener('input', function () {
+            const nameError = document.getElementById('name-error');
+            const nameValue = this.value.trim();
+            const nameRegex = /^[A-Za-z\s]+$/;
+            nameError.style.display = nameRegex.test(nameValue) && nameValue !== '' ? 'none' : 'block';
+            checkFormValidity();
+        });
+
+        document.getElementById('CustomerEmail').addEventListener('input', function () {
+            const emailError = document.getElementById('email-error');
+            const emailValue = this.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            emailError.style.display = emailRegex.test(emailValue) ? 'none' : 'block';
+            checkFormValidity();
+        });
+
+        document.getElementById('phone').addEventListener('input', function () {
+            const phoneError = document.getElementById('phone-error');
+            const phoneValue = this.value.trim();
+            const phoneRegex = /^[0-9]{10}$/;
+            phoneError.style.display = phoneRegex.test(phoneValue) ? 'none' : 'block';
+            checkFormValidity();
+        });
+
+        function initAutocomplete() {
+            const input = document.getElementById('address');
+            const addressError = document.getElementById('address-error');
+            const autocomplete = new google.maps.places.Autocomplete(input);
+
+            autocomplete.addListener('place_changed', function () {
+                const place = autocomplete.getPlace();
+                if (place.geometry) {
+                    placeSelected = true;
+                    addressError.style.display = 'none';
+                    const zipCode = extractComponent(place, 'postal_code');
+                    const city = extractComponent(place, 'locality');
+                    // console.log('ZipCode: ' + zipCode + 'City: ' + city);
+                    document.getElementById('zipcode').value = zipCode;
+                    document.getElementById('city').value = city;
+                    updateServiceDay(city);
+                } else {
+                    placeSelected = false;
+                    addressError.style.display = 'block';
+                    clearAddressFields();
+                }
+                checkFormValidity();
+            });
+
+            input.addEventListener('input', function () {
+                placeSelected = false;
+                addressError.style.display = 'none';
+                checkFormValidity();
+            });
+
+            input.addEventListener('blur', function () {
+                if (!placeSelected && input.value.trim() !== '') {
+                    addressError.style.display = 'block';
+                    clearAddressFields();
+                } else {
+                    addressError.style.display = 'none';
+                }
+            });
+
+            input.addEventListener('focus', function () {
+                addressError.style.display = 'none';
+            });
+
+            document.forms['customerData'].addEventListener('submit', function (event) {
+                if (!placeSelected) {
+                    event.preventDefault();
+                    addressError.style.display = 'block';
+                }
+            });
+        }
+
+        function extractComponent(place, component) {
+            const addressComponents = place.address_components;
+            for (let i = 0; i < addressComponents.length; i++) {
+                if (addressComponents[i].types.includes(component)) {
+                    return addressComponents[i].long_name;
+                }
+            }
+            return '';
+        }
+
+        function clearAddressFields() {
+            document.getElementById('address').value = '';
+            document.getElementById('zipcode').value = '';
+            document.getElementById('city').value = '';
+        }
+
+        function updateServiceDay(city) {
+            let serviceDay = "Out of service area";
+            switch (city) {
+                case 'Hampton':
+                    serviceDay = "Thu";
+                    break;
+                case 'Newport News':
+                    serviceDay = "Fri";
+                    break;
+                case 'Norfolk':
+                    serviceDay = "Mon";
+                    break;
+                default:
+                    break;
+            }
+            document.getElementById("serviceDay").value = serviceDay;
+
+            let serviceDayText = serviceDay;
+            switch (serviceDay) {
+                case 'Mon':
+                    serviceDayText = "Mon or Tue";
+                    break;
+                case 'Tues':
+                    serviceDayText = "Tue or Wed";
+                    break;
+                case 'Wed':
+                    serviceDayText = "Wed or Thu";
+                    break;
+                case 'Thu':
+                    serviceDayText = "Thu or Fri";
+                    break;
+                case 'Fri':
+                    serviceDayText = "Fri or Sat";
+                    break;
+                case 'Sat':
+                    serviceDayText = "Sat or Sun";
+                    break;
+                case 'Sun':
+                    serviceDayText = "Sun or Mon";
+                    break;
+            }
+
+            document.querySelectorAll(".serviceDayHtmlVar").forEach(el => el.innerHTML = serviceDayText);
+        }
+
+        document.addEventListener('DOMContentLoaded', initAutocomplete);
+
+        function validateRecaptcha() {
+            var response = grecaptcha.getResponse();
+            if (response.length === 0) {
+                alert('Please complete the reCAPTCHA validation.🤖');
+                return false;
+            }
+            return true;
+        }
+
+        window.onload = function () {
+            document.getElementById('nextButton2').disabled = true;
+        };
+
+        function checkFormValidity() {
+            var name = document.getElementById('CustomerName').value.trim();
+            var email = document.getElementById('CustomerEmail').value.trim();
+            var phone = document.getElementById('phone').value.trim();
+            var address = document.getElementById('address').value.trim();
+            var nextButton = document.getElementById('nextButton2');
+
+            if (name !== '' && email !== '' && phone !== '' && address !== '' && placeSelected) {
+                nextButton.disabled = false;
+                showClosing();
+            } else {
+                nextButton.disabled = true;
+            }
+        }
+
+        ['CustomerName', 'CustomerEmail', 'phone', 'address'].forEach(function (id) {
+            document.getElementById(id).addEventListener('input', checkFormValidity);
+        });
+
+    </script>
+
+
+
+    <div id="contentToToggle2" class="hidden">
+        <div id="nobackground" class=" nobackground ">
+
+            <!-- Modal Dialog-->
+            <div class="modal-dialog  wow fadeInRight " data-wow-offset="10">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div style="position: relative;">
+
+
+                        <div id="final-intro" class="pricing-table">
+
+                            <section class="Geolocation">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <p id="demo" class="mt-5"><strong></strong></p>
+                                    </div>
+                                </div>
+                            </section>
+                            <h3
+                                style="text-align: center; font-weight: bolder; color: rgb(236 65 0 / 85%); margin-top: 0px; margin-bottom: 10px; padding-left: 30px;">
+                                <!-- <strong>Is this the right address?</strong> -->
+                                <small id="address-help" style="display: block; color: rgb(236 65 0 / 85%); font-weight: bolder;">
+                                    If the address is correct, please switch on.
+                                </small>
+                            </h3>
+
+                            <!-- .........................................................9Mar.................................................................................... -->
+                            <!-- <iframe id="iframeCustomerAdd" src=""></iframe> -->
+                            <div class="iframe-container">
+                                <iframe id="iframeCustomerAdd" src="" style="width: 100%; height: 100%;"></iframe>
+                            </div>
+
+                            <!-- <p id="displayHTMLCall"></p> -->
+
+
+                            <!-- .........................................................9Mar.................................................................................... -->
+                            <section id="key-features" style="display: flex; justify-content: center;">
+                                <div class="container text-center my-10 styled-container">
+                                    <div class="flex-center">
+                                        <span id="notMyLawnText" class="approve-decline-text mr-2"
+                                            style="display: none;">Not My Property</span>
+                                        <div class="switch_yesNo mt-5">
+                                            <label class="switch--box">
+                                                <input type="checkbox" id="switch_checkbox" onclick="showClosing()">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </div>
+                                        <div class="switch-color"></div>
+                                        <span id="thatIsMyLawnText" class="approve-decline-text ml-2">That
+                                            is My
+                                            Property</span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- .......................................................................new code 14Mar ......................................................................................................-->
+                            <script>
+                                function toggleTextVisibility() {
+                                    var yardSizeInput = document.getElementById("Yard size");
+                                    var yardSize = yardSizeInput.value;
+                                    // Get the selected service plan
+                                    var servicePlan = document.getElementById("servicePlan").value;
+                                    // Get the service area status
+                                    var zipCode = document.getElementById("zipcode").value;
+                                    var propertyType = document.getElementById("Property type").value;
+
+                                    var serviceDay = document.getElementById("serviceDay").value; // Retrieve service day value
+                                    //var consoleData = "";
+
+                                    var consoleData = "Service plan: " + servicePlan + " zipCode type: " + zipCode;
+                                    // console.log(consoleData);
+
+                                }
+                            </script>
+
+
+
+                            <br>
+                            <div class="servicesPrices">
+
+
+                                <!-- .......................................................................new code 14Mar ......................................................................................................-->
+
+
+
+                            
+                                <div id="ShedRemovalServices-close" class="pricing-table pricing-section">
+                                    <p> Thank you for your information. A team member will reach out shortly to discuss our pricing and exact availability. </p>
+
+                                    <!--
+                                    <p><span> Your initial service day will be <span
+                                                class="serviceDayHtmlVar"></span>.</span></p>
+                                    -->            
+                                    
+                                    <p>If you have any special request please text us at 757-848-4131.
+                                    </p>
+                                   
+                                    Thank You for choosing
+
+                                    <!--
+                                    <button
+                                        class="Button PriceColumn-button Button--primary Button--lg borderRadius_sm mx-auto buy_button"
+                                        type="button" onclick="LeafCleanUpServicesBuy_button()">
+                                        <div class="flex-container justify-content-center align-items-center">
+                                            <span
+                                                class="Text Text-color--default Text-fontWeight--500 Text--truncate">Buy</span>
+                                        </div>
+                                    </button>
+                                    -->
+                                </div>
+
+
+
+
+                                <!-- outArea-close -->
+                                <div id="outArea-close" class="pricing-table">
+                                    <p> Thank you for considering Mr Demo Pro. We appreciate
+                                        the opportunity to provide you with a quote.
+                                        <br>
+                                        <span>You may be outside of our current service area.</span>
+                                        If this is an error, a team member will reach out shortly. Sorry any inconvenience this may cause.
+                                    </p>
+                                </div>
+                            </div>
+
+
+                            <!-- ................................................................Newly added code sir👇  ............................................................................................ -->
+
+
+                            <script>
+
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    // Get all radio buttons
+                                    var radioButtons = document.querySelectorAll('input[name="lawn"]');
+
+                                    // Add event listener to each radio button
+                                    radioButtons.forEach(function (radioButton) {
+                                        radioButton.addEventListener('change', function (event) {
+                                            // Get the selected radio button and its label text
+                                            var selectedRadio = event.target.value;
+                                            var selectedLabel = event.target.parentNode.querySelector('span.d-block').textContent.trim();
+
+                                            // Set the values of the hidden input fields
+                                            document.getElementById("Property type").value = selectedLabel;
+                                            document.getElementById("Yard size").value = selectedRadio;
+                                            // Log the selected lawn size and label
+                                            // console.log('Selected lawn size:', selectedLabel, '(', selectedRadio, ')');
+                                        });
+                                    });
+                                });
+
+                            </script>
+
+
+                            <script>
+
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    // Get all radio buttons for property type
+                                    var propertyTypeRadioButtons = document.querySelectorAll('input[name="lawn"]');
+
+                                    // Add event listener to any of the radio buttons for property type
+                                    propertyTypeRadioButtons.forEach(function (propertyTypeRadioButton) {
+                                        propertyTypeRadioButton.addEventListener('change', function (event) {
+                                            // Get the selected property type
+                                            var selectedPropertyType = event.target.value;
+
+                                            // Check if the selected property type is either "Residential" or "Commercial"
+                                            if (selectedPropertyType === "residential" || selectedPropertyType === "commercial") {
+                                                // Set the value of the hidden input field for property type
+                                                document.getElementById("propertyType").value = selectedPropertyType;
+
+                                                // Log the selected property type
+                                                // console.log('Selected property type:', selectedPropertyType);
+                                            }
+                                        });
+                                    });
+                                });
+
+                            </script>
+
+
+                            <!-- ................................................................New code Newly added code sir☝️............................................................................................ -->
+
+
+                            <script>
+                                function showClosing() {
+                                    var cusType = document.getElementById("servicePlan").value;
+                                    // console.log('Selected service plan:', cusType);
+                                    var dayOfService = document.getElementById("serviceDay").value;
+                                    // console.log('Day of Service:', dayOfService);
+                                    var zipCode = document.getElementById("zipcode").value;
+                                    // console.log("Zip Code:", zipCode);
+
+                                    // List of element IDs to hide
+                                    const idsToHide = [
+                                        'ShedRemovalServices-close', 'outArea-close'
+                                    ];
+
+                                    // Hide all elements initially
+                                    idsToHide.forEach(id => {
+                                        const element = document.getElementById(id);
+                                        if (element) {
+                                            element.style.display = 'none';
+                                        }
+                                    });
+
+                                    // Show 'outArea-close' if the day of service is out of area
+                                    if (dayOfService === "Out of service area" || dayOfService === "") {
+                                        document.getElementById('outArea-close').style.display = 'block';
+                                    } else {
+                                        // Show the element corresponding to the selected service plan
+                                        if (cusType === 'ShedRemovalServices') {
+                                            document.getElementById('ShedRemovalServices-close').style.display = 'block';
+                                        } else {
+                                            // console.error('Invalid cusType:', cusType);
+                                        }
+                                    }
+                                }
+
+                                window.onload = function () {
+                                    checkFormValidity();
+                                };
+                            </script>
+
+
+
+
+
+                            <button type="button" id="backButton2" class="nxt_btnPosition" id="nextButton4"
+                                style="position: absolute; width: 3rem; top: 0; left: 0;background-color: transparent;">
+                                <i class="fa fa-arrow-left" aria-hidden="true"
+                                    style="color: #ff7f27;font-size: 24px;"></i>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal content -->
+    <!-- /Modal Dialog-->
+    <!-- </div> .modal -->
+    <!-- </div> -->
+    <!-- Modal Part End -->
+    <!-- .........................................................footer 9Mar.................................................................................... -->
+
+    <footer>
+
+        <!-- included footer file -->
+        <div id="footer-container"></div>
+
+    </footer>
+
+    <!-- .........................................................9Mar old.................................................................................... -->
+
+
+    <!--model end-->
+    <!-- Bootstrap JS -->
+    <script src="assets/js/bootstrap.js"></script>
+    <!-- WOW JS plugin for animation -->
+    <script src="assets/js/wow.js"></script>
+    <!-- All JS plugin Triggers -->
+    <script src="assets/js/main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src='assets/js/includeHeader_Footer.js'></script>
+    <script src='assets/js/includePriceGrids.js'></script>
+
+    <!-- JavaScript for toggle -->
+    <!-- Load the Places Autocomplete after the page has finished loading -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-9QLyaP8o2jyCF-X-soc2J5EjVdCDcLw&libraries=places&callback=initAutocomplete"
+        type="text/javascript"></script>
+
+    <!-- .........................................................9Mar.................................................................................... -->
+    <!-- JavaScript to toggle visibility of pricing columns -->
+
+    <script>
+
+
+        function ShedRemoval_button() {
+            var productCode = "ShedRemovalServices";
+            var priceStripe = "";
+            // console.log(productCode);
+
+            // Set the value of the propertyType field to the productCode
+            var propertyType = productCode;
+
+
+            // var yardSizeInput = document.getElementById("Yard size");
+            // var yardSize = yardSizeInput.value;
+
+            var price = "";
+            var cutFreq = 0;
+
+            // console.log("yardSize", yardSize);
+
+            switch (productCode) {
+                case "ShedRemovalServices":
+                    price = "85";
+                    priceStripe = "ShedRemovalServices";
+                    // console.log("priceStripe", priceStripe);
+                    break;
+                default:
+                    // console.log("Bad yard size");
+                    break;
+            }
+            // console.log("Setting values - price:", price, "cutFreq:", cutFreq, "servicePlan:", productCode, "priceStripe:", priceStripe);
+            // Set the values of hidden input fields for price and cutFreq
+            document.getElementById("price").value = price;
+            document.getElementById("cutFreq").value = cutFreq;
+            document.getElementById("servicePlan").value = productCode;
+            document.getElementById("productCode").value = productCode;
+            document.getElementById("priceStripe").value = priceStripe;
+            document.getElementById("propertyType").value = propertyType;
+            // console.log("propertyType (transferred):", propertyType);
+
+            // showPricingtable();
+            nextPage();
+        }
+
+
+
+
+        function nextPage() {
+            var initialContent = document.getElementById("initialContent");
+            var contentToToggle = document.getElementById("contentToToggle");
+
+            if (contentToToggle.classList.contains("hidden")) {
+                initialContent.classList.add("hidden");
+                contentToToggle.classList.remove("hidden");
+            } else {
+                initialContent.classList.remove("hidden");
+                contentToToggle.classList.add("hidden");
+            }
+
+            // Hide the button with the ID corresponding to the productCode value
+            // document.getElementById(productCode).style.display = "none";
+        }
+
+
+    </script>
+
+
+    <script>
+
+
+        var addressValue;
+
+        document.getElementById("nextButton2").addEventListener("click", function () {
+            // Toggle the display of the content
+            var initialContent = document.getElementById("contentToToggle");
+            var contentToToggle = document.getElementById("contentToToggle2");
+            if (contentToToggle.classList.contains("hidden")) {
+                initialContent.classList.add("hidden");
+                contentToToggle.classList.remove("hidden");
+            } else {
+                initialContent.classList.remove("hidden");
+                contentToToggle.classList.add("hidden");
+            }
+
+            // var iframe = document.getElementById("iframeCustomerAdd");
+            // iframe.src = `cusAdd.html?address=${addressValue}`;
+            // <!-- .......................................................................Newly added code sir👇 for map 10Mar.............................................................................................. -->
+            var addressValue = document.getElementById("address").value;
+            // console.log("Address Value:", addressValue); // Log the address value
+            var iframe = document.getElementById("iframeCustomerAdd");
+            iframe.src = "cusAdd1.html?address=" + encodeURIComponent(addressValue);
+            // <!-- .......................................................................Newly added code sir👇 for map 10Mar.............................................................................................. -->
+            // document.getElementById("nextButton2").style.display = "none";
+        });
+
+
+        document.getElementById("backButton2").addEventListener("click", function () {
+            // Toggle the display of the content
+            var initialContent = document.getElementById("contentToToggle2");
+            var contentToToggle = document.getElementById("contentToToggle");
+            if (contentToToggle.classList.contains("hidden")) {
+                initialContent.classList.add("hidden");
+                contentToToggle.classList.remove("hidden");
+            } else {
+                initialContent.classList.remove("hidden");
+                contentToToggle.classList.add("hidden");
+            }
+        });
+
+    </script>
+
+
+
+    <script>
+
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxvh8H-fn8SqWvaYdIMK0abANXe0kAYJgPMIpbhUvJkYlllROWMuMi1P_Mk-liKrdHy/exec'
+
+
+        const form = document.forms['customerData']
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            formChanged();
+
+
+            // document.getElementById("nextButton2").innerText = "Analyzing...";
+            fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+                .then(response => {
+                    // Reset button text to "Next" after successful submission
+                    document.getElementById("nextButton2").innerText = "Next";
+
+
+                })
+                .catch(error => {
+                    alert('Error!', error.message)
+                    document.getElementById("nextButton2").innerText = "Next";
+                })
+
+        })
+
+        function formChanged() {
+            initAutocomplete();
+        }
+
+        document.getElementById("serviceDay").value = serviceDay;
+        document.querySelectorAll("serviceDayHtmlVar").innerHTML = serviceDay;
+
+        // Get other form data
+        var formData = new FormData();
+        formData.append('customerName', document.getElementById("CustomerName").value);
+        formData.append('customerEmail', document.getElementById("CustomerEmail").value);
+        formData.append('phone', document.getElementById("phone").value);
+        formData.append('address', document.getElementById("address").value);
+        formData.append('servicePlan', document.getElementById("servicePlan").textContent);
+        formData.append('productCode', document.getElementById("productCode").value);
+        formData.append('selectedLabel', document.getElementById("Property type").value);
+        formData.append('selectedRadio', document.getElementById("Yard size").value);
+        formData.append('selectedPropertyType', document.getElementById("propertyType").value);
+
+        // console.log(formData);
+
+        // Listen for place changed event
+        autocomplete.addListener('place_changed', handlePlaceChange);
+
+        // Listen for input event to handle place change when user finishes typing
+        input.addEventListener('input', handlePlaceChange);
+
+    </script>
+
+
+
+    <script>
+        var myCheckbox = document.getElementById('switch_checkbox');
+        var servicesPricesDiv = document.querySelector('.servicesPrices');
+
+        myCheckbox.addEventListener('change', function () {
+            servicesPricesDiv.style.display = this.checked ? 'block' : 'none';
+        });
+    </script>
+
+    <script src="assets/js/main.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            // Initially check if the radio button is checked on page load
+            if ($("#residentialLawn").prop("checked")) {
+                // Show the residentialOptions
+                $(".residentialOptions").show();
+            } else if ($("#commercialLawn").prop("checked")) {
+                // Show the commercialOptions
+                $(".commercialOptions").show();
+            }
+
+            $("#residentialLawn, #commercialLawn").change(function () {
+                // Check if the residentialLawn radio button is checked
+                if ($("#residentialLawn").prop("checked")) {
+
+                    $(".residentialOptions").show();
+                    $(".commercialOptions").hide();
+                } else if ($("#commercialLawn").prop("checked")) {
+                    // Hide the residentialOptions and show commercialOptions
+                    $(".residentialOptions").hide();
+                    $(".commercialOptions").show();
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            // Initially hide all price grids
+            $("#pricegrid1, #pricegrid2, #pricegrid3, #pricegrid4").hide();
+
+            // Event listener for radio buttons
+            $("input[name='lawn']").change(function () {
+                // Hide all price grids
+                $("#pricegrid1, #pricegrid2, #pricegrid3, #pricegrid4").hide();
+
+                // Show the corresponding price grid based on the selected radio button
+                switch ($(this).val()) {
+                    case 'small':
+                        $("#pricegrid1").show();
+                        break;
+                    case 'medium':
+                        $("#pricegrid2").show();
+                        break;
+                    case 'large':
+                        $("#pricegrid3").show();
+                        break;
+                    case 'XL':
+                        $("#pricegrid4").show();
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
+    </script>
+
+
+
+    <script>
+
+        function ShedRemoval_Buy_button() {
+            var priceStripe = document.getElementById("priceStripe");
+            var priceStripeValue = priceStripe.value;
+            var selectedLink = "";
+
+            switch (priceStripeValue) {
+                case "":
+                    // console.log("SpringServicesBuy button");
+                    selectedLink = 'https://buy.stripe.com/28oaIx111gkJgp29AR';
+                    window.open(selectedLink, '_blank');
+                    break;
+                default:
+                    console.log("Bad stripe price");
+                    break;
+            }
+        }
+
+    </script>
+
+
+
+    <script src="assets/js/navScroll.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1M6ZYJ1GXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag("js", new Date());
+
+        gtag("config", "G-1M6ZYJ1GXX");
+    </script>
+
+</body>
+
+</html>

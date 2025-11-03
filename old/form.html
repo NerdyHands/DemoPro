@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lawn Services in Hampton Roads, VA - The Pro Lawn </title>
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16x16.png">
+    <link rel="manifest" href="assets/img/site.webmanifest">
+    <!-- Revolution Slider CSS Files -->
+    <link rel="stylesheet" href="landing-3/css/navigation.css">
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+
+    <link rel="stylesheet" type="text/css" media="screen"
+        href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
+    <!--Icon Font-->
+    <link rel="stylesheet" media="screen" href="assets/fonts/font-awesome/font-awesome.min.css" />
+    <!-- Extras -->
+    <link rel="stylesheet" type="text/css" href="assets/extras/animate.css">
+    <!-- jQuery Load -->
+    <script src="assets/js/jquery-min.js"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+
+    <style>
+        .d-none{
+            display: none;
+        }
+        .form_snippet-form {
+            background-color: #ffffff !important;
+            font-family: sans-serif !important;
+            padding: 16px 10px 10px !important;
+            margin: 0 auto !important;
+            width: 320px !important;
+            height: auto;
+            overflow-y: auto;
+            border: 1px solid #dddddd;
+            border-radius: 10px;
+        }
+
+        .form_snippet-title {
+            display: block;
+            color: #555555 !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.1px !important;
+            font-size: 18px !important;
+            font-family: sans-serif !important;
+            border-bottom: 1px solid black;
+            padding-bottom: 5px;
+            margin-bottom: 16px;
+        }
+
+        .form_snippet-group {
+            display: block;
+            font-size: 18px;
+            font-family: sans-serif;
+            color: #555555;
+            font-weight: 600;
+            letter-spacing: 0.1px;
+        }
+
+        .form_personal-details-asteric-id {
+            display: none;
+        }
+
+        .form_color_red {
+            color: red;
+        }
+
+        .form_snippet-row-input {
+            background-color: #ffffff !important;
+            outline: none !important;
+            border: 1px solid #999999 !important;
+            border-radius: unset !important;
+            padding: 10px 8px !important;
+            color: #555555 !important;
+            width: 100% !important;
+            font-size: 18px;
+            color: #555555;
+        }
+
+        #address-details-id{
+            display: block; color: #555555; font-weight: 600; letter-spacing: 0.1px;
+                              font-size: 18px; font-family: sans-serif;
+        }
+
+        #snippet-address{
+            background-color: #ffffff; outline: none; border: 1px solid #999999; border-radius: unset;
+                                  padding: 10px 8px; font-family: sans-serif; font-size: 18px; color: #555555; width: 100% !important;
+                                  border-radius: 2px; box-sizing: border-box;
+        }
+
+        #address-details-id{
+            display: block; color: #555555; font-weight: 600; letter-spacing: 0.1px;
+                              font-size: 18px; font-family: sans-serif;
+        }
+
+        #snippet-phone{
+            background-color: #ffffff; outline: none; border: 1px solid #999999; border-radius: unset;
+                                  padding: 10px 8px; font-family: sans-serif; font-size: 18px; color: #555555; width: 100% !important;
+                                  border-radius: 2px; box-sizing: border-box;
+        }
+
+        #snippet-button{
+            outline: none; color: #ffffff; background-color: #009e0f;
+                              border: 1px solid #999; padding: 5px 10px; border-radius: 5px; font-size: 16px; font-weight: 600;
+                              font-family: sans-serif; display: unset; width: 100%
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+
+    <section class="container">
+
+        <form id="snippet-form" class="snippet-form-align-left plugin-form form_snippet-form" method="post"
+            autocomplete="off" name="google-sheet" action="">
+
+            <!-- Header -->
+            <p id="snippet-title" class="form_snippet-title">Get an instant online estimate</p>
+
+            <!-- client -->
+            <div class="snippet-group" style="display: block;">
+                <p class="form_snippet-group" id="personal-details-id">
+                    Personal Details: <small id="personal-details-asteric-id" class="form_personal-details-asteric-id">
+                        <sup class="form_color_red">*</sup>
+                    </small>
+                </p>
+
+                <div class="snippet-row" style="display: flex;">
+                    <label for="snippet-full-name" style="display: block;">
+                        <input class="form_snippet-row-input" type="text" id="snippet-full-name" name="name"
+                            placeholder="Full Name" autocomplete="on" required />
+                        <small id="form-name-error-text-id" class="snippet-error" style="color: red; display: none;">
+                            Required
+                        </small>
+                    </label>
+
+                    <label for="snippet-email" style="display: block;">
+                        <input type="text" id="snippet-email" class="form_snippet-row-input" name="email" placeholder="Email" autocomplete="on"
+                            required  />
+
+                    </label>
+                </div>
+            </div>
+
+            <p id="address-details-id">Address Details:
+                <small>
+                    <sup class="form_color_red">*</sup>
+                </small></p>
+            <input id="snippet-address" type="text" name="address" placeholder="Address" autocomplete="off" class=""  required
+                  />
+            <small id="form-address-error-text-id" class="snippet-error" class="form_color_red d-none">
+                Required
+            </small>
+
+            <p  id="address-details-id">Phone Number:
+                <small>
+                    <sup class="form_color_red d-none">*</sup>
+                </small></p>
+            <input id="snippet-phone" type="text" name="address" placeholder="Phone Number" required autocomplete="off"
+                />
+            <small id="form-phone-error-text-id" class="snippet-error" class="form_color_red d-none">
+                Required
+            </small>
+
+            <button id="snippet-button" type="submit">Send Quote</button>
+
+        </form>
+
+    </section>
+
+    <script src="assets/js/bootstrap.js"></script>
+    <!-- WOW JS plugin for animation -->
+    <script src="assets/js/wow.js"></script>
+    <!-- All JS plugin Triggers -->
+    <script src="assets/js/main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src='assets/js/includeHeader_Footer.js'></script>
+
+</body>
+
+</html>

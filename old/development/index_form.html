@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lawn Services in Hampton Roads, VA - The Pro Lawn </title>
+  <!-- Favicon -->
+    <link rel="icon" href="landing-3/images/favicon.png">
+    <!-- Bundle -->
+   <link rel="stylesheet" href="vendor/css/bundle.min.css">
+  <!-- Revolution Slider CSS Files -->
+  <link rel="stylesheet" href="landing-3/css/navigation.css">
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+  <link rel="stylesheet" href="landing-3/css/settings.css">
+  <!-- Style Sheet -->
+  <link rel="stylesheet" href="landing-3/css/style.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css">
+  <!-- Bootstrap -->
+  <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+  <!-- Main Style -->
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+  <!-- Responsive Style -->
+  <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
+  <!--Icon Font-->
+  <link rel="stylesheet" media="screen" href="assets/fonts/font-awesome/font-awesome.min.css" />
+  <!-- Extras -->
+  <link rel="stylesheet" type="text/css" href="assets/extras/animate.css">
+  <!-- Google map's Api -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeJIf1JlDn4tI8EJHVOPJ8m86QV-4TSGQ&libraries=places"></script>
+  <!-- jQuery Load -->
+  <script src="assets/js/jquery-min.js"></script>
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <style>
+        .pac-container {
+            z-index: 10000 !important;
+        }
+        /* The Modal (background) */
+.modalPopUp {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-popup {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#ModalScollable{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#snippet-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#snippet-form,
+        #snippet-form:after,
+        #snippet-form:before,
+        #snippet-form *,
+        #snippet-form *:before,
+        #snippet-form *:after{
+          box-sizing: border-box;
+        }
+
+        #snippet-form p{
+          margin: 0 0 10px;
+        }
+
+        .snippet-row{
+            display: flex;
+            margin-left: -3px;
+            margin-right: -3px;
+        }
+
+        .snippet-row > *{
+            flex: 1;
+            padding-left: 3px;
+            padding-right: 3px;
+        }
+
+        #snippet-form input[type="text"],
+        #snippet-form input[type="email"],
+        #snippet-form input[type="number"]{
+            display: inline-block;
+            margin-bottom: 16px;
+            text-align: inherit;
+        }
+
+        #snippet-form ::placeholder{
+            color: currentColor !important;
+            opacity: 0.7;
+        }
+        
+        .snippet-error{
+            position: relative;
+            top: -12px;
+        }
+
+  </style>
+</head>
+
+<body>
+
+      <!-- Modal Body (Form Container) -->
+      <div class="modal-body">
+        <div id="formContainer"></div>
+        <script src="form.js"></script>
+      </div>
+      <!-- You can add footer content here if needed -->
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+  <br>
+  <br>
+
+<br>
+<br>
+
+
+  <!-- Bootstrap JS -->
+  <script src="assets/js/bootstrap.js"></script>
+  <!-- WOW JS plugin for animation -->
+  <script src="assets/js/wow.js"></script>
+  <!-- All JS plugin Triggers -->
+  <script src="assets/js/main.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<!-- <-- Google Maps api Script --> 
+<script>
+        // Initialize the Google Places Autocomplete service
+        function initAutocomplete() {
+            var input = document.getElementById('address');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+
+            autocomplete.addListener('place_changed', function() {
+                var place = autocomplete.getPlace();
+
+                if (!place.geometry) {
+                    window.alert("Autocomplete's returned place contains no geometry");
+                    return;
+                }
+                
+                console.log(place); // You can use the place object as needed
+            });
+        }
+    </script>
+
+    <!-- Load the Places Autocomplete after the page has finished loading -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeJIf1JlDn4tI8EJHVOPJ8m86QV-4TSGQ&libraries=places&callback=initAutocomplete" type="text/javascript"></script>
+
+    <script>
+            // Get the modal
+      var modal = document.getElementById("myPopUp");
+
+      // Get the button that opens the modal
+      var btn = document.getElementById("myBtn");
+
+      // Get the <span> element that closes the modal
+      var span = document.getElementsByClassName("close")[0];
+
+      // When the user clicks on the button, open the modal
+      btn.onclick = function() {
+        modal.style.display = "block";
+      }
+
+      // When the user clicks on <span> (x), close the modal
+      span.onclick = function() {
+        modal.style.display = "none";
+      }
+
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+
+    </script>
+
+</body>
+</html>
+

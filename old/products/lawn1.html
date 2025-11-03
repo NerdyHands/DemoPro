@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+	
+<html>
+	<head>
+
+		<!-- Meta -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- Title -->
+		<title>Portfolio Modal Popup</title>
+
+		<!-- Short-Cut Icon -->
+		<link rel="shortcut icon" href="#" />
+
+		<!-- Google Web Fonts -->
+		<link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600,700,900' rel='stylesheet' type='text/css'>
+		
+		<!-- Font Awesome -->
+		<link href="modal/fontawesome/webfonts/fontawesome-all.min.css" rel="stylesheet" media="all">
+
+		<!-- Bootstrap Style Sheet -->
+		<link href="modal/css/bootstrap.min.css" rel="stylesheet" media="all">
+
+		<!-- Plugin Style Sheet -->
+		<link href="modal/css/bs4_modal.min.css" rel="stylesheet" media="all">
+
+	</head>
+
+<body>
+
+    <!-- Modal Part End -->
+<div id="product_lawn-container"></div>
+<!-- Container End -->
+
+
+
+<!--  -->
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+    // Get the modal trigger element
+    var modalTrigger = document.querySelector('.bs4_modal_trigger');
+    
+    // Get the modal element
+    var modal = document.getElementById('bs4_prtflo');
+
+    // Get the close button
+    var closeButton = modal.querySelector('.bs4_btn_x_out_shtr');
+
+    // Function to open the modal
+    function openModal(event) {
+        event.preventDefault();
+        modal.style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal(event) {
+        event.preventDefault();
+        modal.style.display = 'none';
+    }
+
+    // Event listeners
+    modalTrigger.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+});
+	</script>
+
+
+
+
+
+	<!-- jQuery -->
+	<script src="modal/js/jquery.js"></script>
+
+
+	<script src="js/products.js"></script>
+
+	<!-- Bootstrap JS -->
+	<script src="modal/js/bootstrap.min.js"></script>
+
+	<!-- Plugin JS File -->
+	<script src="modal/js/bs4_modal.min.js"></script>
+
+</body>
+
+</html>
+
+ <!-- End -->

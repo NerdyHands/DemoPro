@@ -1,0 +1,15 @@
+
+# Begin EnforceSSL theprolawn.com
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www.)?theprolawn.com$
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L]
+</IfModule>
+# End EnforceSSL
+
+
+RewriteCond %{HTTP_HOST} ^www\.(.+) [NC]
+RewriteRule ^(.*) http://%1/$1 [R=301,NE,L]
+
+ErrorDocument 404 /404.html

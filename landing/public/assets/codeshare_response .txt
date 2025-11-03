@@ -1,0 +1,64 @@
+<html>
+<head>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+    <form action="recap-submit.php" method="post" onsubmit="return validateRecaptcha()">
+        <!-- Your form fields go here -->
+        <div class="g-recaptcha" data-sitekey="6LecjJEpAAAAAB-laQ5vaz9dYvQ_T7gmke63IvdU"></div>
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        function validateRecaptcha() {
+            // Check if reCAPTCHA response is filled
+            var response = grecaptcha.getResponse();
+            if (response.length === 0) {
+                alert('Please complete the reCAPTCHA validation.');
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission
+        }
+    </script>
+</body>
+</html>
+
+<?php
+$recaptcha_secret_key = '6LecjJEpAAAAAH4XiN9v6eAMjiKEX0nKPi3OPevN';
+
+// Verify reCAPTCHA response
+if (isset($_POST['g-recaptcha-response'])) {
+    $recaptcha_response = $_POST['g-recaptcha-response'];
+    $url = 'https://www.google.com/recaptcha/api/siteverify';
+    $data = [
+        'secret' => $recaptcha_secret_key,
+        'response' => $recaptcha_response,
+    ];
+
+    $options = [
+        'http' => [
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method' => 'POST',
+            'content' => http_build_query($data),
+        ],
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+    $result_json = json_decode($result, true);
+
+    if ($result_json['success']) {
+        // reCAPTCHA verification passed, process the form
+        // Your form processing code goes here
+        echo 'reCAPTCHA verification passed. Form submitted successfully.';
+    } else {
+        // reCAPTCHA verification failed
+        echo 'reCAPTCHA verification failed. Please try again.';
+    }
+} else {
+    // Handle case where 'g-recaptcha-response' is not set
+    echo 'reCAPTCHA response not received. Please try again.';
+}
+?>
+
+

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lawn Services in Hampton Roads, VA - The Pro Lawn </title>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+ // Check if the user is authenticated
+ window.onload = function () {
+   var storedToken = sessionStorage.getItem("googleSignInToken");
+ console.log(storedToken)
+   if (!storedToken) {
+     // Redirect to the login page if not authenticated
+     window.location.href = "admin.html";
+   }
+ }
+
+})
+</script>
+
+
+  <!-- Favicon -->
+    <link rel="icon" href="landing-3/images/favicon.png">
+    <!-- Bundle -->
+   <link rel="stylesheet" href="vendor/css/bundle.min.css">
+  <!-- Revolution Slider CSS Files -->
+  <link rel="stylesheet" href="landing-3/css/navigation.css">
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+  <link rel="stylesheet" href="landing-3/css/settings.css">
+  <!-- Style Sheet -->
+  <link rel="stylesheet" href="landing-3/css/style.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css">
+  <!-- Bootstrap -->
+  <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+  <!-- Main Style -->
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+  <!-- Responsivee Style -->
+  <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
+  <!--Icon Font-->
+  <link rel="stylesheet" media="screen" href="assets/fonts/font-awesome/font-awesome.min.css" />
+  <!-- Extras -->
+  <link rel="stylesheet" type="text/css" href="assets/extras/animate.css">
+  <!-- Google map's Api -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeJIf1JlDn4tI8EJHVOPJ8m86QV-4TSGQ&libraries=places"></script>
+  <!-- jQuery Load -->
+  <script src="assets/js/jquery-min.js"></script>
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <style>
+        .pac-container {
+            z-index: 10000 !important;
+        }
+        /* The Modal (background) */
+.modalPopUp {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-popup {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.w_70 {
+	width: 70%;
+	margin: auto;
+	min-width: 900px;
+	border-radius: 10px;
+}
+
+/* .py_20--80 {
+	padding: 20px 0 80px;
+} */
+.py_20--80 {
+	padding: 20px 0 108px;
+}
+
+.bg__color--333 {
+	background-color: #00000089;
+	margin: auto;
+}
+
+
+
+
+
+  </style>
+</head>
+
+<body>
+  
+   <!-- included header file -->
+   <div id="header-container"></div>
+   <!-- included header file -->
+  
+
+  <!-- Hero Area Section -->
+
+  <section id="hero-area">
+    <div class="hero-inner">
+
+
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <div class="bg__color--333 py_20--80 w_70">
+              
+
+            <div class="col-sm-8 col-md-9 service-main no-padding">
+              <!--Quick Links-->
+             <div class="quick-links-holder">
+               <div class="quick-links-holder-inner">
+               <h2 class="text-center">QUICK LINKS</h2>
+               <ul class="quick-links-list">
+                <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-clone" aria-hidden="true"></i></p>
+                  <p class="qlink-title">Org Chart</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-users" aria-hidden="true"></i></p>
+                  <p class="qlink-title">Resources</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-usd" aria-hidden="true"></i></p>
+                  <p class="qlink-title">Concur</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-car" aria-hidden="true"></i></p>
+                  <p class="qlink-title">Travel</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+                  
+                  <li>
+                  <a href="#">
+                  <p class="qlink-icon"><i class="fa fa-university" aria-hidden="true"></i></p>
+                  <p class="qlink-title">ADP</p>
+                  <p class="qlink-info">Payroll and Benefits</p>
+                  </a>
+                  </li>
+              </ul>
+             </div> 
+       </div>             
+           <!--Quick Links end-->
+          </div>
+      
+
+          </div>
+          
+          </div>
+
+            
+          </div>
+        </div>
+      </div>
+      <!-- Modal -->
+    </div>
+  </section>
+
+
+<!-- included footer file -->
+
+
+<div id="footer-container"></div>
+<!-- included footer files-->
+
+
+
+
+  <!--model end-->
+
+  <!--thanks quote end-->
+  <!-- Bootstrap JS -->
+  <script src="assets/js/bootstrap.js"></script>
+  <!-- WOW JS plugin for animation -->
+  <script src="assets/js/wow.js"></script>
+  <!-- All JS plugin Triggers -->
+  <script src="assets/js/main.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src='assets/js/includeHeader_Footer.js'></script>
+
+
+
+  
+    <script>
+            // Get the modal
+      var modal = document.getElementById("myPopUp");
+
+      // Get the button that opens the modal
+      var btn = document.getElementById("myBtn");
+
+      // Get the <span> element that closes the modal
+      var span = document.getElementsByClassName("close")[0];
+
+      // When the user clicks on the button, open the modal
+      btn.onclick = function() {
+        modal.style.display = "block";
+      }
+
+      // When the user clicks on <span> (x), close the modal
+      span.onclick = function() {
+        modal.style.display = "none";
+      }
+
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+
+    </script>
+
+</body>
+</html>
