@@ -1,0 +1,392 @@
+.header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.3s ease;
+}
+
+.header-left .logo:hover {
+  opacity: 0.8;
+}
+
+.home-icon {
+  font-size: 24px;
+  color: #1e40af;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Desktop Navigation */
+.header-nav.desktop-nav {
+  display: flex;
+  gap: 24px;
+}
+
+.nav-link {
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 6px;
+  position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #1e40af;
+  background-color: #eff6ff;
+}
+
+/* User Menu - Desktop */
+.user-menu-container {
+  position: relative;
+  z-index: 1002;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #374151;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+  position: relative;
+  z-index: 1002;
+}
+
+.user-menu-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #1e40af;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.user-name {
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-arrow {
+  transition: transform 0.3s ease;
+  color: #64748b;
+}
+
+.user-menu:hover .user-menu-arrow,
+.user-menu.open .user-menu-arrow {
+  transform: rotate(180deg);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+.user-menu.open .user-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.user-info {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #94a3b8;
+  text-transform: capitalize;
+  margin-top: 2px;
+}
+
+.user-dropdown-divider {
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 8px 0;
+}
+
+.signout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  border-radius: 0 0 8px 8px;
+}
+
+.signout-btn:hover {
+  background-color: #fef2f2;
+}
+
+.signout-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.hamburger {
+  width: 24px;
+  height: 2px;
+  background-color: #374151;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background-color: #374151;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before {
+  top: -8px;
+}
+
+.hamburger::after {
+  bottom: -8px;
+}
+
+.hamburger.open {
+  background-color: transparent;
+}
+
+.hamburger.open::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.hamburger.open::after {
+  bottom: 0;
+  transform: rotate(-45deg);
+}
+
+.header-nav.mobile-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.header-nav.mobile-nav.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.header-nav.mobile-nav .nav-link {
+  display: block;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #374151;
+  background-color: #ffffff;
+}
+
+.header-nav.mobile-nav .nav-link:last-child {
+  border-bottom: none;
+}
+
+.mobile-user-info {
+  background-color: #ffffff;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-user-avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #1e40af;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.mobile-user-details {
+  flex: 1;
+}
+
+.mobile-user-name {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.mobile-user-email {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.mobile-signout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 24px;
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  background-color: #ffffff;
+}
+
+.mobile-signout-btn:hover {
+  background-color: #fef2f2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-nav.desktop-nav {
+    display: none;
+  }
+
+  .user-menu-container {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .header-nav.mobile-nav {
+    display: block;
+  }
+
+  .header-container {
+    padding: 12px 16px;
+  }
+
+  .logo-text {
+    font-size: 18px;
+  }
+
+  .home-icon {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    padding: 8px 12px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+  }
+
+  .home-icon {
+    font-size: 18px;
+  }
+
+  .mobile-user-info {
+    padding: 12px 16px;
+  }
+
+  .mobile-user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+} 

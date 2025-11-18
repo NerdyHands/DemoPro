@@ -6,6 +6,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import SEO from './components/SEO';
 import Home from './pages/Home';
+import Prices from './pages/Prices';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
 import ShedRemoval from './pages/ShedRemoval';
@@ -97,6 +98,24 @@ function App() {
               <>
                 <SEO {...seoConfig.services} canonicalUrl="https://mrdemopro.com/services/" />
                 <Services />
+              </>
+            } />
+            <Route path="/prices" element={
+              <>
+                <SEO 
+                  title="Prices - Transparent Pricing for Cleanouts | Mr Demo Pro"
+                  description="Transparent pricing for cleanouts and related services in Hampton Roads, VA. Call 757-848-4559 for an exact quote."
+                  keywords="demolition prices, cleanout prices, junk removal prices, Hampton Roads pricing"
+                  canonicalUrl="https://mrdemopro.com/prices/"
+                  structuredData={{
+                    "@context": "https://schema.org",
+                    "@type": "Service",
+                    "serviceType": "Pricing",
+                    "provider": { "@type": "LocalBusiness", "name": "Mr Demo Pro", "telephone": "757-848-4559" },
+                    "areaServed": "Hampton Roads, VA"
+                  }}
+                />
+                <Prices />
               </>
             } />
             <Route path="/contact" element={

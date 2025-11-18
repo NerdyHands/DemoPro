@@ -1,0 +1,64 @@
+# Dependencies
+**/node_modules/
+**/bower_components/
+
+# Build outputs
+**/build/
+**/dist/
+**/out/
+**/.next/
+
+# Logs
+**/*.log
+**/logs/
+
+# Runtime data
+**/pids/
+**/*.pid
+**/*.seed
+**/*.pid.lock
+
+# Coverage directory used by tools like istanbul
+**/coverage/
+**/.nyc_output/
+
+# IDE and editor files
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+**/*~
+
+# OS generated files
+**/.DS_Store
+**/.DS_Store?
+**/._*
+**/.Spotlight-V100
+**/.Trashes
+**/ehthumbs.db
+**/Thumbs.db
+
+# Temporary files
+**/tmp/
+**/temp/
+
+# Git
+**/.git/
+
+# Large media files
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.mkv
+**/*.wmv
+
+# Archives
+**/*.zip
+**/*.tar.gz
+**/*.rar
+
+# Explicitly INCLUDE .env files (negation patterns)
+# This ensures .env files in client and server folders are accessible to Cursor
+!new_landing_new/.env*
+!client/.env*
+!server/.env* 

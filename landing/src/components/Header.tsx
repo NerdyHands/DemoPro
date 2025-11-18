@@ -135,6 +135,33 @@ const Header = () => {
               </Nav.Link>
               <Nav.Link
                 as={Link}
+                to="/prices"
+                onClick={() => handleNavClick("/prices")}
+                style={{
+                  fontWeight: "600",
+                  fontSize: "1rem",
+                  color: "#1a202c",
+                  padding: "0.75rem 1rem",
+                  transition: "all 0.3s ease",
+                  position: "relative",
+                  borderRadius: "0.5rem",
+                  textDecoration: "none",
+                }}
+                onMouseEnter={(e) => {
+                  (e.target as HTMLElement).style.color = "rgb(236, 65, 0)";
+                  (e.target as HTMLElement).style.backgroundColor =
+                    "rgba(236, 65, 0, 0.1)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLElement).style.color = "#1a202c";
+                  (e.target as HTMLElement).style.backgroundColor =
+                    "transparent";
+                }}
+              >
+                Prices
+              </Nav.Link>
+              <Nav.Link
+                as={Link}
                 to="/contact"
                 onClick={() => handleNavClick("/contact")}
                 style={{

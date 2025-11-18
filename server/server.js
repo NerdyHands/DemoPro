@@ -1,0 +1,541 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
+require('dotenv').config();
+
+const projectRoutes = require('./routes/projects');
+const userRoutes = require('./routes/users');
+const authRoutes = require('./routes/auth');
+const reportRoutes = require('./routes/reports');
+const otpRoutes = require('./routes/otp');
+const stripeRoutes = require('./routes/stripe');
+const openaiRoutes = require('./routes/openai');
+const landingRoutes = require('./routes/landing');
+const demoProcessingRoutes = require('./routes/demoProcessing');
+const quoteRoutes = require('./routes/quotes');
+const customerRoutes = require('./routes/customers');
+const estimateRoutes = require('./routes/estimates');
+const contractRoutes = require('./routes/contracts');
+const amendmentRoutes = require('./routes/amendments');
+const clientReportRoutes = require('./routes/clientReports');
+const jobRoutes = require('./routes/jobs');
+const technicianRoutes = require('./routes/technicians');
+const jobProgressRoutes = require('./routes/jobProgress');
+const milestoneRoutes = require('./routes/milestones');
+const chatGptRoutes = require('./routes/chatgpt');
+const blogRoutes = require('./routes/blog');
+const emailRoutes = require('./routes/emailRoutes');
+const mlsRoutes = require('./routes/mls');
+
+// Initialize Storage Manager
+const StorageManager = require('./services/storageManager');
+const storageManager = new StorageManager();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Trust proxy for accurate IP detection behind load balancers/proxies
+const resolveTrustProxySetting = () => {
+  const value = process.env.TRUST_PROXY;
+
+  if (value === undefined) {
+    return process.env.NODE_ENV === 'production' ? 1 : false;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === 'true') return true;
+  if (normalized === 'false') return false;
+
+  const numericValue = Number(value);
+  if (!Number.isNaN(numericValue)) {
+    return numericValue;
+  }
+
+  if (value.includes(',')) {
+    return value.split(',').map(item => item.trim()).filter(Boolean);
+  }
+
+  return value;
+};
+
+const trustProxySetting = resolveTrustProxySetting();
+app.set('trust proxy', trustProxySetting);
+
+// Security middleware
+app.use(helmet());
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: trustProxySetting
+});
+app.use('/api/', limiter);
+
+// CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : process.env.NODE_ENV === 'production' 
+    ? ['https://mr-demo-pro-server-187337178119.us-east4.run.app', 'https://mrdemopro.com', 'https://app.mrdemopro.com']
+    : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+
+console.log('🔧 CORS Configuration:');
+console.log('📋 Allowed origins:', allowedOrigins);
+console.log('🌍 Environment:', process.env.NODE_ENV);
+console.log('🌍 Current working directory:', process.cwd());
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    console.log('🌐 CORS check for origin:', origin);
+    
+    // Allow requests with no origin (like mobile apps, Postman, or curl requests)
+    if (!origin) {
+      console.log('✅ Allowing request with no origin');
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ Allowing origin:', origin);
+      return callback(null, true);
+    }
+    
+    // In development, be more permissive
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('⚠️ Development mode - allowing origin:', origin);
+      return callback(null, true);
+    }
+    
+    // Reject in production
+    console.log('❌ CORS blocked origin:', origin);
+    console.log('📋 Allowed origins:', allowedOrigins);
+    return callback(new Error('Not allowed by CORS'), false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  maxAge: 86400 // 24 hours
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Debug middleware for multipart requests
+app.use((req, res, next) => {
+  if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+    console.log('📦 Multipart request detected');
+    console.log('📋 Content-Type:', req.headers['content-type']);
+    console.log('📏 Content-Length:', req.headers['content-length']);
+  }
+  next();
+});
+
+// Enhanced logging middleware
+const logger = (req, res, next) => {
+  const start = Date.now();
+  
+  // Log request
+  console.log(`\n📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log(`🔍 Query:`, req.query);
+  console.log(`📋 Headers:`, {
+    'Content-Type': req.headers['content-type'],
+    'Authorization': req.headers.authorization ? 'Bearer ***' : 'None',
+    'User-Agent': req.headers['user-agent']?.substring(0, 50) + '...'
+  });
+  
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log(`📦 Body:`, JSON.stringify(req.body, null, 2));
+  }
+  
+  // Log response
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const statusColor = res.statusCode >= 400 ? '🔴' : res.statusCode >= 300 ? '🟡' : '🟢';
+    console.log(`${statusColor} [${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
+    
+    if (res.statusCode >= 400) {
+      console.log(`❌ Error Response:`, res.locals.error || 'No error details');
+    }
+  });
+  
+  next();
+};
+
+// Apply logging middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(logger);
+} else {
+  app.use(morgan('combined'));
+}
+
+// MongoDB Connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://wayne:1234%40wayne%235410337%40@35.243.189.22:27017/mr-demo-pro?authSource=admin';
+
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 30000,
+  connectTimeoutMS: 30000,
+  maxPoolSize: 10,
+  retryWrites: true,
+  w: 'majority'
+})
+.then(() => {
+  console.log('✅ Connected to MongoDB successfully');
+  console.log(`📊 Connected to: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`);
+})
+.catch((error) => {
+  console.error('❌ MongoDB connection error:', error);
+  console.error('🔍 Troubleshooting tips:');
+  console.error('   - Check if the MongoDB server is running');
+  console.error('   - Verify the IP address and port are correct');
+  console.error('   - Check network connectivity and firewall settings');
+  console.error('   - Verify username/password credentials');
+  console.error('   - Check if MongoDB is configured to accept external connections');
+  console.error('   - Verify firewall rules allow connections on port 27017');
+  process.exit(1);
+});
+
+// Simple ping endpoint for basic connectivity
+app.get('/ping', (req, res) => {
+  res.status(200).json({
+    pong: true,
+    timestamp: new Date().toISOString(),
+    message: 'Server is responding'
+  });
+});
+
+// Enhanced health check endpoint for Cloud Run monitoring
+app.get('/health', (req, res) => {
+  const uptime = process.uptime();
+  const memoryUsage = process.memoryUsage();
+  const dbState = mongoose.connection.readyState;
+  
+  // Convert database state to readable string
+  const dbStatus = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  }[dbState] || 'unknown';
+  
+  const healthData = {
+    status: 'OK',
+    message: 'Mr Demo Pro Server is running',
+    timestamp: new Date().toISOString(),
+    uptime: {
+      seconds: Math.floor(uptime),
+      formatted: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`
+    },
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0',
+    database: {
+      status: dbStatus,
+      connected: dbState === 1
+    },
+    storage: storageManager.getStatus(),
+    memory: {
+      rss: `${Math.round(memoryUsage.rss / 1024 / 1024)} MB`,
+      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`,
+      heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`,
+      external: `${Math.round(memoryUsage.external / 1024 / 1024)} MB`
+    },
+    endpoints: {
+      health: '/health',
+      projects: '/api/projects',
+      users: '/api/users',
+      reports: '/api/reports',
+      otp: '/api/otp'
+    }
+  };
+  
+  // Set appropriate status code based on health
+  const isHealthy = dbState === 1 && storageManager.getStatus().status === 'OK';
+  res.status(isHealthy ? 200 : 503).json(healthData);
+});
+
+// API health check endpoint for Cloud Run monitoring
+app.get('/api/health', (req, res) => {
+  const uptime = process.uptime();
+  const memoryUsage = process.memoryUsage();
+  const dbState = mongoose.connection.readyState;
+  
+  // Convert database state to readable string
+  const dbStatus = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  }[dbState] || 'unknown';
+  
+  const healthData = {
+    status: 'OK',
+    message: 'Mr Demo Pro Server API is running',
+    timestamp: new Date().toISOString(),
+    uptime: {
+      seconds: Math.floor(uptime),
+      formatted: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`
+    },
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0',
+    database: {
+      status: dbStatus,
+      connected: dbState === 1
+    },
+    storage: storageManager.getStatus(),
+    memory: {
+      rss: `${Math.round(memoryUsage.rss / 1024 / 1024)} MB`,
+      heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`,
+      heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`,
+      external: `${Math.round(memoryUsage.external / 1024 / 1024)} MB`
+    },
+    endpoints: {
+      health: '/api/health',
+      projects: '/api/projects',
+      users: '/api/users',
+      reports: '/api/reports',
+      otp: '/api/otp'
+    }
+  };
+  
+  // Set appropriate status code based on health
+  const isHealthy = dbState === 1 && storageManager.getStatus().status === 'OK';
+  res.status(isHealthy ? 200 : 503).json(healthData);
+});
+
+// Serve static files from uploads directory (for local storage)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// API Routes
+app.use('/api/projects', projectRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/otp', otpRoutes);
+app.use('/api/stripe', stripeRoutes);
+app.use('/api/openai', openaiRoutes);
+app.use('/api/landing', landingRoutes);
+app.use('/api/demo-processing', demoProcessingRoutes);
+app.use('/api/quotes', quoteRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/estimates', estimateRoutes);
+app.use('/api/contracts', contractRoutes);
+app.use('/api/amendments', amendmentRoutes);
+app.use('/api/client-reports', clientReportRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/technicians', technicianRoutes);
+app.use('/api/job-progress', jobProgressRoutes);
+app.use('/api/milestones', milestoneRoutes);
+app.use('/api/chatgpt', chatGptRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/email', emailRoutes);
+app.use('/api/mls', mlsRoutes);
+
+// Serve landing app static files (supports both local and Docker paths)
+const possibleStaticDirs = [
+  path.join(__dirname, '../landing/build'),
+  path.join(process.cwd(), 'landing/build'),
+  path.join(process.cwd(), 'landing-build')
+];
+
+let staticDirServed = false;
+for (const dir of possibleStaticDirs) {
+  try {
+    // Use fs without importing since require is at top; use lazy import to avoid top clutter
+    const fs = require('fs');
+    if (!staticDirServed && fs.existsSync(dir)) {
+      app.use(express.static(dir));
+      staticDirServed = true;
+      console.log(`📦 Serving static files from: ${dir}`);
+    }
+  } catch (e) {
+    // noop
+  }
+}
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// API Root endpoint
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'Welcome to Mr Demo Pro API',
+    version: '1.0.0',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      ping: '/ping',
+      health: '/health',
+      apiHealth: '/api/health',
+      projects: '/api/projects',
+      users: '/api/users',
+      reports: '/api/reports',
+      otp: '/api/otp',
+      stripe: '/api/stripe',
+      openai: '/api/openai',
+      landing: '/api/landing',
+      demoProcessing: '/api/demo-processing',
+      customers: '/api/customers',
+      estimates: '/api/estimates',
+      contracts: '/api/contracts',
+      jobs: '/api/jobs',
+      blog: '/api/blog',
+      mls: '/api/mls'
+    }
+  });
+});
+
+// SPA fallback for non-API routes: serve index.html so client router handles routes
+app.get('*', (req, res, next) => {
+  try {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) {
+      return next();
+    }
+
+    // Determine index.html from whichever static dir we mounted
+    const fs = require('fs');
+    const candidateIndexFiles = possibleStaticDirs.map(d => path.join(d, 'index.html'));
+    const indexPath = candidateIndexFiles.find(f => fs.existsSync(f));
+    if (indexPath) {
+      return res.sendFile(indexPath);
+    }
+  } catch (err) {
+    // fallthrough to next handlers
+  }
+  return next();
+});
+
+// 404 handler for API routes only
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    error: 'API route not found',
+    message: `Cannot ${req.method} ${req.originalUrl}`
+  });
+});
+
+// Global error handler
+app.use((error, req, res, next) => {
+  console.error('❌ Global error handler caught:', error);
+  console.error('📋 Request details:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    body: req.body
+  });
+  
+  // Store error in response locals for logging
+  res.locals.error = error.message;
+  
+  if (error.name === 'ValidationError') {
+    return res.status(400).json({
+      error: 'Validation Error',
+      message: error.message,
+      details: error.errors
+    });
+  }
+  
+  if (error.name === 'MongoError' && error.code === 11000) {
+    return res.status(400).json({
+      error: 'Duplicate Error',
+      message: 'A record with this information already exists'
+    });
+  }
+  
+  if (error.name === 'MulterError') {
+    return res.status(400).json({
+      error: 'File Upload Error',
+      message: error.message,
+      code: error.code
+    });
+  }
+  
+  // Handle any other errors
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'production' 
+      ? 'Something went wrong' 
+      : error.message,
+    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+  });
+});
+
+// Start server with port conflict handling
+const startServer = async (port) => {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port, () => {
+      console.log(`🚀 Mr Demo Pro Server running on port ${port}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔗 Health check: http://localhost:${port}/health`);
+      
+      // Initialize storage manager
+      storageManager.initialize()
+        .then(() => {
+          const status = storageManager.getStatus();
+          console.log(`✅ Storage initialized: ${status.type}`);
+          resolve(server);
+        })
+        .catch((error) => {
+          console.error('❌ Storage initialization failed:', error);
+          resolve(server);
+        });
+    });
+    
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.log(`⚠️  Port ${port} is in use, trying port ${port + 1}`);
+        server.close();
+        startServer(port + 1)
+          .then(resolve)
+          .catch(reject);
+      } else {
+        console.error('❌ Server startup failed:', error);
+        reject(error);
+      }
+    });
+  });
+};
+
+// Start the server
+startServer(PORT)
+  .then(() => {
+    console.log('✅ Server started successfully');
+    
+    // Initialize email worker if email service is enabled
+    if (process.env.SENDGRID_ENABLED === 'true') {
+      const emailWorker = require('./services/emailWorker');
+      emailWorker.start();
+      console.log('📧 Email worker started');
+    } else {
+      console.log('📧 Email service is disabled - email worker not started');
+    }
+  })
+  .catch((error) => {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  });
+
+module.exports = app; 
