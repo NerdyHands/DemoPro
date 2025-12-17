@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '../../components/Layout/Layout.jsx';
-import { contractApi, amendmentApi, clientReportApi } from '../../services/contractsApi';
+import { contractApi, amendmentApi, clientReportApi, estimateApi } from '../../services/contractsApi';
+import { milestoneApi } from '../../services/jobApi';
 import AmendmentsList from '../Amendments/AmendmentsList.jsx';
 import './Contracts.css';
 
@@ -10,6 +11,7 @@ const ContractView = () => {
   const navigate = useNavigate();
 
   const [contract, setContract] = useState(null);
+  const [estimate, setEstimate] = useState(null);
   const [contractSummary, setContractSummary] = useState(null);
   const [clientReports, setClientReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(false);
@@ -17,10 +19,6 @@ const ContractView = () => {
   const [error, setError] = useState(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
-  const [downPaymentPercentage, setDownPaymentPercentage] = useState(30);
-  const [depositType, setDepositType] = useState('percentage'); // 'percentage' or 'dollar'
-  const [customDepositAmount, setCustomDepositAmount] = useState(0);
-  const [updatingDeposit, setUpdatingDeposit] = useState(false);
   const [editingDates, setEditingDates] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -31,37 +29,74 @@ const ContractView = () => {
   
   // Signed contract upload states
   const [uploadingSignedContract, setUploadingSignedContract] = useState(false);
+  
+  // Payment receipt states
+  const [milestones, setMilestones] = useState([]);
+  const [loadingMilestones, setLoadingMilestones] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [expandedReceipt, setExpandedReceipt] = useState(null);
+  const [paymentFormData, setPaymentFormData] = useState({
+    amount: '',
+    method: 'Cash',
+    transactionId: '',
+    notes: '',
+    milestoneId: ''
+  });
+  const [submittingPayment, setSubmittingPayment] = useState(false);
+
+  const fetchMilestones = useCallback(async (contractId) => {
+    try {
+      setLoadingMilestones(true);
+      const response = await milestoneApi.getContractMilestones(contractId, { type: 'Payment' });
+      setMilestones(response.milestones || []);
+    } catch (err) {
+      console.error('Error fetching milestones:', err);
+      // Don't set error, just log it - milestones are optional
+    } finally {
+      setLoadingMilestones(false);
+    }
+  }, []);
 
   const fetchContract = useCallback(async () => {
     try {
       setLoading(true);
       const response = await contractApi.getContract(id);
-      setContract(response.contract);
-      
-      // Set initial deposit values
-      if (response.contract.depositAmount && response.contract.totalAmount) {
-        const percentage = (response.contract.depositAmount / response.contract.totalAmount) * 100;
-        setDownPaymentPercentage(Math.round(percentage));
-        setCustomDepositAmount(response.contract.depositAmount);
-      }
+      const contractData = response.contract;
+      setContract(contractData);
       
       // Set initial date values
-      if (response.contract.startDate) {
-        setStartDate(response.contract.startDate.split('T')[0]); // Format for date input
+      if (contractData.startDate) {
+        setStartDate(contractData.startDate.split('T')[0]); // Format for date input
       }
-      if (response.contract.endDate) {
-        setEndDate(response.contract.endDate.split('T')[0]); // Format for date input
+      if (contractData.endDate) {
+        setEndDate(contractData.endDate.split('T')[0]); // Format for date input
       }
       
       // Set initial status value
-      setStatus(response.contract.status || 'Draft');
+      setStatus(contractData.status || 'Draft');
+      
+      // Fetch estimate if contract has estimateId and lineItems might need notes
+      if (contractData.estimateId) {
+        try {
+          const estimateResponse = await estimateApi.getEstimate(contractData.estimateId);
+          setEstimate(estimateResponse.estimate);
+        } catch (err) {
+          console.error('Error fetching estimate:', err);
+          // Don't set error, estimate is optional
+        }
+      }
+      
+      // Fetch milestones for payment tracking
+      if (id) {
+        fetchMilestones(id);
+      }
     } catch (err) {
       console.error('Error fetching contract:', err);
       setError('Failed to load contract. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, fetchMilestones]);
 
   const fetchContractSummary = useCallback(async () => {
     try {
@@ -244,6 +279,144 @@ const ContractView = () => {
     return 'N/A';
   };
 
+  // Calculate total contract amount from line items
+  const calculateContractTotal = useCallback(() => {
+    if (!contract) return 0;
+    if (contract.lineItems && contract.lineItems.length > 0) {
+      return contract.lineItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+    }
+    return contract.subtotal || contract.totalAmount || 0;
+  }, [contract]);
+
+  // Calculate payment totals from milestones
+  const calculatePaymentTotals = useCallback(() => {
+    if (!contract) return { totalPaid: 0, remainingBalance: 0, totalAmount: 0, paymentDetails: [] };
+    
+    let totalPaid = 0;
+    const paymentDetails = [];
+    
+    if (milestones && milestones.length > 0) {
+      milestones.forEach(milestone => {
+        if (milestone.type === 'Payment' && milestone.payment) {
+          let milestonePaid = 0;
+          // If there are partial payments, sum them
+          if (milestone.payment.partialPayments && milestone.payment.partialPayments.length > 0) {
+            milestonePaid = milestone.payment.partialPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+          } else if (milestone.payment.paymentStatus === 'Paid' && milestone.payment.amount) {
+            milestonePaid = milestone.payment.amount;
+          }
+          
+          if (milestonePaid > 0) {
+            totalPaid += milestonePaid;
+            
+            // Collect all partial payments with their receipts
+            if (milestone.payment.partialPayments && milestone.payment.partialPayments.length > 0) {
+              milestone.payment.partialPayments.forEach((partialPayment, paymentIndex) => {
+                if (partialPayment.amount > 0) {
+                  // Debug: Log receipt URL
+                  console.log('Payment receipt URL:', partialPayment.receiptUrl, 'for payment:', partialPayment);
+                  paymentDetails.push({
+                    description: milestone.title || 'Payment',
+                    amount: partialPayment.amount,
+                    date: partialPayment.date || milestone.updatedAt,
+                    method: partialPayment.method || 'N/A',
+                    transactionId: partialPayment.transactionId,
+                    notes: partialPayment.notes,
+                    receiptUrl: partialPayment.receiptUrl || null,
+                    milestoneId: milestone._id,
+                    paymentIndex: paymentIndex
+                  });
+                }
+              });
+            } else {
+              paymentDetails.push({
+                description: milestone.title || 'Payment',
+                amount: milestonePaid,
+                date: milestone.payment.paidDate || milestone.updatedAt,
+                method: milestone.payment.paymentMethod || 'N/A'
+              });
+            }
+          }
+        }
+      });
+    }
+    
+    const totalAmount = calculateContractTotal();
+    const remainingBalance = totalAmount - totalPaid;
+    
+    return { totalPaid, remainingBalance, totalAmount, paymentDetails };
+  }, [milestones, contract, calculateContractTotal]);
+
+  const handleSubmitPayment = async (e) => {
+    e.preventDefault();
+    if (!id || !contract?.customerId) {
+      setError('Contract ID and Customer ID are required to record payment');
+      return;
+    }
+
+    try {
+      setSubmittingPayment(true);
+      setError(null);
+
+      // Find or create a payment milestone
+      let paymentMilestone = milestones.find(m => m.type === 'Payment' && m.payment?.paymentStatus !== 'Paid');
+      
+      if (!paymentMilestone) {
+        // Create a new payment milestone
+        const { remainingBalance, totalAmount } = calculatePaymentTotals();
+        const milestoneData = {
+          contractId: id,
+          customerId: contract.customerId,
+          title: 'Contract Payment',
+          description: `Payment for contract ${contract.contractNumber || id}`,
+          type: 'Payment',
+          status: 'Pending',
+          priority: 'High',
+          payment: {
+            amount: remainingBalance > 0 ? remainingBalance : totalAmount,
+            currency: 'USD',
+            paymentStatus: 'Pending'
+          }
+        };
+        
+        const createResponse = await milestoneApi.createMilestone(milestoneData);
+        paymentMilestone = createResponse.milestone;
+      }
+
+      // Add payment to milestone
+      const paymentData = {
+        amount: parseFloat(paymentFormData.amount),
+        method: paymentFormData.method,
+        transactionId: paymentFormData.transactionId || undefined,
+        notes: paymentFormData.notes || undefined
+      };
+
+      await milestoneApi.addPayment(paymentMilestone._id, paymentData);
+      
+      // Refresh milestones
+      await fetchMilestones(id);
+      
+      // Reset form
+      setShowPaymentForm(false);
+      setPaymentFormData({
+        amount: '',
+        method: 'Cash',
+        transactionId: '',
+        notes: '',
+        milestoneId: ''
+      });
+      
+      // Show success message
+      alert('Payment recorded successfully!');
+    } catch (err) {
+      console.error('Error recording payment:', err);
+      setError(err.response?.data?.error || 'Failed to record payment. Please try again.');
+      alert(err.response?.data?.error || 'Failed to record payment. Please try again.');
+    } finally {
+      setSubmittingPayment(false);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Active':
@@ -319,33 +492,6 @@ const ContractView = () => {
     }
   }, [id, contract]);
 
-  const updateDeposit = async () => {
-    try {
-      setUpdatingDeposit(true);
-      const totalAmount = contract.totalAmount || contract.subtotal || 0;
-      let newDepositAmount;
-      
-      if (depositType === 'percentage') {
-        newDepositAmount = totalAmount * (downPaymentPercentage / 100);
-      } else {
-        newDepositAmount = customDepositAmount;
-      }
-
-      const response = await contractApi.updateContract(id, {
-        ...contract,
-        depositAmount: newDepositAmount
-      });
-
-      // Update local state
-      setContract(response.contract);
-      setError(null);
-    } catch (err) {
-      console.error('Error updating deposit:', err);
-      setError('Failed to update deposit. Please try again.');
-    } finally {
-      setUpdatingDeposit(false);
-    }
-  };
 
   const updateDates = async () => {
     try {
@@ -566,7 +712,7 @@ const ContractView = () => {
                 <div style={{ fontSize: '18px', fontWeight: '700' }}>
                   {contractSummary && contractSummary.amendmentCount > 0 
                     ? formatCurrency(contractSummary.currentTotal || 0)
-                    : formatCurrency(contract.totalAmount || 0)
+                    : formatCurrency(calculateContractTotal())
                   }
                 </div>
                 {contractSummary && contractSummary.amendmentCount > 0 && (
@@ -801,6 +947,174 @@ const ContractView = () => {
             </div>
           )}
 
+          {/* Payment Schedule */}
+          <div className="contract-section">
+            <h3>Payment Schedule</h3>
+            {contract.paymentSchedule && contract.paymentSchedule.length > 0 ? (
+              <div style={{
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #08a171',
+                borderRadius: '8px',
+                padding: '20px',
+                marginTop: '10px'
+              }}>
+                <div style={{
+                  backgroundColor: '#fff',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#08a171', color: '#fff' }}>
+                        <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
+                          Milestone
+                        </th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
+                          Description
+                        </th>
+                        <th style={{ padding: '12px', textAlign: 'right', fontSize: '13px', fontWeight: 'bold' }}>
+                          Amount
+                        </th>
+                        <th style={{ padding: '12px', textAlign: 'right', fontSize: '13px', fontWeight: 'bold' }}>
+                          Percentage
+                        </th>
+                        <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold' }}>
+                          Due Date
+                        </th>
+                        <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold' }}>
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {contract.paymentSchedule.map((item, idx) => {
+                        const amount = item.amount || 0;
+                        const totalAmount = contract.totalAmount || contract.subtotal || 0;
+                        const percentage = totalAmount > 0 ? Math.round((amount / totalAmount) * 100) : 0;
+                        const status = item.status || 'Pending';
+                        const dueDate = item.dueDate ? formatDate(item.dueDate) : 'N/A';
+                        
+                        return (
+                          <tr 
+                            key={idx}
+                            style={{ 
+                              backgroundColor: idx % 2 === 0 ? '#fff' : '#f8f9fa',
+                              borderBottom: '1px solid #e9ecef'
+                            }}
+                          >
+                            <td style={{ padding: '12px', fontSize: '13px', color: '#333', fontWeight: '600' }}>
+                              {item.title || 'Payment Milestone'}
+                            </td>
+                            <td style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
+                              {item.description || 'N/A'}
+                            </td>
+                            <td style={{ padding: '12px', fontSize: '13px', fontWeight: 'bold', color: '#08a171', textAlign: 'right' }}>
+                              {formatCurrency(amount)}
+                            </td>
+                            <td style={{ padding: '12px', fontSize: '13px', color: '#666', textAlign: 'right' }}>
+                              {percentage}%
+                            </td>
+                            <td style={{ padding: '12px', fontSize: '13px', color: '#666', textAlign: 'center' }}>
+                              {dueDate}
+                            </td>
+                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                              <span style={{
+                                padding: '4px 10px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: '500',
+                                background: status === 'Completed' ? '#d4edda' :
+                                           status === 'In Progress' ? '#fff3cd' :
+                                           status === 'Pending' ? '#cce5ff' :
+                                           status === 'Overdue' ? '#f8d7da' : '#e9ecef',
+                                color: status === 'Completed' ? '#155724' :
+                                       status === 'In Progress' ? '#856404' :
+                                       status === 'Pending' ? '#004085' :
+                                       status === 'Overdue' ? '#721c24' : '#6c757d'
+                              }}>
+                                {status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Payment Schedule Summary */}
+                <div style={{
+                  marginTop: '20px',
+                  padding: '15px',
+                  backgroundColor: '#fff',
+                  border: '1px solid #dee2e6',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '15px'
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                      Payment Schedule Total:
+                    </div>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#333' }}>
+                      {formatCurrency(contract.paymentSchedule.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0))}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                      Contract Amount:
+                    </div>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#333' }}>
+                      {formatCurrency(calculateContractTotal())}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '200px' }}>
+                    <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                      Difference:
+                    </div>
+                    <div style={{
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      color: Math.abs(contract.paymentSchedule.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0) - calculateContractTotal()) < 0.01 ? '#28a745' : '#dc3545'
+                    }}>
+                      {formatCurrency(contract.paymentSchedule.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0) - calculateContractTotal())}
+                    </div>
+                    {Math.abs(contract.paymentSchedule.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0) - calculateContractTotal()) < 0.01 ? (
+                      <div style={{ fontSize: '12px', color: '#28a745', fontWeight: '500' }}>
+                        ✓ Totals Match
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '12px', color: '#dc3545', fontWeight: '500' }}>
+                        ⚠ Totals Do Not Match
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{
+                padding: '20px',
+                textAlign: 'center',
+                color: '#666',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '8px',
+                border: '1px solid #e9ecef',
+                marginTop: '10px'
+              }}>
+                <p style={{ margin: 0, marginBottom: '10px' }}>
+                  No payment schedule has been set for this contract.
+                </p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#999' }}>
+                  Payment schedule can be configured when editing the contract.
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Description */}
           {contract.description && (
             <div className="contract-section">
@@ -826,109 +1140,690 @@ const ContractView = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {contract.lineItems.map((item, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{item.description}</td>
-                        <td>{item.quantity}</td>
-                        <td>{formatCurrency(item.unitPrice)}</td>
-                        <td>{formatCurrency(item.totalPrice)}</td>
-                      </tr>
-                    ))}
+                    {contract.lineItems.map((item, index) => {
+                      // Merge notes from estimate if contract doesn't have notes
+                      let notesToDisplay = item.notes || [];
+                      if ((!notesToDisplay || notesToDisplay.length === 0) && estimate && estimate.lineItems && estimate.lineItems[index]) {
+                        notesToDisplay = estimate.lineItems[index].notes || [];
+                      }
+                      
+                      return (
+                        <React.Fragment key={index}>
+                          <tr>
+                            <td>{index + 1}</td>
+                            <td>{item.description}</td>
+                            <td>{item.quantity}</td>
+                            <td>{formatCurrency(item.unitPrice)}</td>
+                            <td>{formatCurrency(item.totalPrice)}</td>
+                          </tr>
+                          {notesToDisplay && notesToDisplay.length > 0 && notesToDisplay.some(note => note && note.trim()) && (
+                            <tr>
+                              <td colSpan="5" style={{ padding: 0, borderTop: 'none' }}>
+                                <div className="line-item-view-notes">
+                                  <strong>Notes:</strong>
+                                  <ul className="line-item-notes-list-view">
+                                    {notesToDisplay.map((note, noteIndex) => (
+                                      note && note.trim() && (
+                                        <li key={noteIndex}>{note}</li>
+                                      )
+                                    ))}
+                                  </ul>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
                                  <div className="line-items-summary">
                    <div className="summary-item">
-                     <label>Subtotal:</label>
-                     <span>{formatCurrency(contract.subtotal || contract.totalAmount)}</span>
-                   </div>
-                   <div className="summary-item">
-                     <label>Deposit Required:</label>
-                     <span>{formatCurrency(contract.depositAmount || (contract.totalAmount * 0.3))}</span>
-                     {contract.depositAmount && contract.totalAmount && (
-                       <span className="deposit-percentage">
-                         ({Math.round((contract.depositAmount / contract.totalAmount) * 100)}%)
-                       </span>
-                     )}
+                     <label>Total Contract Amount:</label>
+                     <span>{formatCurrency(calculateContractTotal())}</span>
                    </div>
                  </div>
-
-                 {/* Deposit Adjustment Section */}
-                 <div className="deposit-adjustment-section">
-                   <h4>Adjust Deposit Amount</h4>
-                   <div className="deposit-type-selector">
-                     <label>
-                       <input
-                         type="radio"
-                         name="depositType"
-                         value="percentage"
-                         checked={depositType === 'percentage'}
-                         onChange={(e) => setDepositType(e.target.value)}
-                       />
-                       Percentage
-                     </label>
-                     <label>
-                       <input
-                         type="radio"
-                         name="depositType"
-                         value="dollar"
-                         checked={depositType === 'dollar'}
-                         onChange={(e) => setDepositType(e.target.value)}
-                       />
-                       Dollar Amount
-                     </label>
-                   </div>
-
-                   {depositType === 'percentage' ? (
-                     <div className="deposit-slider-container">
-                       <label className="deposit-label">Deposit Percentage:</label>
-                       <div className="deposit-slider-group">
-                         <input
-                           type="range"
-                           min="0"
-                           max="100"
-                           value={downPaymentPercentage}
-                           onChange={(e) => setDownPaymentPercentage(parseFloat(e.target.value))}
-                           className="deposit-slider"
-                         />
-                         <div className="deposit-slider-labels">
-                           <span className="slider-value">{downPaymentPercentage}%</span>
-                           <span className="slider-amount">
-                             {formatCurrency((contract.totalAmount || contract.subtotal || 0) * (downPaymentPercentage / 100))}
-                           </span>
-                         </div>
-                       </div>
-                     </div>
-                   ) : (
-                     <div className="deposit-dollar-input">
-                       <label className="deposit-label">Deposit Amount:</label>
-                       <input
-                         type="number"
-                         value={customDepositAmount}
-                         onChange={(e) => setCustomDepositAmount(parseFloat(e.target.value) || 0)}
-                         className="form-input"
-                         min="0"
-                         step="0.01"
-                         placeholder="0.00"
-                       />
-                       <span className="deposit-percentage">
-                         ({customDepositAmount && contract.totalAmount ? 
-                           Math.round((customDepositAmount / contract.totalAmount) * 100) : 0}%)
-                       </span>
-                     </div>
-                   )}
-
-                   <button
-                     onClick={updateDeposit}
-                     disabled={updatingDeposit}
-                     className="btn btn-primary btn-sm"
-                   >
-                     {updatingDeposit ? 'Updating...' : 'Update Deposit'}
-                   </button>
+                 
+                 <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+                   <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>
+                     <strong>Note:</strong> Payment schedule and milestones are shown in the Payment Schedule section below. 
+                     To modify payment milestones, please edit the contract.
+                   </p>
                  </div>
               </div>
             </div>
           )}
+
+          {/* Payment Receipt Section */}
+          <div className="contract-section">
+            <h3>Payment Receipt</h3>
+            {loadingMilestones ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                Loading payment information...
+              </div>
+            ) : (
+              <div style={{
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #08a171',
+                borderRadius: '8px',
+                padding: '20px',
+                marginTop: '10px'
+              }}>
+                {(() => {
+                  const { totalPaid, remainingBalance, totalAmount, paymentDetails } = calculatePaymentTotals();
+                  
+                  return (
+                    <>
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                        gap: '20px',
+                        marginBottom: '20px'
+                      }}>
+                        <div style={{
+                          backgroundColor: '#fff',
+                          padding: '15px',
+                          borderRadius: '6px',
+                          border: '1px solid #e9ecef'
+                        }}>
+                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>
+                            Total Contract Amount
+                          </div>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#333' }}>
+                            {formatCurrency(totalAmount)}
+                          </div>
+                        </div>
+                        
+                        <div style={{
+                          backgroundColor: '#d4edda',
+                          padding: '15px',
+                          borderRadius: '6px',
+                          border: '1px solid #28a745'
+                        }}>
+                          <div style={{ fontSize: '12px', color: '#155724', marginBottom: '5px' }}>
+                            Amount Paid to Date
+                          </div>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#155724' }}>
+                            {formatCurrency(totalPaid)}
+                          </div>
+                        </div>
+                        
+                        <div style={{
+                          backgroundColor: remainingBalance > 0 ? '#fff3cd' : '#d1ecf1',
+                          padding: '15px',
+                          borderRadius: '6px',
+                          border: `1px solid ${remainingBalance > 0 ? '#ffc107' : '#17a2b8'}`
+                        }}>
+                          <div style={{ 
+                            fontSize: '12px', 
+                            color: remainingBalance > 0 ? '#856404' : '#0c5460', 
+                            marginBottom: '5px' 
+                          }}>
+                            Remaining Balance
+                          </div>
+                          <div style={{ 
+                            fontSize: '20px', 
+                            fontWeight: 'bold', 
+                            color: remainingBalance > 0 ? '#856404' : '#0c5460' 
+                          }}>
+                            {formatCurrency(remainingBalance)}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {paymentDetails.length > 0 ? (
+                        <div>
+                          <h4 style={{ 
+                            fontSize: '16px', 
+                            fontWeight: 'bold', 
+                            color: '#333', 
+                            marginBottom: '15px',
+                            marginTop: '20px'
+                          }}>
+                            Payment History
+                          </h4>
+                          <div style={{
+                            backgroundColor: '#fff',
+                            borderRadius: '6px',
+                            overflow: 'hidden',
+                            border: '1px solid #e9ecef'
+                          }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr style={{ backgroundColor: '#08a171', color: '#fff' }}>
+                                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
+                                    Description
+                                  </th>
+                                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
+                                    Date
+                                  </th>
+                                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
+                                    Method
+                                  </th>
+                                  <th style={{ padding: '12px', textAlign: 'right', fontSize: '13px', fontWeight: 'bold' }}>
+                                    Amount
+                                  </th>
+                                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold' }}>
+                                    Receipt
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {paymentDetails.map((payment, idx) => (
+                                  <React.Fragment key={idx}>
+                                    <tr 
+                                      style={{ 
+                                        backgroundColor: idx % 2 === 0 ? '#fff' : '#f8f9fa',
+                                        borderBottom: '1px solid #e9ecef'
+                                      }}
+                                    >
+                                      <td style={{ padding: '12px', fontSize: '13px', color: '#333' }}>
+                                        {payment.description}
+                                      </td>
+                                      <td style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
+                                        {payment.date ? formatDate(payment.date) : 'N/A'}
+                                      </td>
+                                      <td style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
+                                        {payment.method}
+                                      </td>
+                                      <td style={{ padding: '12px', fontSize: '13px', fontWeight: 'bold', color: '#28a745', textAlign: 'right' }}>
+                                        {formatCurrency(payment.amount)}
+                                      </td>
+                                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                                        {payment.receiptUrl ? (
+                                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                setExpandedReceipt(expandedReceipt === idx ? null : idx);
+                                              }}
+                                              style={{
+                                                backgroundColor: '#08a171',
+                                                color: '#fff',
+                                                border: 'none',
+                                                padding: '6px 12px',
+                                                borderRadius: '4px',
+                                                fontSize: '12px',
+                                                cursor: 'pointer',
+                                                fontWeight: 'bold'
+                                              }}
+                                            >
+                                              {expandedReceipt === idx ? '📄 Hide Receipt' : '📄 View Receipt'}
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={async () => {
+                                                try {
+                                                  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                                                  const pdfUrl = `${apiUrl}${payment.receiptUrl}`;
+                                                  
+                                                  // Load PDF.js from CDN if not already loaded
+                                                  if (!window.pdfjsLib) {
+                                                    const script = document.createElement('script');
+                                                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                                                    document.head.appendChild(script);
+                                                    
+                                                    await new Promise((resolve, reject) => {
+                                                      script.onload = resolve;
+                                                      script.onerror = reject;
+                                                      setTimeout(() => reject(new Error('PDF.js load timeout')), 10000);
+                                                    });
+                                                    
+                                                    // Set worker
+                                                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                                                  }
+                                                  
+                                                  // Fetch the PDF
+                                                  const response = await fetch(pdfUrl);
+                                                  const arrayBuffer = await response.arrayBuffer();
+                                                  
+                                                  // Load PDF
+                                                  const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                                  const page = await pdf.getPage(1);
+                                                  
+                                                  // Set up canvas
+                                                  const viewport = page.getViewport({ scale: 2.0 });
+                                                  const canvas = document.createElement('canvas');
+                                                  const context = canvas.getContext('2d');
+                                                  canvas.height = viewport.height;
+                                                  canvas.width = viewport.width;
+                                                  
+                                                  // Render PDF page to canvas
+                                                  await page.render({
+                                                    canvasContext: context,
+                                                    viewport: viewport
+                                                  }).promise;
+                                                  
+                                                  // Convert canvas to PNG and download
+                                                  canvas.toBlob((blob) => {
+                                                    const url = URL.createObjectURL(blob);
+                                                    const link = document.createElement('a');
+                                                    link.href = url;
+                                                    const dateStr = payment.date ? new Date(payment.date).toISOString().split('T')[0] : 'payment';
+                                                    link.download = `receipt_${dateStr}.png`;
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    document.body.removeChild(link);
+                                                    URL.revokeObjectURL(url);
+                                                  }, 'image/png');
+                                                } catch (error) {
+                                                  console.error('Error converting PDF to PNG:', error);
+                                                  alert('Failed to convert receipt to PNG. Please try opening in a new tab instead.');
+                                                }
+                                              }}
+                                              style={{
+                                                backgroundColor: '#17a2b8',
+                                                color: '#fff',
+                                                border: 'none',
+                                                padding: '6px 12px',
+                                                borderRadius: '4px',
+                                                fontSize: '12px',
+                                                cursor: 'pointer',
+                                                fontWeight: 'bold'
+                                              }}
+                                            >
+                                              📥 Download PNG
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={async () => {
+                                              try {
+                                                if (!payment.milestoneId || payment.paymentIndex === undefined) {
+                                                  alert('Unable to generate receipt: Missing payment information');
+                                                  return;
+                                                }
+                                                
+                                                const response = await milestoneApi.generateReceipt(payment.milestoneId, payment.paymentIndex);
+                                                if (response.success) {
+                                                  alert('Receipt generated successfully!');
+                                                  // Refresh milestones to get updated receipt URL
+                                                  await fetchMilestones(id);
+                                                } else {
+                                                  alert('Failed to generate receipt: ' + (response.error || 'Unknown error'));
+                                                }
+                                              } catch (err) {
+                                                console.error('Error generating receipt:', err);
+                                                alert('Failed to generate receipt: ' + (err.response?.data?.error || err.message || 'Unknown error'));
+                                              }
+                                            }}
+                                            style={{
+                                              backgroundColor: '#17a2b8',
+                                              color: '#fff',
+                                              border: 'none',
+                                              padding: '6px 12px',
+                                              borderRadius: '4px',
+                                              fontSize: '12px',
+                                              cursor: 'pointer',
+                                              fontWeight: 'bold'
+                                            }}
+                                          >
+                                            📄 Generate Receipt
+                                          </button>
+                                        )}
+                                      </td>
+                                    </tr>
+                                    {expandedReceipt === idx && payment.receiptUrl && (
+                                    <tr>
+                                      <td colSpan="5" style={{ padding: '0', backgroundColor: '#fff' }}>
+                                        <div style={{
+                                          border: '2px solid #08a171',
+                                          borderRadius: '8px',
+                                          margin: '10px',
+                                          padding: '10px',
+                                          backgroundColor: '#f8f9fa'
+                                        }}>
+                                          <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            marginBottom: '10px'
+                                          }}>
+                                            <h5 style={{ margin: 0, color: '#333', fontSize: '14px', fontWeight: 'bold' }}>
+                                              Payment Receipt
+                                            </h5>
+                                              <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                                                    window.open(`${apiUrl}${payment.receiptUrl}`, '_blank');
+                                                  }}
+                                                  style={{
+                                                    backgroundColor: '#6c757d',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '11px',
+                                                    cursor: 'pointer'
+                                                  }}
+                                                >
+                                                  Open in New Tab
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  onClick={async () => {
+                                                    try {
+                                                      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                                                      const pdfUrl = `${apiUrl}${payment.receiptUrl}`;
+                                                      
+                                                      // Load PDF.js from CDN if not already loaded
+                                                      if (!window.pdfjsLib) {
+                                                        const script = document.createElement('script');
+                                                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                                                        document.head.appendChild(script);
+                                                        
+                                                        await new Promise((resolve, reject) => {
+                                                          script.onload = resolve;
+                                                          script.onerror = reject;
+                                                          setTimeout(() => reject(new Error('PDF.js load timeout')), 10000);
+                                                        });
+                                                        
+                                                        // Set worker
+                                                        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                                                      }
+                                                      
+                                                      // Fetch the PDF
+                                                      const response = await fetch(pdfUrl);
+                                                      const arrayBuffer = await response.arrayBuffer();
+                                                      
+                                                      // Load PDF
+                                                      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                                      const page = await pdf.getPage(1);
+                                                      
+                                                      // Set up canvas
+                                                      const viewport = page.getViewport({ scale: 2.0 });
+                                                      const canvas = document.createElement('canvas');
+                                                      const context = canvas.getContext('2d');
+                                                      canvas.height = viewport.height;
+                                                      canvas.width = viewport.width;
+                                                      
+                                                      // Render PDF page to canvas
+                                                      await page.render({
+                                                        canvasContext: context,
+                                                        viewport: viewport
+                                                      }).promise;
+                                                      
+                                                      // Convert canvas to PNG and download
+                                                      canvas.toBlob((blob) => {
+                                                        const url = URL.createObjectURL(blob);
+                                                        const link = document.createElement('a');
+                                                        link.href = url;
+                                                        const dateStr = payment.date ? new Date(payment.date).toISOString().split('T')[0] : 'payment';
+                                                        link.download = `receipt_${dateStr}.png`;
+                                                        document.body.appendChild(link);
+                                                        link.click();
+                                                        document.body.removeChild(link);
+                                                        URL.revokeObjectURL(url);
+                                                      }, 'image/png');
+                                                    } catch (error) {
+                                                      console.error('Error converting PDF to PNG:', error);
+                                                      alert('Failed to convert receipt to PNG. Please try opening in a new tab instead.');
+                                                    }
+                                                  }}
+                                                  style={{
+                                                    backgroundColor: '#17a2b8',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '11px',
+                                                    cursor: 'pointer'
+                                                  }}
+                                                >
+                                                  📥 Download PNG
+                                                </button>
+                                              </div>
+                                          </div>
+                                          <iframe
+                                            src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${payment.receiptUrl}`}
+                                            style={{
+                                              width: '100%',
+                                              height: '600px',
+                                              border: '1px solid #ddd',
+                                              borderRadius: '4px'
+                                            }}
+                                            title={`Receipt for payment ${idx + 1}`}
+                                          />
+                                        </div>
+                                      </td>
+                                    </tr>
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{
+                          padding: '20px',
+                          textAlign: 'center',
+                          color: '#666',
+                          backgroundColor: '#fff',
+                          borderRadius: '6px',
+                          border: '1px solid #e9ecef',
+                          marginTop: '20px'
+                        }}>
+                          No payments recorded to date.
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+
+          {/* Book Payment Section */}
+          <div className="contract-section">
+            <h3>Book Payment</h3>
+            {!showPaymentForm ? (
+              <div style={{
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #08a171',
+                borderRadius: '8px',
+                padding: '20px',
+                marginTop: '10px',
+                textAlign: 'center'
+              }}>
+                <p style={{ marginBottom: '15px', color: '#666' }}>
+                  Record a new payment for this contract
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentForm(true)}
+                  style={{
+                    backgroundColor: '#08a171',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + Record Payment
+                </button>
+              </div>
+            ) : (
+              <div style={{
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #08a171',
+                borderRadius: '8px',
+                padding: '20px',
+                marginTop: '10px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: '#333', margin: 0 }}>
+                    Record New Payment
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPaymentForm(false);
+                      setPaymentFormData({
+                        amount: '',
+                        method: 'Cash',
+                        transactionId: '',
+                        notes: '',
+                        milestoneId: ''
+                      });
+                    }}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      fontSize: '24px',
+                      color: '#666',
+                      cursor: 'pointer',
+                      padding: '0',
+                      width: '30px',
+                      height: '30px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmitPayment}>
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
+                      Payment Amount *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      value={paymentFormData.amount}
+                      onChange={(e) => setPaymentFormData(prev => ({ ...prev, amount: e.target.value }))}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '16px'
+                      }}
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
+                      Payment Method *
+                    </label>
+                    <select
+                      value={paymentFormData.method}
+                      onChange={(e) => setPaymentFormData(prev => ({ ...prev, method: e.target.value }))}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '16px'
+                      }}
+                    >
+                      <option value="Cash">Cash</option>
+                      <option value="Check">Check</option>
+                      <option value="Credit Card">Credit Card</option>
+                      <option value="Bank Transfer">Bank Transfer</option>
+                      <option value="Stripe">Stripe</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
+                      Transaction ID / Reference
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentFormData.transactionId}
+                      onChange={(e) => setPaymentFormData(prev => ({ ...prev, transactionId: e.target.value }))}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '16px'
+                      }}
+                      placeholder="Optional transaction reference"
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
+                      Notes
+                    </label>
+                    <textarea
+                      value={paymentFormData.notes}
+                      onChange={(e) => setPaymentFormData(prev => ({ ...prev, notes: e.target.value }))}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '16px',
+                        minHeight: '80px'
+                      }}
+                      placeholder="Optional payment notes"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                    <button
+                      type="submit"
+                      disabled={submittingPayment}
+                      style={{
+                        backgroundColor: '#08a171',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '12px 24px',
+                        borderRadius: '6px',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        cursor: submittingPayment ? 'not-allowed' : 'pointer',
+                        opacity: submittingPayment ? 0.6 : 1,
+                        flex: 1
+                      }}
+                    >
+                      {submittingPayment ? 'Recording Payment...' : 'Record Payment'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPaymentForm(false);
+                        setPaymentFormData({
+                          amount: '',
+                          method: 'Cash',
+                          transactionId: '',
+                          notes: '',
+                          milestoneId: ''
+                        });
+                      }}
+                      style={{
+                        backgroundColor: '#6c757d',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '12px 24px',
+                        borderRadius: '6px',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        flex: 1
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
 
           {/* Signed Contract Upload Section */}
           <div className="contract-section">

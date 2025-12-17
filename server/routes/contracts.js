@@ -60,8 +60,25 @@ router.get('/', authenticateUser, async (req, res) => {
   try {
     console.log('📖 Getting all contracts...');
     const contracts = await Contract.find()
-      .populate('customer', 'firstName lastName email')
+      .populate('customer', 'firstName lastName email businessName')
       .sort({ createdAt: -1 });
+    
+    // Sync clientName for all contracts that have customers
+    const syncPromises = contracts.map(async (contract) => {
+      if (contract.customer) {
+        const customer = contract.customer;
+        const currentCustomerName = customer.businessName || 
+          `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
+        
+        if (currentCustomerName && contract.clientName !== currentCustomerName) {
+          contract.clientName = currentCustomerName;
+          return contract.save();
+        }
+      }
+      return Promise.resolve();
+    });
+    
+    await Promise.all(syncPromises);
     
     res.json({
       success: true,
@@ -159,7 +176,9 @@ router.post('/', authenticateUser, [
       endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
       lineItems: estimate?.lineItems?.length ? estimate.lineItems : (req.body.lineItems || []),
       clientName: `${customer.firstName} ${customer.lastName}`,
-      clientAddress: customer.address?.full || customer.address || 'Address not provided'
+      clientAddress: customer.address?.full || customer.address || 'Address not provided',
+      depositAmount: req.body.depositAmount !== undefined ? parseFloat(req.body.depositAmount) : undefined,
+      drawScheduleType: req.body.drawScheduleType || 'regular'
     };
     
     if (estimate) {
@@ -198,13 +217,28 @@ router.get('/:id', authenticateUser, async (req, res) => {
     console.log('📖 Getting contract:', id);
     
     const contract = await Contract.findById(id)
-      .populate('customer', 'firstName lastName email phone address');
+      .populate('customer', 'firstName lastName email phone address businessName');
     
     if (!contract) {
       return res.status(404).json({
         success: false,
         error: 'Contract not found'
       });
+    }
+    
+    // Sync clientName from customer if customer is populated and names don't match
+    if (contract.customer) {
+      const customer = contract.customer;
+      const currentCustomerName = customer.businessName || 
+        `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
+      
+      // Update contract's clientName if it's different from customer's current name
+      if (currentCustomerName && contract.clientName !== currentCustomerName) {
+        console.log(`🔄 Syncing contract clientName: "${contract.clientName}" -> "${currentCustomerName}"`);
+        contract.clientName = currentCustomerName;
+        await contract.save();
+        console.log(`✅ Contract clientName updated to match customer`);
+      }
     }
     
     console.log('📋 Contract line items:', contract.lineItems);
@@ -269,6 +303,10 @@ router.put('/:id', authenticateUser, [
     }
     if (req.body.endDate) {
       updateData.endDate = new Date(req.body.endDate);
+    }
+    // Ensure depositAmount is properly parsed as a number
+    if (req.body.depositAmount !== undefined) {
+      updateData.depositAmount = parseFloat(req.body.depositAmount);
     }
 
     // Update the contract
@@ -342,11 +380,25 @@ router.get('/:id/pdf', authenticateUser, async (req, res) => {
     }
 
     // Get the related estimate for line items
-    const estimate = await Estimate.findById(contract.estimateId);
+    let estimate = null;
+    if (contract.estimateId) {
+      estimate = await Estimate.findById(contract.estimateId);
+      if (estimate) {
+        console.log('📋 Found estimate with', estimate.lineItems?.length || 0, 'line items');
+      } else {
+        console.log('⚠️ Estimate not found for estimateId:', contract.estimateId);
+      }
+    } else {
+      console.log('⚠️ Contract has no estimateId');
+    }
+    
+    // Get milestones for payment tracking
+    const Milestone = require('../models/Milestone');
+    const milestones = await Milestone.find({ contractId: contract._id, type: 'Payment' });
     
     // Generate PDF
     const pdfService = new ContractPdfService();
-    const pdfResult = await pdfService.generateContractPdf(contract, contract.customer, estimate);
+    const pdfResult = await pdfService.generateContractPdf(contract, contract.customer, estimate, milestones);
     
     console.log('✅ PDF generated successfully:', pdfResult.fileName);
     

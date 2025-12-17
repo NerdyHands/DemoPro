@@ -504,7 +504,46 @@ router.post('/:id/payment', authenticateUser, requireAdmin, [
       });
     }
     
-    milestone.addPayment(amount, method, transactionId, notes);
+    // Generate PDF receipt first (before adding payment)
+    let receiptPath = null;
+    let receiptUrl = null;
+    
+    try {
+      const PaymentReceiptPdfService = require('../services/paymentReceiptPdfService');
+      const Contract = require('../models/Contract');
+      const Customer = require('../models/Customer');
+      
+      const contract = await Contract.findById(milestone.contractId);
+      const customer = await Customer.findById(milestone.customerId);
+      
+      if (contract) {
+        const receiptService = new PaymentReceiptPdfService();
+        const receiptResult = await receiptService.generatePaymentReceipt(
+          {
+            amount,
+            date: new Date(),
+            method,
+            transactionId,
+            notes
+          },
+          contract,
+          customer,
+          milestone
+        );
+        
+        receiptPath = receiptResult.filePath;
+        receiptUrl = receiptResult.fileUrl;
+      }
+    } catch (receiptError) {
+      console.error('❌ Error generating receipt PDF:', receiptError);
+      console.error('❌ Receipt error stack:', receiptError.stack);
+      // Don't fail the payment if receipt generation fails
+    }
+    
+    console.log('📄 Receipt generation result:', { receiptPath, receiptUrl });
+    
+    // Add payment to milestone with receipt info
+    milestone.addPayment(amount, method, transactionId, notes, receiptPath, receiptUrl);
     await milestone.save();
     
     console.log('✅ Payment added to milestone:', milestone.milestoneId, amount);
@@ -521,6 +560,113 @@ router.post('/:id/payment', authenticateUser, requireAdmin, [
     });
   } catch (error) {
     console.error('❌ Error adding payment:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+// POST /api/milestones/:id/payment/:paymentIndex/receipt - Generate receipt for existing payment
+router.post('/:id/payment/:paymentIndex/receipt', authenticateUser, requireAdmin, async (req, res) => {
+  try {
+    const { id, paymentIndex } = req.params;
+    const paymentIdx = parseInt(paymentIndex, 10);
+    
+    if (isNaN(paymentIdx) || paymentIdx < 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid payment index'
+      });
+    }
+    
+    const milestone = await Milestone.findById(id);
+    if (!milestone) {
+      return res.status(404).json({
+        success: false,
+        error: 'Milestone not found'
+      });
+    }
+    
+    if (milestone.type !== 'Payment') {
+      return res.status(400).json({
+        success: false,
+        error: 'This milestone is not a payment milestone'
+      });
+    }
+    
+    if (!milestone.payment.partialPayments || paymentIdx >= milestone.payment.partialPayments.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Payment not found'
+      });
+    }
+    
+    const payment = milestone.payment.partialPayments[paymentIdx];
+    
+    // If receipt already exists, return it
+    if (payment.receiptUrl) {
+      return res.json({
+        success: true,
+        message: 'Receipt already exists',
+        receiptUrl: payment.receiptUrl,
+        receiptPath: payment.receiptPath
+      });
+    }
+    
+    // Generate PDF receipt
+    let receiptPath = null;
+    let receiptUrl = null;
+    
+    try {
+      const PaymentReceiptPdfService = require('../services/paymentReceiptPdfService');
+      const Contract = require('../models/Contract');
+      const Customer = require('../models/Customer');
+      
+      const contract = await Contract.findById(milestone.contractId);
+      const customer = await Customer.findById(milestone.customerId);
+      
+      if (contract) {
+        const receiptService = new PaymentReceiptPdfService();
+        const receiptResult = await receiptService.generatePaymentReceipt(
+          payment,
+          contract,
+          customer,
+          milestone
+        );
+        
+        receiptPath = receiptResult.filePath;
+        receiptUrl = receiptResult.fileUrl;
+        
+        // Update the payment with receipt info
+        milestone.payment.partialPayments[paymentIdx].receiptPath = receiptPath;
+        milestone.payment.partialPayments[paymentIdx].receiptUrl = receiptUrl;
+        await milestone.save();
+        
+        console.log('✅ Receipt generated for existing payment:', receiptUrl);
+      } else {
+        return res.status(404).json({
+          success: false,
+          error: 'Contract not found'
+        });
+      }
+    } catch (receiptError) {
+      console.error('❌ Error generating receipt PDF:', receiptError);
+      console.error('❌ Receipt error stack:', receiptError.stack);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to generate receipt: ' + receiptError.message
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Receipt generated successfully',
+      receiptUrl,
+      receiptPath
+    });
+  } catch (error) {
+    console.error('❌ Error generating receipt:', error);
     res.status(500).json({ 
       success: false,
       error: error.message 

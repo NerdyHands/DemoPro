@@ -211,7 +211,21 @@ class EstimatePdfService {
         const descriptionHeight = doc.heightOfString(descriptionText, {
           width: descriptionWidth
         });
-        const rowHeight = Math.max(minRowHeight, descriptionHeight + rowPaddingY * 2);
+        
+        // Calculate notes height if notes exist
+        let notesHeight = 0;
+        const notes = item.notes || [];
+        const validNotes = notes.filter(note => note && note.trim());
+        if (validNotes.length > 0) {
+          doc.fontSize(9).font('Times-Italic');
+          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          notesHeight = doc.heightOfString(notesText, {
+            width: descriptionWidth
+          }) + rowPaddingY;
+          doc.fontSize(9).font('Helvetica'); // Reset font
+        }
+        
+        const rowHeight = Math.max(minRowHeight, descriptionHeight + notesHeight + rowPaddingY * 2);
 
         ensureSpaceForRow(rowHeight + 4);
 
@@ -231,11 +245,32 @@ class EstimatePdfService {
            .text(`#${index + 1}`, colX[0], textY, {
              width: colWidths[0] - 10,
              height: rowHeight - rowPaddingY * 2
-           })
-           .text(descriptionText, colX[1], textY, {
-             width: descriptionWidth,
-             height: rowHeight - rowPaddingY * 2
-           })
+           });
+        
+        // Description
+        let currentY = textY;
+        doc.text(descriptionText, colX[1], currentY, {
+          width: descriptionWidth,
+          height: descriptionHeight
+        });
+        
+        // Notes below description
+        if (validNotes.length > 0) {
+          currentY += descriptionHeight + 4;
+          doc.fontSize(9)
+             .font('Times-Italic')
+             .fillColor('#666666');
+          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          doc.text(notesText, colX[1], currentY, {
+            width: descriptionWidth,
+            height: notesHeight
+          });
+        }
+        
+        // Quantity, Unit Price, Total (aligned to top)
+        doc.fontSize(9)
+           .font('Helvetica')
+           .fillColor('#333333')
            .text(item.quantity?.toString() || '1', colX[2], textY, {
              width: colWidths[2] - 10,
              height: rowHeight - rowPaddingY * 2
@@ -294,10 +329,14 @@ class EstimatePdfService {
        .text('TOTAL:', totalsBoxX + 10, totalsY + 20)
        .text(this.formatPrice(estimate.totalAmount || 0), totalsBoxX + totalsBoxWidth - 10, totalsY + 20, { align: 'right' });
 
-    // Notes
-    if (estimate.description) {
-      const minNotesHeight = 60;
-      if (doc.y + minNotesHeight > pageBottomY) {
+    // Description + Notes (distinct fields)
+    const descriptionText = typeof estimate.description === 'string' ? estimate.description.trim() : '';
+    const notesText = typeof estimate.notes === 'string' ? estimate.notes.trim() : '';
+
+    const addTextSection = (label, text) => {
+      if (!text) return;
+      const minSectionHeight = 60;
+      if (doc.y + minSectionHeight > pageBottomY) {
         doc.addPage();
         doc.y = 50;
       }
@@ -305,12 +344,16 @@ class EstimatePdfService {
       doc.fontSize(11)
          .font('Helvetica-Bold')
          .fillColor('#333333')
-         .text('Notes:', 50, doc.y);
+         .text(`${label}:`, 50, doc.y);
       doc.fontSize(10)
          .font('Helvetica')
          .fillColor('#333333')
-         .text(estimate.description, 50, doc.y + 15, { width: 490, align: 'justify' });
-    }
+         .text(text, 50, doc.y + 15, { width: 490, align: 'justify' });
+    };
+
+    // Keep the PDF consistent with the UI: Description is description, Notes is notes
+    addTextSection('Description', descriptionText);
+    addTextSection('Notes', notesText);
 
     // Footer note
     doc.moveDown(2);

@@ -76,7 +76,9 @@ const milestoneSchema = new mongoose.Schema({
       date: Date,
       method: String,
       transactionId: String,
-      notes: String
+      notes: String,
+      receiptPath: String,
+      receiptUrl: String
     }],
     lateFees: {
       amount: Number,
@@ -318,18 +320,24 @@ milestoneSchema.methods.markAsCompleted = function(completedBy) {
   }
 };
 
-milestoneSchema.methods.addPayment = function(amount, method, transactionId, notes) {
+milestoneSchema.methods.addPayment = function(amount, method, transactionId, notes, receiptPath, receiptUrl) {
   if (!this.payment.partialPayments) {
     this.payment.partialPayments = [];
   }
   
-  this.payment.partialPayments.push({
+  const paymentEntry = {
     amount,
     date: new Date(),
     method,
     transactionId,
     notes
-  });
+  };
+  
+  // Add receipt info if provided
+  if (receiptPath) paymentEntry.receiptPath = receiptPath;
+  if (receiptUrl) paymentEntry.receiptUrl = receiptUrl;
+  
+  this.payment.partialPayments.push(paymentEntry);
   
   // Update payment status
   const totalPaid = this.totalPaid;

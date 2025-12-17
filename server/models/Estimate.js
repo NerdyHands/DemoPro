@@ -24,6 +24,10 @@ const lineItemSchema = new mongoose.Schema({
     required: true,
     min: 0,
     default: 0
+  },
+  notes: {
+    type: [String],
+    default: []
   }
 }, { _id: false });
 

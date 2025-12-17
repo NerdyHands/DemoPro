@@ -263,6 +263,12 @@ export const milestoneApi = {
     return response.data;
   },
 
+  // Generate receipt for existing payment
+  generateReceipt: async (milestoneId, paymentIndex) => {
+    const response = await api.post(`/milestones/${milestoneId}/payment/${paymentIndex}/receipt`);
+    return response.data;
+  },
+
   // Add comment to milestone
   addComment: async (id, content, isInternal = false) => {
     const response = await api.post(`/milestones/${id}/comments`, { content, isInternal });

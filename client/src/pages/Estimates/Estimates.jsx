@@ -347,6 +347,16 @@ const Estimates = () => {
                                 </span>
                               </div>
                               <p className="line-item-description">{item.description}</p>
+                              {item.notes && item.notes.length > 0 && (
+                                <div className="expanded-line-item-notes">
+                                  <strong>Notes:</strong>
+                                  <ul>
+                                    {item.notes.map((note, noteIdx) => (
+                                      note && <li key={noteIdx}>{note}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
                             </li>
                           ))}
                         </ul>

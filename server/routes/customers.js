@@ -1,6 +1,8 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Customer = require('../models/Customer');
+const Contract = require('../models/Contract');
+const Estimate = require('../models/Estimate');
 const router = express.Router();
 
 // JWT Secret (should be in environment variables)
@@ -253,6 +255,31 @@ router.put('/:id', authenticateUser, [
       }
     }
 
+    // Calculate old and new customer names for syncing
+    // Handle both business name and person name cases
+    let oldCustomerName = '';
+    if (existingCustomer.businessName && existingCustomer.businessName.trim()) {
+      oldCustomerName = existingCustomer.businessName.trim();
+    } else if (existingCustomer.firstName || existingCustomer.lastName) {
+      oldCustomerName = `${existingCustomer.firstName || ''} ${existingCustomer.lastName || ''}`.trim();
+    }
+    
+    // Determine what the new name will be after update
+    const finalBusinessName = req.body.businessName !== undefined ? req.body.businessName : existingCustomer.businessName;
+    const finalFirstName = req.body.firstName !== undefined ? req.body.firstName : existingCustomer.firstName;
+    const finalLastName = req.body.lastName !== undefined ? req.body.lastName : existingCustomer.lastName;
+    
+    let newCustomerName = '';
+    if (finalBusinessName && finalBusinessName.trim()) {
+      newCustomerName = finalBusinessName.trim();
+    } else if (finalFirstName || finalLastName) {
+      newCustomerName = `${finalFirstName || ''} ${finalLastName || ''}`.trim();
+    }
+    
+    // Check if name is actually changing
+    const nameChanged = oldCustomerName !== newCustomerName && 
+      (req.body.businessName !== undefined || req.body.firstName !== undefined || req.body.lastName !== undefined);
+
     // Update the customer
     const updateData = { ...req.body };
     if (req.body.address) {
@@ -266,6 +293,67 @@ router.put('/:id', authenticateUser, [
     );
     
     console.log('✅ Customer updated successfully:', updatedCustomer.customerId);
+    
+    // Sync customer name to related contracts and estimates if name changed
+    if (nameChanged && newCustomerName) {
+      try {
+        console.log(`🔄 Syncing customer name from "${oldCustomerName}" to "${newCustomerName}"`);
+        console.log(`   Customer ID: ${id}, Customer ID string: ${updatedCustomer.customerId}`);
+        
+        // Update all contracts with this customer
+        // Check multiple possible ways the customer might be referenced:
+        // 1. customerId field matches the customer's customerId string
+        // 2. customer ObjectId reference matches
+        // 3. customerId field might be stored as ObjectId string (legacy data)
+        const contractQuery = {
+          $or: [
+            { customerId: updatedCustomer.customerId },
+            { customer: id },
+            { customerId: id.toString() }
+          ]
+        };
+        
+        // First, find contracts to see what we're working with
+        const contractsToUpdate = await Contract.find(contractQuery);
+        console.log(`   Found ${contractsToUpdate.length} contract(s) to update`);
+        
+        if (contractsToUpdate.length > 0) {
+          contractsToUpdate.forEach(contract => {
+            console.log(`   - Contract ${contract.contractNumber}: current clientName="${contract.clientName}", customerId="${contract.customerId}"`);
+          });
+        }
+        
+        const contractsUpdated = await Contract.updateMany(
+          contractQuery,
+          { $set: { clientName: newCustomerName } }
+        );
+        
+        if (contractsUpdated.modifiedCount > 0) {
+          console.log(`✅ Updated ${contractsUpdated.modifiedCount} contract(s) with new customer name "${newCustomerName}"`);
+        } else if (contractsToUpdate.length > 0) {
+          console.log(`⚠️ Found ${contractsToUpdate.length} contract(s) but none were modified (may already have correct name)`);
+        }
+        
+        // Update estimates - check if title contains old customer name and update it
+        const estimates = await Estimate.find({ customer: id });
+        console.log(`   Found ${estimates.length} estimate(s) to check`);
+        let estimatesUpdated = 0;
+        for (const estimate of estimates) {
+          if (estimate.title && estimate.title.includes(oldCustomerName)) {
+            const updatedTitle = estimate.title.replace(oldCustomerName, newCustomerName);
+            await Estimate.findByIdAndUpdate(estimate._id, { title: updatedTitle });
+            estimatesUpdated++;
+            console.log(`   - Updated estimate ${estimate.estimateNumber}: "${estimate.title}" -> "${updatedTitle}"`);
+          }
+        }
+        if (estimatesUpdated > 0) {
+          console.log(`✅ Updated ${estimatesUpdated} estimate(s) with new customer name`);
+        }
+      } catch (syncError) {
+        console.error('⚠️ Error syncing customer name to contracts/estimates:', syncError);
+        // Don't fail the request if sync fails, just log it
+      }
+    }
     
     res.json({
       success: true,

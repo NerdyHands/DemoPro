@@ -71,14 +71,23 @@ app.set('trust proxy', trustProxySetting);
 app.use(helmet());
 app.use(compression());
 
-// Rate limiting
+// Rate limiting - more permissive in development
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Higher limit in development
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: trustProxySetting
+  trustProxy: trustProxySetting,
+  handler: (req, res) => {
+    // Ensure CORS headers are set even on rate limit errors
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.status(429).json({
+      success: false,
+      error: 'Too many requests from this IP, please try again later.'
+    });
+  }
 });
 app.use('/api/', limiter);
 
@@ -437,7 +446,7 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Global error handler
+// Global error handler - ensure CORS headers are set
 app.use((error, req, res, next) => {
   console.error('❌ Global error handler caught:', error);
   console.error('📋 Request details:', {
@@ -446,6 +455,15 @@ app.use((error, req, res, next) => {
     headers: req.headers,
     body: req.body
   });
+  
+  // Ensure CORS headers are set on error responses
+  const origin = req.headers.origin;
+  if (origin && (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production')) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  } else if (!origin || process.env.NODE_ENV !== 'production') {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
   
   // Store error in response locals for logging
   res.locals.error = error.message;

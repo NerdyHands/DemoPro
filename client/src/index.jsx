@@ -5,6 +5,34 @@ import App from './App.jsx';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration.jsx';
 import reportWebVitals from './reportWebVitals.jsx';
 
+// Suppress browser extension errors (React DevTools, Redux DevTools, etc.)
+// These are harmless errors from extensions trying to communicate after disconnection
+window.addEventListener('error', (event) => {
+  if (
+    event.message?.includes('disconnected port') ||
+    event.message?.includes('Extension context invalidated') ||
+    event.filename?.includes('proxy.js') ||
+    event.filename?.includes('chrome-extension://') ||
+    event.filename?.includes('moz-extension://')
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  }
+});
+
+// Also catch unhandled promise rejections from extensions
+window.addEventListener('unhandledrejection', (event) => {
+  if (
+    event.reason?.message?.includes('disconnected port') ||
+    event.reason?.message?.includes('Extension context invalidated') ||
+    String(event.reason).includes('proxy.js')
+  ) {
+    event.preventDefault();
+    return false;
+  }
+});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

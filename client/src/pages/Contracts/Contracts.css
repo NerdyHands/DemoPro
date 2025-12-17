@@ -1950,3 +1950,31 @@
     gap: var(--spacing-xs);
   }
 }
+
+/* Line Item Notes Styles (matching Estimate view) */
+.line-item-view-notes {
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border-left: 3px solid #08a171;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.line-item-view-notes strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.line-item-notes-list-view {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.line-item-notes-list-view li {
+  margin-bottom: 0.25rem;
+  color: #666;
+  font-size: 0.9rem;
+}

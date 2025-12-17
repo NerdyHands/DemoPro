@@ -239,19 +239,33 @@ const EstimateView = () => {
                   <div className="line-item-view-col total-col">Total</div>
                 </div>
                 {estimate.lineItems.map((item, index) => (
-                  <div key={index} className="line-item-view-row">
-                    <div className="line-item-view-col description-col" data-label="Description">
-                      {item.description}
+                  <div key={index}>
+                    <div className="line-item-view-row">
+                      <div className="line-item-view-col description-col" data-label="Description">
+                        {item.description}
+                      </div>
+                      <div className="line-item-view-col quantity-col" data-label="Quantity">
+                        {item.quantity}
+                      </div>
+                      <div className="line-item-view-col price-col" data-label="Unit Price">
+                        {formatCurrency(item.unitPrice)}
+                      </div>
+                      <div className="line-item-view-col total-col" data-label="Total">
+                        {formatCurrency(item.totalPrice)}
+                      </div>
                     </div>
-                    <div className="line-item-view-col quantity-col" data-label="Quantity">
-                      {item.quantity}
-                    </div>
-                    <div className="line-item-view-col price-col" data-label="Unit Price">
-                      {formatCurrency(item.unitPrice)}
-                    </div>
-                    <div className="line-item-view-col total-col" data-label="Total">
-                      {formatCurrency(item.totalPrice)}
-                    </div>
+                    {item.notes && item.notes.length > 0 && (
+                      <div className="line-item-view-notes">
+                        <strong>Notes:</strong>
+                        <ul className="line-item-notes-list-view">
+                          {item.notes.map((note, noteIndex) => (
+                            note && (
+                              <li key={noteIndex}>{note}</li>
+                            )
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

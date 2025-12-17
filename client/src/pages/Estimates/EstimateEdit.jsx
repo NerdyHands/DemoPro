@@ -55,10 +55,11 @@ const EstimateEdit = () => {
         description: li.description || '',
         quantity: li.quantity || 1,
         unitPrice: li.unitPrice || 0,
-        total: li.total || 0
+        total: li.total || 0,
+        notes: li.notes || []
       }));
     }
-    return [{ id: 1, description: '', quantity: 1, unitPrice: 0, total: 0 }];
+    return [{ id: 1, description: '', quantity: 1, unitPrice: 0, total: 0, notes: [] }];
   });
 
   const [customers, setCustomers] = useState([]);
@@ -106,7 +107,8 @@ const EstimateEdit = () => {
           description: item.description || '',
           quantity: item.quantity || 1,
           unitPrice: item.unitPrice || 0,
-          total: item.totalPrice || 0
+          total: item.totalPrice || 0,
+          notes: item.notes || []
         })));
       }
     } catch (err) {
@@ -133,25 +135,13 @@ const EstimateEdit = () => {
     }
   }, [isFromCustomerPage, customerIdFromUrl, formData.customerId]);
 
-  // Set default title when creating from customer page
-  useEffect(() => {
-    if (!isEditing && isFromCustomerPage && customers.length > 0) {
-      const selectedCustomer = customers.find(c => c._id === customerIdFromUrl);
-      if (selectedCustomer && !formData.title) {
-        setFormData(prev => ({
-          ...prev,
-          title: `Estimate `
-        }));
-      }
-    }
-  }, [isEditing, isFromCustomerPage, customers, customerIdFromUrl, formData.title]);
 
   // Auto-populate client address when customer is selected
   useEffect(() => {
     const activeCustomerId = formData.customerId || customerIdFromUrl;
     if (activeCustomerId && customers.length > 0 && !isEditing) {
       const selectedCustomer = customers.find(c => c._id === activeCustomerId);
-      if (selectedCustomer && selectedCustomer.address && !formData.clientAddress) {
+      if (selectedCustomer && selectedCustomer.address) {
         let customerAddress = '';
         if (typeof selectedCustomer.address === 'string') {
           customerAddress = selectedCustomer.address;
@@ -162,14 +152,24 @@ const EstimateEdit = () => {
         }
         
         if (customerAddress) {
-          setFormData(prev => ({
-            ...prev,
-            clientAddress: customerAddress
-          }));
+          setFormData(prev => {
+            // Only update if fields are empty to avoid overwriting user input
+            const updates = {};
+            if (!prev.clientAddress) {
+              updates.clientAddress = customerAddress;
+            }
+            if (!prev.propertyAddress) {
+              updates.propertyAddress = customerAddress;
+            }
+            if (!prev.title || prev.title.trim() === '' || prev.title === 'Estimate' || prev.title.trim() === 'Estimate') {
+              updates.title = customerAddress;
+            }
+            return Object.keys(updates).length > 0 ? { ...prev, ...updates } : prev;
+          });
         }
       }
     }
-  }, [formData.customerId, customers, isEditing, formData.clientAddress, customerIdFromUrl]);
+  }, [formData.customerId, customers, isEditing, customerIdFromUrl]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -194,25 +194,27 @@ const EstimateEdit = () => {
   };
 
   const addLineItem = () => {
-    const newId = Math.max(...lineItems.map(item => item.id)) + 1;
+    const newId = Math.max(...lineItems.map(item => item.id), 0) + 1;
     setLineItems(prev => [...prev, {
       id: newId,
       description: '',
       quantity: 1,
       unitPrice: 0,
-      total: 0
+      total: 0,
+      notes: []
     }]);
   };
 
   const insertLineItemBelow = (id) => {
     const index = lineItems.findIndex(item => item.id === id);
-    const newId = Math.max(...lineItems.map(item => item.id)) + 1;
+    const newId = Math.max(...lineItems.map(item => item.id), 0) + 1;
     const newItem = {
       id: newId,
       description: '',
       quantity: 1,
       unitPrice: 0,
-      total: 0
+      total: 0,
+      notes: []
     };
     const newLineItems = [...lineItems];
     newLineItems.splice(index + 1, 0, newItem);
@@ -241,6 +243,46 @@ const EstimateEdit = () => {
       [newLineItems[index], newLineItems[index + 1]] = [newLineItems[index + 1], newLineItems[index]];
       setLineItems(newLineItems);
     }
+  };
+
+  const addNoteToLineItem = (lineItemId) => {
+    setLineItems(prev => prev.map(item => {
+      if (item.id === lineItemId) {
+        return {
+          ...item,
+          notes: [...(item.notes || []), '']
+        };
+      }
+      return item;
+    }));
+  };
+
+  const updateLineItemNote = (lineItemId, noteIndex, value) => {
+    setLineItems(prev => prev.map(item => {
+      if (item.id === lineItemId) {
+        const updatedNotes = [...(item.notes || [])];
+        updatedNotes[noteIndex] = value;
+        return {
+          ...item,
+          notes: updatedNotes
+        };
+      }
+      return item;
+    }));
+  };
+
+  const removeLineItemNote = (lineItemId, noteIndex) => {
+    setLineItems(prev => prev.map(item => {
+      if (item.id === lineItemId) {
+        const updatedNotes = [...(item.notes || [])];
+        updatedNotes.splice(noteIndex, 1);
+        return {
+          ...item,
+          notes: updatedNotes
+        };
+      }
+      return item;
+    }));
   };
 
   const calculateTotal = () => {
@@ -321,7 +363,8 @@ const EstimateEdit = () => {
           description: item.description,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-          totalPrice: item.total
+          totalPrice: item.total,
+          notes: (item.notes || []).filter(note => note && note.trim())
         })),
         totalAmount: calculateTotal()
       };
@@ -460,7 +503,7 @@ const EstimateEdit = () => {
                         <strong>{getCustomerDisplayName(currentCustomer)}</strong>
                         <span className="customer-email">({currentCustomer.email})</span>
                         {currentCustomer.phone && (
-                          <span className="customer-phone"> - {currentCustomer.phone}</span>
+                          <span className="customer-phone"> {currentCustomer.phone}</span>
                         )}
                       </div>
                     ) : (
@@ -644,6 +687,43 @@ const EstimateEdit = () => {
                           ${item.total.toFixed(2)}
                         </div>
                       </div>
+                    </div>
+                    
+                    <div className="line-item-notes-section">
+                      <div className="line-item-notes-header">
+                        <label className="line-item-label">Notes</label>
+                        <button
+                          type="button"
+                          onClick={() => addNoteToLineItem(item.id)}
+                          className="btn btn-secondary btn-sm"
+                          title="Add Note"
+                        >
+                          + Add Note
+                        </button>
+                      </div>
+                      {(item.notes || []).length > 0 && (
+                        <div className="line-item-notes-list">
+                          {(item.notes || []).map((note, noteIndex) => (
+                            <div key={noteIndex} className="line-item-note-row">
+                              <input
+                                type="text"
+                                value={note}
+                                onChange={(e) => updateLineItemNote(item.id, noteIndex, e.target.value)}
+                                className="form-input line-item-note-input"
+                                placeholder="Enter note"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeLineItemNote(item.id, noteIndex)}
+                                className="btn btn-icon btn-danger btn-sm"
+                                title="Remove Note"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     
                     <div className="line-item-actions-row">

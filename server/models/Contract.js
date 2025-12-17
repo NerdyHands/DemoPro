@@ -24,6 +24,43 @@ const lineItemSchema = new mongoose.Schema({
     required: true,
     min: 0,
     default: 0
+  },
+  notes: {
+    type: [String],
+    default: []
+  }
+}, { _id: false });
+
+const paymentScheduleItemSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 200
+  },
+  description: {
+    type: String,
+    trim: true,
+    maxlength: 1000
+  },
+  amount: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0
+  },
+  dueDate: {
+    type: Date
+  },
+  type: {
+    type: String,
+    enum: ['Payment', 'Project Phase', 'Delivery', 'Approval', 'Inspection', 'Other'],
+    default: 'Payment'
+  },
+  status: {
+    type: String,
+    enum: ['Pending', 'In Progress', 'Completed', 'Overdue', 'Cancelled', 'On Hold'],
+    default: 'Pending'
   }
 }, { _id: false });
 
@@ -85,6 +122,8 @@ const contractSchema = new mongoose.Schema({
   },
   // Line items from estimate
   lineItems: [lineItemSchema],
+  // Payment schedule milestones
+  paymentSchedule: [paymentScheduleItemSchema],
   subtotal: {
     type: Number,
     required: true,
@@ -113,6 +152,12 @@ const contractSchema = new mongoose.Schema({
     type: Number,
     min: 0,
     default: 0
+  },
+  // Draw schedule type: 'regular' (upfront deposit + final payment) or 'demolition' (multi-milestone)
+  drawScheduleType: {
+    type: String,
+    enum: ['regular', 'demolition'],
+    default: 'regular'
   },
   // Contract terms and conditions
   terms: {
@@ -168,8 +213,8 @@ contractSchema.pre('save', function(next) {
     this.totalAmount = this.subtotal; // No tax calculation
   }
   
-  // Calculate deposit if not provided
-  if (!this.depositAmount && this.totalAmount) {
+  // Calculate deposit if not provided (only if undefined/null, not if explicitly set to 0)
+  if ((this.depositAmount === undefined || this.depositAmount === null) && this.totalAmount) {
     this.depositAmount = this.totalAmount * 0.3; // 30% deposit
   }
   next();

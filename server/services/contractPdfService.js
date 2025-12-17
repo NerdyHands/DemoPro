@@ -15,7 +15,8 @@ class ContractPdfService {
   }
 
   // Contract-specific condensed estimate page. Fits on a single page, no extra pages.
-  addEstimatePageForContract(doc, contract, customer, estimate) {
+  // If lineItems and totalAmount are provided, use those instead of estimate
+  addEstimatePageForContract(doc, contract, customer, estimate, lineItems = null, totalAmount = null) {
     // Header
     doc.fontSize(20)
        .font('Helvetica-Bold')
@@ -97,7 +98,7 @@ class ContractPdfService {
     doc.fontSize(12)
        .font('Helvetica-Bold')
        .fillColor('#333333')
-       .text('Line Items (condensed):', 50, doc.y);
+       .text('Line Items:', 50, doc.y);
     doc.moveDown(0.6);
     
     const drawHeaderRowContract = () => {
@@ -127,11 +128,69 @@ class ContractPdfService {
       return Math.max(minRowHeight, descriptionHeight + rowPaddingY * 2);
     };
     
-    if (estimate.lineItems && estimate.lineItems.length > 0) {
-      for (let i = 0; i < estimate.lineItems.length; i++) {
-        const item = estimate.lineItems[i];
-        const descriptionText = item.description || 'N/A';
-        const rowHeight = measureRowHeight(descriptionText);
+    // Always prefer estimate lineItems if available (they're the source of truth)
+    // Contract lineItems might have incomplete data (N/A descriptions, $0 prices)
+    let itemsToUse;
+    
+    if (estimate && estimate.lineItems && estimate.lineItems.length > 0) {
+      // Use estimate lineItems as the base
+      itemsToUse = estimate.lineItems;
+      
+      // If contract also has lineItems, try to merge any contract-specific updates
+      // (like quantity or price changes) while keeping estimate data as fallback
+      if (lineItems && lineItems.length > 0 && lineItems.length === estimate.lineItems.length) {
+        itemsToUse = estimate.lineItems.map((estimateItem, index) => {
+          const contractItem = lineItems[index];
+          if (!contractItem) return estimateItem;
+          
+          // Use contract values if they're valid, otherwise use estimate values
+          return {
+            description: (contractItem.description && contractItem.description.trim() !== '' && contractItem.description !== 'N/A') 
+              ? contractItem.description 
+              : estimateItem.description,
+            quantity: (contractItem.quantity && contractItem.quantity > 0) 
+              ? contractItem.quantity 
+              : estimateItem.quantity,
+            unitPrice: (contractItem.unitPrice && contractItem.unitPrice > 0) 
+              ? contractItem.unitPrice 
+              : estimateItem.unitPrice,
+            totalPrice: (contractItem.totalPrice && contractItem.totalPrice > 0) 
+              ? contractItem.totalPrice 
+              : (estimateItem.totalPrice || ((contractItem.quantity || estimateItem.quantity) * (contractItem.unitPrice || estimateItem.unitPrice))),
+            notes: (contractItem.notes && contractItem.notes.length > 0) 
+              ? contractItem.notes 
+              : (estimateItem.notes || [])
+          };
+        });
+      }
+    } else {
+      // Fall back to contract lineItems if no estimate
+      itemsToUse = lineItems || [];
+    }
+    
+    if (itemsToUse && itemsToUse.length > 0) {
+      for (let i = 0; i < itemsToUse.length; i++) {
+        const item = itemsToUse[i];
+        // Ensure we have valid data - if description is still N/A or empty, something went wrong
+        const descriptionText = (item.description && item.description.trim() !== '' && item.description !== 'N/A') 
+          ? item.description 
+          : 'N/A';
+        doc.fontSize(9).font('Helvetica').fillColor('#333333');
+        const descriptionHeight = doc.heightOfString(descriptionText, { width: descriptionWidth });
+        
+        // Calculate notes height if notes exist
+        let notesHeight = 0;
+        const notes = item.notes || [];
+        const validNotes = notes.filter(note => note && note.trim());
+        if (validNotes.length > 0) {
+          doc.fontSize(8).font('Times-Italic');
+          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          notesHeight = doc.heightOfString(notesText, { width: descriptionWidth }) + rowPaddingY;
+          doc.fontSize(9).font('Helvetica'); // Reset font
+        }
+        
+        const rowHeight = Math.max(minRowHeight, descriptionHeight + notesHeight + rowPaddingY * 2);
+        
         // ensure we don't spill; do not add new pages in contract view
         if (rowY + rowHeight > pageBottomY - reserveForTotalsAndNotes) {
           truncated = true;
@@ -144,17 +203,40 @@ class ContractPdfService {
            .lineWidth(0.5)
            .stroke();
         const textY = rowY + rowPaddingY;
+        
+        // Item number
         doc.fontSize(9)
            .font('Helvetica')
            .fillColor('#333333')
            .text(`#${i + 1}`, colX[0], textY, {
              width: colWidths[0] - 10,
              height: rowHeight - rowPaddingY * 2
-           })
-           .text(descriptionText, colX[1], textY, {
-             width: descriptionWidth,
-             height: rowHeight - rowPaddingY * 2
-           })
+           });
+        
+        // Description
+        let currentY = textY;
+        doc.text(descriptionText, colX[1], currentY, {
+          width: descriptionWidth,
+          height: descriptionHeight
+        });
+        
+        // Notes below description
+        if (validNotes.length > 0) {
+          currentY += descriptionHeight + 4;
+          doc.fontSize(8)
+             .font('Times-Italic')
+             .fillColor('#666666');
+          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          doc.text(notesText, colX[1], currentY, {
+            width: descriptionWidth,
+            height: notesHeight
+          });
+        }
+        
+        // Quantity, Unit Price, Total (aligned to top)
+        doc.fontSize(9)
+           .font('Helvetica')
+           .fillColor('#333333')
            .text(item.quantity?.toString() || '1', colX[2], textY, {
              width: colWidths[2] - 10,
              height: rowHeight - rowPaddingY * 2
@@ -201,11 +283,14 @@ class ContractPdfService {
        .strokeColor('#08a171')
        .lineWidth(1)
        .stroke();
+    // Use provided totalAmount (from contract) if available, otherwise use estimate's totalAmount
+    const totalToUse = totalAmount !== null ? totalAmount : (estimate && estimate.totalAmount) || 0;
+    
     doc.fontSize(14)
        .font('Helvetica-Bold')
        .fillColor('#08a171')
        .text('TOTAL:', totalsBoxX + 10, totalsY + 12)
-       .text(this.formatPrice(estimate.totalAmount || 0), totalsBoxX + totalsBoxWidth - 10, totalsY + 12, { align: 'right' });
+       .text(this.formatPrice(totalToUse), totalsBoxX + totalsBoxWidth - 10, totalsY + 12, { align: 'right' });
     
     // Truncation note if needed
     if (truncated) {
@@ -273,7 +358,7 @@ class ContractPdfService {
     return 'Unknown_Address';
   }
 
-  async generateContractPdf(contract, customer, estimate) {
+  async generateContractPdf(contract, customer, estimate, milestones = []) {
     return new Promise((resolve, reject) => {
       try {
         // Validate inputs
@@ -303,8 +388,16 @@ class ContractPdfService {
 
         doc.pipe(stream);
 
-        // Page 1: Estimate overview (condensed) when an estimate is linked
-        if (estimate) {
+        // Page 1: Estimate overview (condensed) - use contract lineItems if available, otherwise use estimate
+        // Always show estimate summary if contract has lineItems or estimate is linked
+        if (contract.lineItems && contract.lineItems.length > 0) {
+          // Use contract's lineItems (which may have been updated from the estimate)
+          // Pass estimate so notes can be merged if contract lineItems don't have them
+          this.addEstimatePageForContract(doc, contract, customer, estimate, contract.lineItems, contract.totalAmount);
+          doc.addPage();
+          doc.y = 50;
+        } else if (estimate) {
+          // Fall back to estimate if contract doesn't have lineItems
           this.addEstimatePageForContract(doc, contract, customer, estimate);
           doc.addPage();
           doc.y = 50;
@@ -323,7 +416,7 @@ class ContractPdfService {
         this.addConsultationSection(doc, contract);
         
         // Section 3: Payment Terms
-        this.addPaymentTermsSection(doc, contract);
+        this.addPaymentTermsSection(doc, contract, milestones);
         
         // Section 4: Project Timeline
         this.addProjectTimelineSection(doc, contract);
@@ -498,85 +591,6 @@ class ContractPdfService {
        .lineTo(545, currentY)
        .stroke();
     
-    doc.moveDown(1.5);
-
-    // 3.5 Draw Schedule (Demolition)
-    doc.fontSize(12)
-       .font('Helvetica-Bold')
-       .fillColor('#333333')
-       .text('3.5 Draw Schedule (Demolition)', 60, doc.y);
-
-    doc.moveDown(0.5);
-
-    // Calculate amounts based on total
-    const totalContractAmount = Number(contract.totalAmount) || 0;
-    const draws = [
-      { label: 'Deposit/ Before Work Begins ', pct: 0.15 },
-      { label: 'Structure Disassembly Completion (primary demo complete)', pct: 0.45 },
-      { label: 'Debris Removal and Disposal', pct: 0.30 },
-      { label: 'Final Site Clean and Client Sign-off', pct: 0.10 },
-    ];
-
-    // Draw schedule box
-    const scheduleTop = doc.y;
-    const lineHeight = 18;
-    const boxPaddingY = 10;
-    const boxRowCount = draws.length + 1; // header + items
-    const scheduleBoxHeight = boxRowCount * lineHeight + boxPaddingY * 2;
-
-    doc.rect(55, scheduleTop - 5, 490, scheduleBoxHeight)
-       .fill('#f8f9fa')
-       .strokeColor('#08a171')
-       .lineWidth(1)
-       .stroke();
-
-    // Left accent
-    doc.rect(55, scheduleTop - 5, 4, scheduleBoxHeight)
-       .fill('#08a171');
-
-    // Column positions
-    const colXLabel = 70;
-    const colXPct = 415;
-    const colXAmt = 485;
-
-    // Header row
-    let cursorY = scheduleTop + boxPaddingY;
-    doc.fontSize(10)
-       .font('Helvetica-Bold')
-       .fillColor('#333333')
-       .text('Milestone', colXLabel, cursorY, { width: 320 })
-       .text('%', colXPct, cursorY, { width: 50, align: 'right' })
-       .text('Amount', colXAmt, cursorY, { width: 60, align: 'right' });
-
-    cursorY += lineHeight;
-
-    // Items
-    doc.font('Helvetica');
-    draws.forEach((d, idx) => {
-      const amount = totalContractAmount * d.pct;
-      const bgColor = idx % 2 === 0 ? '#ffffff' : '#f3f4f6';
-      // row background
-      doc.rect(59, cursorY - 4, 486, lineHeight)
-         .fill(bgColor)
-         .strokeColor('#e9ecef')
-         .lineWidth(0.5)
-         .stroke();
-
-      doc.fillColor('#333333')
-         .text(d.label, colXLabel, cursorY, { width: 320 })
-         .text(`${Math.round(d.pct * 100)}%`, colXPct, cursorY, { width: 50, align: 'right' })
-         .text(this.formatPrice(amount), colXAmt, cursorY, { width: 60, align: 'right' });
-
-      cursorY += lineHeight;
-    });
-
-    doc.y = scheduleTop + scheduleBoxHeight + 12;
-
-    doc.fontSize(10)
-       .font('Helvetica-Oblique')
-       .fillColor('#666666')
-       .text('Note: Draws are invoiced upon completion of each listed milestone. Variations in scope or unforeseen conditions may adjust the schedule proportionally upon written agreement.', 60, doc.y, { width: 485, align: 'justify' });
-
     doc.moveDown(1.5);
   }
 
@@ -754,48 +768,59 @@ class ContractPdfService {
      
      doc.moveDown(1);
      
-           doc.fontSize(12)
-         .font('Helvetica-Bold')
-         .fillColor('#333333')
-         .text('Work will include:', 60, doc.y);
+     doc.fontSize(12)
+        .font('Helvetica-Bold')
+        .fillColor('#333333')
+        .text('Work will include:', 60, doc.y);
      
      doc.moveDown(0.5);
      
-           // Create a background box for the list
-      const listTop = doc.y;
-      const listHeight = 100; // Increased height for better spacing
-      
-      doc.rect(55, listTop - 5, 490, listHeight)
-         .fill('#f8f9fa')
-         .strokeColor('#08a171')
-         .lineWidth(1)
-         .stroke();
-      
-      // Add left border accent
-      doc.rect(55, listTop - 5, 4, listHeight)
-         .fill('#08a171');
-      
-      const services = [
-        'Completing the specific repairs, replacements, or adjustments listed in the Property Inspection Contingency Removal Addendum (PICRA) and written estimate.',
-        'Cleaning work areas after repairs are complete so the property is ready for re-inspection or closing.'
-      ];
-      
-      let currentY = listTop + 15; // Increased top margin
-      services.forEach((service, index) => {
-        // Add bullet point with better positioning
-        doc.fontSize(10)
-           .font('Helvetica-Bold')
-           .fillColor('#08a171')
-           .text('•', 70, currentY + 2);
-        
-        // Add service text with better formatting
-        doc.fontSize(11)
-           .font('Helvetica')
-           .fillColor('#333333')
-           .text(service, 85, currentY, { width: 440, align: 'justify' });
-        
-        currentY += 35; // Increased spacing between items
-      });
+     // Create a background box for the list
+     const listTop = doc.y;
+     const services = [
+       'Completing the agreed-upon demolition and removal as outlined in the project scope or estimate',
+       'Protecting adjacent areas, surfaces, and fixtures as needed to prevent damage during demolition',
+       'Disposing of all debris, materials, and waste in accordance with local requirements',
+       'Cleaning and organizing the jobsite after work is finished to ensure it is safe, presentable, and ready for the next phase of the project.'
+     ];
+     
+     // Calculate total height needed for the box
+     let totalTextHeight = 0;
+     doc.fontSize(11).font('Helvetica');
+     services.forEach((service) => {
+       const textHeight = doc.heightOfString(service, { width: 440 });
+       totalTextHeight += Math.max(textHeight, 20) + 10; // Add spacing between items
+     });
+     const listHeight = totalTextHeight + 30; // Add padding
+     
+     // Draw the box
+     doc.rect(55, listTop - 5, 490, listHeight)
+        .fill('#f8f9fa')
+        .strokeColor('#08a171')
+        .lineWidth(1.5)
+        .stroke();
+     
+     // Add left border accent
+     doc.rect(55, listTop - 5, 4, listHeight)
+        .fill('#08a171');
+     
+     let currentY = listTop + 15;
+     services.forEach((service, index) => {
+       // Add bullet point
+       doc.fontSize(11)
+          .font('Helvetica-Bold')
+          .fillColor('#08a171')
+          .text('•', 70, currentY);
+       
+       // Add service text
+       doc.fontSize(11)
+          .font('Helvetica')
+          .fillColor('#333333')
+          .text(service, 85, currentY, { width: 440, align: 'justify' });
+       
+       const textHeight = doc.heightOfString(service, { width: 440 });
+       currentY += Math.max(textHeight, 20) + 10;
+     });
       
       doc.y = listTop + listHeight + 20;
   }
@@ -813,12 +838,12 @@ class ContractPdfService {
          doc.fontSize(11)
         .font('Helvetica')
         .fillColor('#333333')
-        .text('Contractor may provide a comprehensive in-home assessment and repair consultation, including review of the PICRA, and/or a detailed walkthrough of the property. If the client does not proceed with the contracted work, any applicable consultation fee will be non-refundable unless otherwise agreed in writing.', 60, doc.y, { width: 485, align: 'justify' });
+        .text('Contractor may provide a comprehensive on-site demolition assessment and project consultation, including a review of the demolition scope and a detailed walkthrough of the areas to be removed or affected. If the client chooses not to proceed with the proposed demolition work, any applicable assessment or consultation fee will be non-refundable unless otherwise agreed in writing.', 60, doc.y, { width: 485, align: 'justify' });
     
     doc.moveDown(1.5);
   }
 
-  addPaymentTermsSection(doc, contract) {
+  addPaymentTermsSection(doc, contract, milestones = []) {
     this.addSectionHeader(doc, 'Payment Terms', '3');
     
     // Create total contract amount box
@@ -843,36 +868,10 @@ class ContractPdfService {
     
     doc.y = boxTop + boxHeight + 20;
     
-    // 3.2 Deposit Requirement
-    doc.fontSize(12)
-       .font('Helvetica-Bold')
-       .fillColor('#333333')
-       .text('3.2 Deposit Requirement', 60, doc.y);
+    // 3.2 Draw Schedule (moved from 3.5, now shows payment milestones)
+    this.addDrawScheduleSection(doc, contract, milestones);
     
-    doc.moveDown(0.5);
-    
-    doc.fontSize(11)
-       .font('Helvetica')
-       .fillColor('#333333')
-       .text(`A ${this.formatDepositDisplay(contract)} is required upon contract signing to secure project scheduling and ensure material allocation. This deposit confirms the client's commitment to the project.`, 60, doc.y, { width: 485, align: 'justify' });
-    
-    doc.moveDown(0.8);
-    
-    // Add initial box for zero deposit option
-    const zeroDepositBoxY = doc.y;
-    doc.rect(70, zeroDepositBoxY, 12, 12)
-       .lineWidth(1)
-       .strokeColor('#333333')
-       .stroke();
-    
-    doc.fontSize(10)
-       .font('Helvetica')
-       .fillColor('#333333')
-       .text('Initial here if deposit is waived/zero: ______ (Client Initials)', 90, zeroDepositBoxY + 2, { width: 450 });
-    
-    doc.moveDown(1);
-    
-    // 3.3 Final Payment
+    // 3.3 Final Payment (renumbered from 3.4)
     doc.fontSize(12)
        .font('Helvetica-Bold')
        .fillColor('#333333')
@@ -887,7 +886,7 @@ class ContractPdfService {
     
     doc.moveDown(1);
     
-    // 3.4 Accepted Payment Methods
+    // 3.4 Accepted Payment Methods (renumbered from 3.5)
     doc.fontSize(12)
        .font('Helvetica-Bold')
        .fillColor('#333333')
@@ -904,10 +903,7 @@ class ContractPdfService {
     
     // Add initial box for payment at closing option
     const closingPaymentBoxY = doc.y;
-    doc.rect(70, closingPaymentBoxY, 12, 12)
-       .lineWidth(1)
-       .strokeColor('#333333')
-       .stroke();
+
     
     doc.fontSize(10)
        .font('Helvetica')
@@ -922,6 +918,280 @@ class ContractPdfService {
        .text('Note: If payment is to be made at closing, contractor may require documentation confirming closing date and funds availability.', 90, doc.y, { width: 450, align: 'justify' });
     
     doc.moveDown(1.5);
+  }
+
+  addDrawScheduleSection(doc, contract, milestones = []) {
+    // 3.2 Draw Schedule (moved from 3.5, now uses contract paymentSchedule)
+    doc.fontSize(12)
+       .font('Helvetica-Bold')
+       .fillColor('#333333')
+       .text('3.2 Draw Schedule', 60, doc.y);
+
+    doc.moveDown(0.5);
+
+    // Calculate amounts based on total
+    const totalContractAmount = Number(contract.totalAmount) || 0;
+    let draws = [];
+    
+    // Priority 1: Use paymentSchedule from contract if it exists
+    if (contract.paymentSchedule && contract.paymentSchedule.length > 0) {
+      contract.paymentSchedule.forEach((item) => {
+        if (item.title && item.amount !== undefined) {
+          const amount = Number(item.amount) || 0;
+          const pct = totalContractAmount > 0 ? (amount / totalContractAmount) : 0;
+          draws.push({
+            label: item.title,
+            pct: pct,
+            amount: amount
+          });
+        }
+      });
+    }
+    
+    // Priority 2: If no paymentSchedule, try payment milestones
+    if (draws.length === 0 && milestones && milestones.length > 0) {
+      milestones.forEach(milestone => {
+        if (milestone.type === 'Payment' && milestone.payment && milestone.payment.amount) {
+          const pct = totalContractAmount > 0 ? (milestone.payment.amount / totalContractAmount) : 0;
+          draws.push({
+            label: milestone.title || 'Payment Milestone',
+            pct: pct,
+            amount: milestone.payment.amount
+          });
+        }
+      });
+    }
+    
+    // Priority 3: Fall back to default schedule based on drawScheduleType
+    if (draws.length === 0) {
+      const drawScheduleType = contract.drawScheduleType || 'regular';
+      
+      if (drawScheduleType === 'demolition') {
+        // Demolition schedule with multiple milestones
+        draws = [
+          { label: 'Deposit/ Before Work Begins ', pct: 0.15 },
+          { label: 'Structure Disassembly Completion (primary demo complete)', pct: 0.45 },
+          { label: 'Debris Removal and Disposal', pct: 0.30 },
+          { label: 'Final Site Clean and Client Sign-off', pct: 0.10 },
+        ];
+      } else {
+        // Regular schedule: upfront deposit + final payment
+        const depositAmount = contract.depositAmount || (totalContractAmount * 0.3);
+        const depositPct = totalContractAmount > 0 ? (depositAmount / totalContractAmount) : 0.3;
+        const finalPct = 1 - depositPct;
+        
+        draws = [
+          { label: 'Deposit/ Before Work Begins', pct: depositPct },
+          { label: 'Final Payment Upon Completion', pct: finalPct },
+        ];
+      }
+    }
+
+    // Draw schedule box
+    const scheduleTop = doc.y;
+    const lineHeight = 18;
+    const boxPaddingY = 10;
+    const boxRowCount = draws.length + 1; // header + items
+    const scheduleBoxHeight = boxRowCount * lineHeight + boxPaddingY * 2;
+
+    doc.rect(55, scheduleTop - 5, 490, scheduleBoxHeight)
+       .fill('#f8f9fa')
+       .strokeColor('#08a171')
+       .lineWidth(1)
+       .stroke();
+    
+    // Left accent
+    doc.rect(55, scheduleTop - 5, 4, scheduleBoxHeight)
+       .fill('#08a171');
+
+    // Column positions
+    const colXLabel = 70;
+    const colXPct = 415;
+    const colXAmt = 485;
+
+    // Header row
+    let cursorY = scheduleTop + boxPaddingY;
+    doc.fontSize(10)
+       .font('Helvetica-Bold')
+       .fillColor('#333333')
+       .text('Milestone', colXLabel, cursorY, { width: 320 })
+       .text('%', colXPct, cursorY, { width: 50, align: 'right' })
+       .text('Amount', colXAmt, cursorY, { width: 60, align: 'right' });
+
+    cursorY += lineHeight;
+
+    // Items
+    doc.font('Helvetica');
+    draws.forEach((d, idx) => {
+      // Use the amount from milestone if available, otherwise calculate from percentage
+      const amount = d.amount !== undefined ? d.amount : (totalContractAmount * d.pct);
+      const bgColor = idx % 2 === 0 ? '#ffffff' : '#f3f4f6';
+      // row background
+      doc.rect(59, cursorY - 4, 486, lineHeight)
+         .fill(bgColor)
+         .strokeColor('#e9ecef')
+         .lineWidth(0.5)
+         .stroke();
+
+      // Calculate percentage from amount if not provided
+      const displayPct = d.pct !== undefined ? d.pct : (totalContractAmount > 0 ? amount / totalContractAmount : 0);
+
+      doc.fillColor('#333333')
+         .text(d.label, colXLabel, cursorY, { width: 320 })
+         .text(`${Math.round(displayPct * 100)}%`, colXPct, cursorY, { width: 50, align: 'right' })
+         .text(this.formatPrice(amount), colXAmt, cursorY, { width: 60, align: 'right' });
+
+      cursorY += lineHeight;
+    });
+
+    doc.y = scheduleTop + scheduleBoxHeight + 12;
+
+    // Determine schedule note based on source
+    let scheduleNote;
+    if (contract.paymentSchedule && contract.paymentSchedule.length > 0) {
+      scheduleNote = 'Note: Payment milestones are invoiced upon completion of each listed milestone. Variations in scope or unforeseen conditions may adjust the schedule proportionally upon written agreement.';
+    } else {
+      const drawScheduleType = contract.drawScheduleType || 'regular';
+      scheduleNote = drawScheduleType === 'demolition' 
+        ? 'Note: Draws are invoiced upon completion of each listed milestone. Variations in scope or unforeseen conditions may adjust the schedule proportionally upon written agreement.'
+        : 'Note: The deposit is required before work begins. The final payment is due upon project completion and client satisfaction.';
+    }
+    
+    doc.fontSize(10)
+       .font('Helvetica-Oblique')
+       .fillColor('#666666')
+       .text(scheduleNote, 60, doc.y, { width: 485, align: 'justify' });
+
+    doc.moveDown(1.5);
+  }
+
+  addReceiptSection(doc, contract, milestones = []) {
+    // Check if we need a new page
+    if (doc.y > 600) {
+      doc.addPage();
+      doc.y = 50;
+    }
+
+    this.addSectionHeader(doc, 'Payment Receipt', '3.6');
+    
+    // Calculate total paid from milestones
+    let totalPaid = 0;
+    const paymentDetails = [];
+    
+    if (milestones && milestones.length > 0) {
+      milestones.forEach(milestone => {
+        if (milestone.type === 'Payment' && milestone.payment) {
+          // Calculate total paid for this milestone
+          let milestonePaid = 0;
+          // If there are partial payments, sum them (this handles both partial and full payments)
+          if (milestone.payment.partialPayments && milestone.payment.partialPayments.length > 0) {
+            milestonePaid = milestone.payment.partialPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+          } else if (milestone.payment.paymentStatus === 'Paid' && milestone.payment.amount) {
+            // If marked as paid but no partial payments recorded, use the full amount
+            milestonePaid = milestone.payment.amount;
+          }
+          
+          if (milestonePaid > 0) {
+            totalPaid += milestonePaid;
+            paymentDetails.push({
+              description: milestone.title || 'Payment',
+              amount: milestonePaid,
+              date: milestone.payment.paidDate || milestone.payment.partialPayments?.[milestone.payment.partialPayments.length - 1]?.date || milestone.updatedAt,
+              method: milestone.payment.paymentMethod || milestone.payment.partialPayments?.[milestone.payment.partialPayments.length - 1]?.method || 'N/A'
+            });
+          }
+        }
+      });
+    }
+    
+    // If no milestone payments, check if deposit was paid
+    if (totalPaid === 0 && contract.depositAmount) {
+      // For now, we'll just show the deposit amount as potentially paid
+      // In a real system, you'd track this separately
+    }
+
+    // Receipt box
+    const receiptTop = doc.y;
+    const boxHeight = paymentDetails.length > 0 ? 80 + (paymentDetails.length * 25) : 100;
+    
+    doc.rect(55, receiptTop - 5, 490, boxHeight)
+       .fill('#f8f9fa')
+       .strokeColor('#08a171')
+       .lineWidth(1)
+       .stroke();
+    
+    // Left accent
+    doc.rect(55, receiptTop - 5, 4, boxHeight)
+       .fill('#08a171');
+    
+    let cursorY = receiptTop + 15;
+    
+    // Title
+    doc.fontSize(12)
+       .font('Helvetica-Bold')
+       .fillColor('#333333')
+       .text('Amount Paid to Date', 70, cursorY);
+    
+    cursorY += 25;
+    
+    // Total paid amount
+    doc.fontSize(16)
+       .font('Helvetica-Bold')
+       .fillColor('#08a171')
+       .text('Total Paid: ', 70, cursorY, { continued: true })
+       .text(this.formatPrice(totalPaid));
+    
+    cursorY += 25;
+    
+    // Payment details if available
+    if (paymentDetails.length > 0) {
+      doc.fontSize(10)
+         .font('Helvetica-Bold')
+         .fillColor('#333333')
+         .text('Payment History:', 70, cursorY);
+      
+      cursorY += 20;
+      
+      paymentDetails.forEach((payment, idx) => {
+        const bgColor = idx % 2 === 0 ? '#ffffff' : '#f3f4f6';
+        doc.rect(70, cursorY - 3, 470, 20)
+           .fill(bgColor)
+           .strokeColor('#e9ecef')
+           .lineWidth(0.5)
+           .stroke();
+        
+        const paymentDate = payment.date ? this.formatDate(payment.date) : 'N/A';
+        doc.fontSize(9)
+           .font('Helvetica')
+           .fillColor('#333333')
+           .text(payment.description, 75, cursorY, { width: 200 })
+           .text(paymentDate, 280, cursorY, { width: 100 })
+           .text(payment.method, 385, cursorY, { width: 80 })
+           .text(this.formatPrice(payment.amount), 470, cursorY, { width: 70, align: 'right' });
+        
+        cursorY += 20;
+      });
+    } else {
+      doc.fontSize(10)
+         .font('Helvetica-Oblique')
+         .fillColor('#666666')
+         .text('No payments recorded to date.', 70, cursorY);
+    }
+    
+    // Remaining balance
+    const totalAmount = Number(contract.totalAmount) || 0;
+    const remainingBalance = totalAmount - totalPaid;
+    
+    cursorY += 15;
+    doc.fontSize(11)
+       .font('Helvetica-Bold')
+       .fillColor('#333333')
+       .text('Remaining Balance: ', 70, cursorY, { continued: true })
+       .fillColor('#08a171')
+       .text(this.formatPrice(remainingBalance));
+    
+    doc.y = receiptTop + boxHeight + 15;
+    doc.moveDown(1);
   }
 
   addProjectTimelineSection(doc, contract) {
@@ -1079,11 +1349,7 @@ class ContractPdfService {
     
     // Add initial box to waive termination notice
     const waiveNoticeBoxY = doc.y;
-    doc.rect(70, waiveNoticeBoxY, 12, 12)
-       .lineWidth(1)
-       .strokeColor('#333333')
-       .stroke();
-    
+
     doc.fontSize(10)
        .font('Helvetica')
        .fillColor('#333333')
@@ -1325,7 +1591,7 @@ class ContractPdfService {
     doc.fontSize(11)
        .font('Helvetica-Bold')
        .fillColor('#333333')
-       .text('Castleton Real Estate, LLC dba Mr Demo ProezPICRA', rightBoxX + 10, signatureBoxTop + 50);
+       .text('Castleton Real Estate, LLC dba Mr Demo Pro', rightBoxX + 10, signatureBoxTop + 50);
     
     
     
@@ -1464,7 +1730,19 @@ class ContractPdfService {
         const descriptionText = item.description || 'N/A';
         doc.fontSize(9).font('Helvetica').fillColor('#333333');
         const descriptionHeight = doc.heightOfString(descriptionText, { width: descriptionWidth });
-        const rowHeight = Math.max(minRowHeight, descriptionHeight + rowPaddingY * 2);
+        
+        // Calculate notes height if notes exist
+        let notesHeight = 0;
+        const notes = item.notes || [];
+        const validNotes = notes.filter(note => note && note.trim());
+        if (validNotes.length > 0) {
+          doc.fontSize(9).font('Times-Italic');
+          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          notesHeight = doc.heightOfString(notesText, { width: descriptionWidth }) + rowPaddingY;
+          doc.fontSize(9).font('Helvetica'); // Reset font
+        }
+        
+        const rowHeight = Math.max(minRowHeight, descriptionHeight + notesHeight + rowPaddingY * 2);
         
         ensureSpaceForRow(rowHeight);
         
@@ -1479,11 +1757,32 @@ class ContractPdfService {
         doc.text(`#${index + 1}`, colX[0], textY, {
              width: colWidths[0] - 10,
              height: rowHeight - rowPaddingY * 2
-           })
-           .text(descriptionText, colX[1], textY, {
-             width: descriptionWidth,
-             height: rowHeight - rowPaddingY * 2
-           })
+           });
+        
+        // Description
+        let currentY = textY;
+        doc.text(descriptionText, colX[1], currentY, {
+          width: descriptionWidth,
+          height: descriptionHeight
+        });
+        
+        // Notes below description
+        if (validNotes.length > 0) {
+          currentY += descriptionHeight + 4;
+          doc.fontSize(9)
+             .font('Times-Italic')
+             .fillColor('#666666');
+          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          doc.text(notesText, colX[1], currentY, {
+            width: descriptionWidth,
+            height: notesHeight
+          });
+        }
+        
+        // Quantity, Unit Price, Total (aligned to top)
+        doc.fontSize(9)
+           .font('Helvetica')
+           .fillColor('#333333')
            .text(item.quantity?.toString() || '1', colX[2], textY, {
              width: colWidths[2] - 10,
              height: rowHeight - rowPaddingY * 2
