@@ -678,7 +678,7 @@ const ContractView = () => {
                   {contract.title}
                 </h1>
                 <p style={{ margin: 0, fontSize: '16px', opacity: 0.9 }}>
-                  Residential PICRA Repair Contract
+                  Residential Demolition Contract
                 </p>
               </div>
               <div style={{
@@ -980,9 +980,6 @@ const ContractView = () => {
                           Percentage
                         </th>
                         <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold' }}>
-                          Due Date
-                        </th>
-                        <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold' }}>
                           Status
                         </th>
                       </tr>
@@ -993,7 +990,6 @@ const ContractView = () => {
                         const totalAmount = contract.totalAmount || contract.subtotal || 0;
                         const percentage = totalAmount > 0 ? Math.round((amount / totalAmount) * 100) : 0;
                         const status = item.status || 'Pending';
-                        const dueDate = item.dueDate ? formatDate(item.dueDate) : 'N/A';
                         
                         return (
                           <tr 
@@ -1014,9 +1010,6 @@ const ContractView = () => {
                             </td>
                             <td style={{ padding: '12px', fontSize: '13px', color: '#666', textAlign: 'right' }}>
                               {percentage}%
-                            </td>
-                            <td style={{ padding: '12px', fontSize: '13px', color: '#666', textAlign: 'center' }}>
-                              {dueDate}
                             </td>
                             <td style={{ padding: '12px', textAlign: 'center' }}>
                               <span style={{

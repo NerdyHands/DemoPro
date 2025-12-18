@@ -76,15 +76,14 @@ const ContractEdit = () => {
       title: '',
       description: '',
       amount: 0,
-      dueDate: '',
       type: 'Payment',
       status: 'Pending'
     }
   ]);
 
-  // Default notes for PICRA repair contracts
+  // Default notes for Demolition contracts
   const getDefaultNotes = useCallback(() => `1. SCOPE OF WORK
-The contractor agrees to perform residential repair services at the client's property as outlined in the PICRA document and detailed in the written price estimate. All work will be completed in a professional manner consistent with industry standards and in accordance with the agreed-upon inspection report items.
+The contractor agrees to perform residential repair services at the client's property as outlined in the Demolition document and detailed in the written price estimate. All work will be completed in a professional manner consistent with industry standards and in accordance with the agreed-upon inspection report items.
 
 2. QUALITY STANDARDS
 2.1 Materials: All work will be performed using high-quality, professional-grade materials.
@@ -93,7 +92,7 @@ The contractor agrees to perform residential repair services at the client's pro
 
 3. PAYMENT TERMS
 3.1 Total Contract Amount: The total contract amount is as specified in the line items above.
-3.2 Deposit Requirement: Unless waived, a deposit of 25% is required upon contract signing to secure project scheduling and ensure material allocation.
+3.2 Deposit Requirement: Unless waived, a deposit of is required upon contract signing to secure project scheduling and ensure material allocation.
 3.3 Final Payment: Unless agreed upon otherwise, the remaining balance is due immediately upon project completion and client satisfaction.
 3.4 Accepted Payment Methods: We accept electronic card payments through our secure Stripe payment system, as well as personal or business checks made payable to the contractor.
 
@@ -244,7 +243,6 @@ This document represents the complete and entire agreement between the parties a
           title: 'Deposit/ Before Work Begins',
           description: 'Initial deposit required before work begins',
           amount: total * 0.15,
-          dueDate: startDate || '',
           type: 'Payment',
           status: 'Pending'
         },
@@ -253,7 +251,6 @@ This document represents the complete and entire agreement between the parties a
           title: 'Structure Disassembly Completion',
           description: 'Primary demo complete - structure disassembly finished',
           amount: total * 0.45,
-          dueDate: '',
           type: 'Payment',
           status: 'Pending'
         },
@@ -262,7 +259,6 @@ This document represents the complete and entire agreement between the parties a
           title: 'Debris Removal and Disposal',
           description: 'All debris removed and disposed of',
           amount: total * 0.30,
-          dueDate: '',
           type: 'Payment',
           status: 'Pending'
         },
@@ -271,7 +267,6 @@ This document represents the complete and entire agreement between the parties a
           title: 'Final Site Clean and Client Sign-off',
           description: 'Final site clean completed and client approval received',
           amount: total * 0.10,
-          dueDate: endDate || '',
           type: 'Payment',
           status: 'Pending'
         }
@@ -287,7 +282,6 @@ This document represents the complete and entire agreement between the parties a
           title: 'Deposit/ Before Work Begins',
           description: 'Deposit required before work begins',
           amount: deposit,
-          dueDate: startDate || '',
           type: 'Payment',
           status: 'Pending'
         },
@@ -296,7 +290,6 @@ This document represents the complete and entire agreement between the parties a
           title: 'Final Payment Upon Completion',
           description: 'Final payment due upon project completion and client satisfaction',
           amount: final,
-          dueDate: endDate || '',
           type: 'Payment',
           status: 'Pending'
         }
@@ -385,7 +378,6 @@ This document represents the complete and entire agreement between the parties a
           title: item.title || '',
           description: item.description || '',
           amount: item.amount || 0,
-          dueDate: item.dueDate || '',
           type: item.type || 'Payment',
           status: item.status || 'Pending'
         })));
@@ -763,7 +755,6 @@ This document represents the complete and entire agreement between the parties a
       title: '',
       description: '',
       amount: 0,
-      dueDate: '',
       type: 'Payment',
       status: 'Pending'
     }]);
@@ -895,7 +886,6 @@ This document represents the complete and entire agreement between the parties a
           title: item.title,
           description: item.description,
           amount: item.amount,
-          dueDate: item.dueDate,
           type: item.type,
           status: item.status
         }))
@@ -1445,16 +1435,6 @@ This document represents the complete and entire agreement between the parties a
                           min="0"
                           step="0.01"
                           placeholder="0.00"
-                        />
-                      </div>
-                      
-                      <div className="line-item-field">
-                        <label className="line-item-label">Due Date</label>
-                        <input
-                          type="date"
-                          value={item.dueDate}
-                          onChange={(e) => handlePaymentScheduleChange(item.id, 'dueDate', e.target.value)}
-                          className="form-input line-item-input"
                         />
                       </div>
                       

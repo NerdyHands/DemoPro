@@ -575,7 +575,7 @@ class ContractPdfService {
     doc.fontSize(20)
        .font('Helvetica-Bold')
        .fillColor('#08a171')
-       .text('PICRA Repair Contract', { align: 'center' });
+       .text('Demolition Contract', { align: 'center' });
     
     doc.fontSize(14)
        .font('Helvetica-Bold')
@@ -749,7 +749,7 @@ class ContractPdfService {
          doc.fontSize(11)
         .font('Helvetica')
         .fillColor('#333333')
-        .text('Contractor agrees to perform residential repair services at the client\'s property as outlined in the PICRA document and detailed in the written price estimate. All work will be completed in a professional manner consistent with industry standards and in accordance with the agreed-upon inspection report items.', 60, doc.y, { width: 485, align: 'justify' });
+        .text('Contractor agrees to perform demolition services at the client\'s property as outlined in the demolition contract and detailed in the written price estimate. All work will be completed in a professional manner consistent with industry standards and in accordance with the agreed-upon inspection report items.', 60, doc.y, { width: 485, align: 'justify' });
     
     doc.moveDown(1);
     
@@ -764,7 +764,7 @@ class ContractPdfService {
      doc.fontSize(11)
         .font('Helvetica')
         .fillColor('#333333')
-        .text('Repairs will be performed according to generally accepted residential construction practices, in compliance with applicable codes — including the Virginia Uniform Statewide Building Code (VUSBC) and the International Residential Code (IRC) as adopted by Virginia — and in alignment with the NAHB Residential Construction Performance Guidelines.', 60, doc.y, { width: 485, align: 'justify' });
+        .text('Demolition will be performed according to generally accepted demolition practices, in compliance with applicable codes — including the Virginia Uniform Statewide Building Code (VUSBC) and the International Residential Code (IRC) as adopted by Virginia — and in alignment with the NAHB Residential Construction Performance Guidelines.', 60, doc.y, { width: 485, align: 'justify' });
      
      doc.moveDown(1);
      
