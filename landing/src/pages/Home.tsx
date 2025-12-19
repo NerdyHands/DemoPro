@@ -70,9 +70,9 @@ const Home = () => {
       {/* Hero Area Section - Two Block Layout */}
       <section
         id="hero-area"
+        role="banner"
+        aria-label="Hero section - Mr Demo Pro Demolition Services"
         style={{
-          backgroundImage:
-            'url("/assets/img/backgrounds/steptodown.com779769.jpg")',
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
@@ -81,9 +81,8 @@ const Home = () => {
           alignItems: "center",
           paddingTop: "1px",
           paddingBottom: "6px",
-              padding: '0.75rem ',
+          padding: "0.75rem ",
           position: "relative",
-          
         }}
       >
         {/* Background Overlay */}
@@ -110,7 +109,6 @@ const Home = () => {
               <Col
                 lg={7}
                 md={12}
-                className=""
                 style={{
                   padding: "40px 30px",
                   borderRadius: "16px",
@@ -133,20 +131,25 @@ const Home = () => {
                     className="hero-main-title text-white"
                     style={{
                       marginBottom: "15px",
-                      fontSize: "2.4rem",
+                      fontSize: "2rem",
                       fontWeight: "600",
                       lineHeight: "1.4",
                       fontFamily: "var(--font-family-secondary)",
                       letterSpacing: "-0.025em",
                     }}
                   >
-                    Mr Demo Pro
+                    Mr Demo Pro  Professional Demolition Services
                   </h1>
 
                   <div className="mb-3">
                     <img
-                      src="/main-logo.png"
-                      alt="mrdemopro main logo"
+                      src="/main-logo.webp"
+                      alt="Mr Demo Pro logo – Professional Demolition Services"
+                      width={240}
+                      height={120}
+                      loading="eager"
+                      decoding="async"
+                      fetchPriority="high"
                       style={{
                         maxHeight: "120px",
                         width: "auto",
@@ -183,11 +186,10 @@ const Home = () => {
                   </p>
 
                   <div className="mb-3">
-                   
-                
                     <a
                       href="tel:757-848-4559"
-                      title="Click to call"
+                      title="Call Mr Demo Pro"
+                      aria-label="Call Mr Demo Pro at 757-848-4559"
                       className="phone-link text-white text-decoration-none btn btn-primary"
                       style={{
                         fontSize: "1.1rem",
@@ -298,7 +300,9 @@ const Home = () => {
                       />
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-4" style={{
+                         paddingBottom:"32px"
+                    }}>
                       <input
                         type="text"
                         className="form-control"
@@ -314,6 +318,7 @@ const Home = () => {
                           border: "2px solid var(--color-border)",
                           fontFamily: "var(--font-family-primary)",
                           fontWeight: "400",
+                       
                         }}
                       />
                     </div>
@@ -341,22 +346,28 @@ const Home = () => {
             </Row>
           </Container>
 
-         <div style={{ display: "flex", justifyContent: "center", marginTop: "0.5rem" }}>
-  <Button
-    variant="link"
-    className="text-white btn--scroll-to"
-    onClick={handleScrollToLearnMore}
-    style={{
-      fontSize: "1rem",
-      textDecoration: "none",
-      padding: "4px 6px",
-      fontWeight: "500",
-    }}
-  >
-    Learn more ↓
-  </Button>
-</div>
-
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "0.5rem",
+            }}
+          >
+            <Button
+              type="button"
+              variant="link"
+              className="text-white btn--scroll-to"
+              onClick={handleScrollToLearnMore}
+              style={{
+                fontSize: "1rem",
+                textDecoration: "none",
+                padding: "4px 6px",
+                fontWeight: "500",
+              }}
+            >
+              Learn more ↓
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -391,25 +402,30 @@ const Home = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                style={{ position: "relative" }}
+                // style={{ position: "relative" }}
               >
                 <div className="mb-3">
                   <img
-                    src="/assets/Icons/shed-removal.png"
-                    alt="Shed Removal Service by mrdemopro"
+                    src="/assets/Icons/shed-removal.webp"
+                    alt="Shed removal service in Hampton Roads by Mr Demo Pro"
                     width="128"
                     height="128"
+                    loading="lazy"
                   />
                 </div>
-                <h3>Shed Removal</h3>
+                <h3>Shed Removal Services</h3>
                 <p>
                   Is your shed old and eating up space in your compound? Our
                   shed removal will help you to quickly and efficiently take
                   back that space.
                 </p>
                 <div className="html_button">
-                  <Link to="/shed-removal"
-                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  <Link
+                    to="/shed-removal"
+                    aria-label="Get a shed removal quote in Hampton Roads"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
                   >
                     <Button
                       variant="primary"
@@ -436,25 +452,30 @@ const Home = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
-                style={{ position: "relative" }}
+                // style={{ position: "relative" }}
               >
                 <div className="mb-3">
                   <img
-                    src="/assets/Icons/deck-removal.png"
-                    alt="Deck Removal Service by mrdemopro"
+                    src="/assets/Icons/deck-removal.webp"
+                    alt="Deck removal service in Hampton Roads by Mr Demo Pro"
                     width="128"
                     height="128"
+                    loading="lazy"
                   />
                 </div>
-                <h3>Deck Removal</h3>
+                <h3>Deck Removal Services</h3>
                 <p>
                   If you want to change your outdoor space around or your deck
                   has become old and unsafe; this can be done through our deck
                   removal service without hassle.
                 </p>
                 <div className="html_button">
-                  <Link to="/deck-removal"
-                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  <Link
+                    to="/deck-removal"
+                    aria-label="Get a deck removal quote in Hampton Roads"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
                   >
                     <Button
                       variant="primary"
@@ -484,21 +505,26 @@ const Home = () => {
               >
                 <div className="mb-3">
                   <img
-                    src="/assets/Icons/fence-removal.png"
-                    alt="Fence Removal Service by mrdemopro"
+                    src="/assets/Icons/fence-removal.webp"
+                    alt="Fence removal service in Hampton Roads by Mr Demo Pro"
                     width="128"
                     height="128"
+                    loading="lazy"
                   />
                 </div>
-                <h3>Fence Removal</h3>
+                <h3>Fence Removal Services</h3>
                 <p>
                   Old fences, damaged or unwanted, can be eyesores. Speedy
                   removal of these barriers can only be provided through our
                   fence removal services.
                 </p>
                 <div className="html_button">
-                  <Link to="/fence-removal"
-                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  <Link
+                    to="/fence-removal"
+                    aria-label="Get a fence removal quote in Hampton Roads"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
                   >
                     <Button
                       variant="primary"
@@ -525,25 +551,30 @@ const Home = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.5 }}
-                style={{ position: "relative" }}
+                // style={{ position: "relative" }}
               >
                 <div className="mb-3">
                   <img
-                    src="/assets/Icons/hammer.png"
+                    src="/assets/Icons/hammer.webp"
                     alt="Interior Demo Service by mrdemopro"
                     width="128"
                     height="128"
+                    loading="lazy"
                   />
                 </div>
-                <h3>Interior Demo</h3>
+                <h3>Interior Demolition Services</h3>
                 <p>
                   Professional interior demolition services for renovations and
                   remodeling. We safely remove walls, fixtures, and interior
                   structures to prepare your space for new construction.
                 </p>
                 <div className="html_button">
-                  <Link to="/interior-demo"
-                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  <Link
+                    to="/interior-demo"
+                    aria-label="Get an interior demolition quote in Hampton Roads"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
                   >
                     <Button
                       variant="primary"
@@ -570,25 +601,30 @@ const Home = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.0, duration: 0.5 }}
-                style={{ position: "relative" }}
+                // style={{ position: "relative" }}
               >
                 <div className="mb-3">
                   <img
-                    src="/assets/Icons/trash.png"
-                    alt="Junk Removal Service by mrdemopro"
+                    src="/assets/Icons/trash.webp"
+                    alt="Junk removal service in Hampton Roads by Mr Demo Pro"
                     width="128"
                     height="128"
+                    loading="lazy"
                   />
                 </div>
-                <h3>Junk Removal</h3>
+                <h3>Junk Removal Services</h3>
                 <p>
                   Fast and reliable junk removal services. We remove unwanted
                   items from your home or business, including furniture,
                   appliances, and general junk.
                 </p>
                 <div className="html_button">
-                  <Link to="/junk-removal"
-                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  <Link
+                    to="/junk-removal"
+                    aria-label="Get a junk removal quote in Hampton Roads"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
                   >
                     <Button
                       variant="primary"
@@ -615,12 +651,12 @@ const Home = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2, duration: 0.5 }}
-                style={{ position: "relative" }}
+                // style={{ position: "relative" }}
               >
                 <div className="mb-3">
                   <img
-                    src="/assets/Icons/cleanout.png"
-                    alt="Cleanout Service by mrdemopro"
+                    src="/assets/Icons/cleanout.webp"
+                    alt="Property cleanout service in Hampton Roads by Mr Demo Pro"
                     width="128"
                     height="128"
                   />
@@ -632,8 +668,12 @@ const Home = () => {
                   removal, leaving your property clean and ready.
                 </p>
                 <div className="html_button">
-                  <Link to="/cleanout"
-                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  <Link
+                    to="/cleanout"
+                    aria-label="Get a property cleanout quote in Hampton Roads"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
                   >
                     <Button
                       variant="primary"
@@ -678,7 +718,7 @@ const Home = () => {
                   fontSize: "var(--font-size-4xl)",
                 }}
               >
-                Why Choose Mr Demo Pro?
+                Why Choose Mr Demo Pro for Demolition Services?
               </motion.h2>
             </Col>
             <Col md={12} className="text-center">
@@ -691,7 +731,9 @@ const Home = () => {
               >
                 <video
                   className="w-100"
-                  poster="/MrDemoProLogoVideo.jpeg"
+                  poster="/MrDemoProLogoVideo.webp"
+                  preload="none"
+                  aria-label="Introduction video about Mr Demo Pro demolition services"
                   controls
                   style={{
                     borderRadius: "16px",
@@ -723,7 +765,7 @@ const Home = () => {
                   fontSize: "var(--font-size-3xl)",
                 }}
               >
-                Serving Yorktown, Norfolk, Newport News & Hampton
+                Serving Hampton Roads: Yorktown, Norfolk, Newport News & Hampton
               </motion.h2>
               <motion.h3
                 className="subtitle-small"
@@ -736,17 +778,17 @@ const Home = () => {
                   color: "var(--color-text-secondary)",
                 }}
               >
-                MrDemoPro is proud to serve the Hampton Roads region including
-                Yorktown, Norfolk, Newport News, Hampton, Virginia Beach,
-                Chesapeake and surrounding areas. Regardless of how large or
-                small your project , we are here at your service.
+                Mr Demo Pro is proud to provide professional demolition services
+                across the Hampton Roads region, including Yorktown, Norfolk,
+                Newport News, Hampton, Virginia Beach, and Chesapeake.
               </motion.h3>
             </Col>
             <Col lg={6} md={12}>
               <motion.img
                 className="img-fluid rounded"
-                src="/assets/img/features/hampton-roads.jpg"
-                alt="Hampton Roads service area by MrDemoPro"
+                src="/assets/img/features/hampton-roads.webp"
+                alt="Hampton Roads demolition service area served by Mr Demo Pro"
+                loading="lazy"
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
@@ -762,7 +804,7 @@ const Home = () => {
             <Col lg={6} md={12} className="mb-5 mb-lg-0">
               <motion.img
                 className="img-fluid rounded"
-                src="/assets/img/features/get-in-touch.jpg"
+                src="/assets/img/features/get-in-touch.webp"
                 alt="Get in touch with MrDemoPro for free consultation"
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -785,7 +827,7 @@ const Home = () => {
                   color: "var(--color-text-primary)",
                 }}
               >
-                Free Estimates – Call 757-848-4559
+                Free Demolition Estimates – Call 757-848-4559
               </motion.h2>
               <motion.h3
                 className="subtitle-small"
@@ -807,7 +849,14 @@ const Home = () => {
                 whileInView={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
               >
-                <Link to="/services">
+           
+                    <Link
+                     to="/services"
+                   aria-label="View demolition services offered by Mr Demo Pro"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                  >
                   <Button
                     size="lg"
                     className="customButton large"
@@ -838,7 +887,7 @@ const Home = () => {
                   fontSize: "var(--font-size-3xl)",
                 }}
               >
-                Our Services Overview
+               Our Demolition Services Overview 
               </motion.h2>
               <motion.h3
                 className="subtitle-small"
@@ -854,15 +903,14 @@ const Home = () => {
                 MrDemoPro offers a wide variety of demolition services to its
                 clients in Hampton Roads, VA. Our team is made up of experts who
                 are committed to providing you with quality service throughout
-                the entire process. Here are some of the more detailed services
-                we have
+                the entire process. Below are some of the detailed demolition and removal services we provide.
               </motion.h3>
             </Col>
             <Col lg={6} md={12}>
               <motion.img
                 className="img-fluid rounded"
-                src="/assets/img/features/services-overview.jpg"
-                alt="Overview of services by MrDemoPro"
+                src="/assets/img/features/services-overview.webp"
+              alt="Overview of demolition and removal services by Mr Demo Pro"
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}

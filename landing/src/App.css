@@ -9,15 +9,16 @@
   box-sizing: border-box;
 }
 
-body, html {
+body,
+html {
   overflow-x: hidden; /* Prevents right clipping on mobile */
 }
 
 #hero-area {
   width: 100%;
   padding-inline: 1rem; /* modern padding shorthand for L/R */
+  
 }
-
 
 /* Professional Button System */
 .btn {
@@ -164,13 +165,17 @@ body, html {
 }
 
 .feature-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-primary-light)
+  );
   transform: scaleX(0);
   transition: transform var(--transition-normal);
 }
@@ -307,7 +312,7 @@ body, html {
 }
 
 .navbar-nav .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -324,7 +329,7 @@ body, html {
 
 /* Enhanced Hero Section */
 #hero-area {
-  background-image: url('/assets/img/backgrounds/steptodown.com779769.jpg');
+  background-image: url("/assets/img/backgrounds/steptodown.com779769.webp");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -335,7 +340,7 @@ body, html {
 }
 
 #hero-area::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -424,15 +429,15 @@ body, html {
   .hero-right-block {
     margin-bottom: 2rem;
   }
-  
+
   .hero-main-title {
     font-size: 3rem !important;
   }
-  
+
   .hero-subtitle {
     font-size: 1.8rem !important;
   }
-  
+
   .hero-description {
     font-size: 1.1rem !important;
   }
@@ -442,28 +447,28 @@ body, html {
   .hero-main-title {
     font-size: 2.5rem !important;
   }
-  
+
   .hero-subtitle {
     font-size: 1.5rem !important;
   }
-  
+
   .hero-description {
     font-size: 1rem !important;
   }
-  
+
   .quote-form-title {
     font-size: 1.2rem !important;
   }
-  
+
   .quote-form-subtitle {
     font-size: 1rem !important;
   }
-  
+
   .phone-link {
     font-size: 1.4rem !important;
     padding: 15px 25px !important;
   }
-  
+
   #hero-area {
     background-attachment: scroll;
   }
@@ -474,27 +479,27 @@ body, html {
   .hero-right-block {
     padding: 30px 20px !important;
   }
-  
+
   .hero-main-title {
     font-size: 2rem !important;
   }
-  
+
   .hero-subtitle {
     font-size: 1.2rem !important;
   }
-  
+
   .hero-description {
     font-size: 0.95rem !important;
   }
-  
+
   .quote-form-title {
     font-size: 1.1rem !important;
   }
-  
+
   .quote-form-subtitle {
     font-size: 0.9rem !important;
   }
-  
+
   .phone-link {
     font-size: 1.2rem !important;
     padding: 12px 20px !important;
@@ -552,7 +557,7 @@ body, html {
   .title-big {
     font-size: var(--font-size-5xl);
   }
-  
+
   .title-small {
     font-size: var(--font-size-3xl);
   }
@@ -562,27 +567,27 @@ body, html {
   .title-big {
     font-size: var(--font-size-4xl);
   }
-  
+
   .title-small {
     font-size: var(--font-size-2xl);
   }
-  
+
   .subtitle-big {
     font-size: var(--font-size-xl);
   }
-  
+
   .subtitle-small {
     font-size: var(--font-size-base);
   }
-  
+
   #hero-area {
     background-attachment: scroll;
   }
-  
+
   .feature-item {
     padding: var(--spacing-lg);
   }
-  
+
   .btn-lg {
     padding: var(--spacing-sm) var(--spacing-lg);
     font-size: var(--font-size-base);
@@ -593,15 +598,15 @@ body, html {
   .title-big {
     font-size: var(--font-size-3xl);
   }
-  
+
   .title-small {
     font-size: var(--font-size-xl);
   }
-  
+
   .subtitle-big {
     font-size: var(--font-size-lg);
   }
-  
+
   .subtitle-small {
     font-size: var(--font-size-sm);
   }
@@ -702,19 +707,19 @@ section.bg-light {
   .container {
     padding: 0 var(--spacing-md);
   }
-  
+
   section {
     padding: var(--spacing-2xl) 0;
   }
-  
+
   .section-hero {
     padding: var(--spacing-3xl) 0 var(--spacing-2xl) 0;
   }
-  
+
   .section-content {
     padding: var(--spacing-2xl) 0;
   }
-  
+
   .section-alternate {
     padding: var(--spacing-2xl) 0;
   }
@@ -812,13 +817,33 @@ footer a:hover {
   .social {
     display: none !important;
   }
-  
+
   body {
     font-size: 12pt;
     line-height: 1.4;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     page-break-after: avoid;
   }
+}
+
+.service-btn {
+  background-color: rgb(242, 124, 80);
+  border: none;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.service-btn:hover {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
 }
