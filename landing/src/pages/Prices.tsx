@@ -151,8 +151,9 @@ const Prices: React.FC = () => {
           {/* CTA */}
           <footer className="text-center mt-4">
             <p
+        
               style={{
-                color: 'var(--color-text-secondary)',
+               color:'gold',
                 fontSize: 'clamp(1rem, 3vw, 1.1rem)'
               }}
             >

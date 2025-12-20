@@ -183,7 +183,7 @@ const Footer = () => {
                 <br />
                 Professional Demolition Services
                 <br />
-                📞{" "}
+               
                 <a href="tel:757-848-4559" style={{ color: "#ccc" }}>
                   757-848-4559
                 </a>

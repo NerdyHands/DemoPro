@@ -94,7 +94,7 @@ const Contact = () => {
   };
 
   return (
-    <div style={{ paddingTop: '100px', minHeight: '80vh' }}>
+    <div style={{ paddingTop: '100px', minHeight: '100vh' }}>
       <Container>
         <Row className="justify-content-center">
           <Col md={8} lg={6}>

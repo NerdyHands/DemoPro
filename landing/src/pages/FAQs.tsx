@@ -47,6 +47,7 @@ const FAQs = () => {
           aria-labelledby="faq-heading"
           style={{
             padding: '80px 0 60px 0',
+            borderRadius:"8px",
             background:
               'linear-gradient(135deg, var(--color-surface) 0%, #ffffff 100%)'
           }}

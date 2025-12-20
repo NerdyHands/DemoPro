@@ -273,7 +273,7 @@ const Home = () => {
                       fontWeight: "400",
                       color: "var(--color-text-secondary)",
                       fontFamily: "var(--font-family-primary)",
-                      lineHeight: "1.5",
+                      lineHeight: "1.4",
                     }}
                   >
                     We service Hampton, Newport News, Yorktown, and Norfolk
