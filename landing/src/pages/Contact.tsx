@@ -215,7 +215,7 @@ const Contact = () => {
                                  <h5 style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>
                   Or Call Us Directly
                 </h5>
-                <a 
+                {/* <a 
                   href="tel:757-848-4559" 
                                      style={{ 
                      color: 'var(--color-primary)', 
@@ -224,7 +224,28 @@ const Contact = () => {
                      fontWeight: 'bold' 
                    }}
                 >
-                  📞 757-848-4559
+                   757-848-4559
+                </a> */}
+
+                  <a
+                  href="tel:757-848-4559"
+                 
+                >
+                  <Button
+                    size="lg"
+                    variant="outline-light"
+                    style={{
+                      padding: '15px 40px',
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      borderRadius: '12px',
+                      minWidth: '200px',
+                      color: '#333',
+                      backgroundColor: 'rgb(236 65 0 / 52%)'
+                    }}
+                  >
+                    757-848-4559
+                  </Button>
                 </a>
               </div>
             </motion.div>

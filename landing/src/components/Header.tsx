@@ -1,24 +1,27 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {Navbar, Nav, Container} from 'react-bootstrap';
 import {Link, useLocation} from 'react-router-dom';
 
 const Header = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const navRef = useRef<HTMLDivElement | null>(null);
+
   const location = useLocation();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setShowBackToTop(true);
-      } else {
-        setShowBackToTop(false);
-      }
-    };
+ useEffect(() => {
+  const handleScroll = () => {
+    setShowBackToTop(window.scrollY > 20);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (expanded && window.scrollY > 10) {
+      setExpanded(false); // 🔥 auto close on scroll
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [expanded]);
+
 
   const scrollToTop = () => {
     window.scrollTo({top: 0, behavior: 'smooth'});
@@ -29,10 +32,39 @@ const Header = () => {
     setExpanded(false);
   };
 
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        expanded &&
+        navRef.current &&
+        !navRef.current.contains(event.target as Node)
+      ) {
+        setExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [expanded]);
+
+  const isOpen = expanded;
+
+  useEffect(() => {
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') setExpanded(false);
+  };
+  document.addEventListener('keydown', onKey);
+  return () => document.removeEventListener('keydown', onKey);
+}, []);
+
+
   return (
     <>
       <header>
         <Navbar
+          ref={navRef}
           bg="white"
           expand="lg"
           fixed="top"
@@ -73,13 +105,23 @@ const Header = () => {
               />
             </Navbar.Brand>
 
+   
+
             <Navbar.Toggle
               aria-controls="main-navigation"
               aria-label="Toggle navigation"
+              onClick={() => setExpanded(prev => !prev)}
               style={{
-                border: 'none'
+                border: 'none',
+                boxShadow: 'none'
               }}
-            />
+            >
+              <div className={`hamburger ${isOpen ? 'open' : ''}`}>
+                <span />
+                <span />
+                <span />
+              </div>
+            </Navbar.Toggle>
 
             <Navbar.Collapse id="main-navigation">
               <div className="ms-auto">

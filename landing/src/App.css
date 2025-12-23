@@ -17,7 +17,6 @@ html {
 #hero-area {
   width: 100%;
   padding-inline: 1rem; /* modern padding shorthand for L/R */
-  
 }
 
 /* Professional Button System */
@@ -165,7 +164,7 @@ html {
 }
 
 .feature-item::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -312,7 +311,7 @@ html {
 }
 
 .navbar-nav .nav-link::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -329,7 +328,7 @@ html {
 
 /* Enhanced Hero Section */
 #hero-area {
-  background-image: url("/assets/img/backgrounds/steptodown.com779769.webp");
+  background-image: url('/assets/img/backgrounds/steptodown.com779769.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -340,7 +339,7 @@ html {
 }
 
 #hero-area::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -847,3 +846,151 @@ footer a:hover {
   color: #000000;
   border: 1px solid #000000;
 }
+
+
+.hamburger {
+  width: 26px;
+  height: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.hamburger span {
+  height: 2.5px;
+  width: 100%;
+  border-radius: 999px;
+
+  background: linear-gradient(90deg, rgb(236, 65, 0), rgb(255, 120, 60));
+
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease,
+    filter 0.2s ease;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* subtle polish */
+@media (hover: hover) {
+  .hamburger:hover span {
+    filter: brightness(1.1);
+  }
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 20px;
+
+  /* soft orange glass look */
+  background: linear-gradient(
+    135deg,
+    rgba(236, 65, 0, 0.12),
+    rgba(255, 120, 60, 0.18)
+  );
+
+  color: rgb(236, 65, 0);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  border-radius: 9999px;
+
+  border: 2px solid rgba(236, 65, 0, 0.45);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 6px 18px rgba(236, 65, 0, 0.15);
+
+  
+
+  position: relative;
+  overflow: hidden;
+
+  transition: all 0.3s ease;
+}
+
+/* hover = stronger intent */
+.hero-badge:hover {
+  background: linear-gradient(
+    135deg,
+    rgb(236, 65, 0),
+    rgb(255, 120, 60)
+  );
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 12px 28px rgba(236, 65, 0, 0.35);
+}
+
+/* soft shine sweep */
+.hero-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+
+  animation: badge-shine 4s ease-in-out infinite;
+}
+
+@keyframes badge-shine {
+  0% { left: -40%; }
+  60% { left: 120%; }
+  100% { left: 120%; }
+}
+
+
+
+.hero-cta-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* shared CTA styling */
+.hero-cta {
+  padding: 15px 40px;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* 📱 MOBILE FIX */
+@media (max-width: 640px) {
+  .hero-cta-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-cta {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+form, .quote-form-wrapper {
+  scroll-margin-top: 120px; 
+}
+

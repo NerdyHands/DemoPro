@@ -1,10 +1,32 @@
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
 import QuoteForm from '../components/QuoteForm';
 
 const ShedRemoval = () => {
   const [showForm, setShowForm] = useState(false);
+  const formRef = useRef<HTMLDivElement | null>(null);
+  const scrollPosRef = useRef<number>(0);
+
+  // useEffect(() => {
+  //   if (showForm && formRef.current) {
+  //     formRef.current.scrollIntoView({
+  //       behavior: 'smooth',
+  //       block: 'start'
+  //     });
+  //   }
+  // }, [showForm]);
+  useEffect(() => {
+    if (showForm && formRef.current) {
+      // save current scroll position
+      scrollPosRef.current = window.scrollY;
+      // scroll to form
+      formRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+    } else if (!showForm) {
+      // scroll back to original position when hiding
+      window.scrollTo({top: scrollPosRef.current, behavior: 'smooth'});
+    }
+  }, [showForm]);
 
   const features = [
     {
@@ -48,7 +70,7 @@ const ShedRemoval = () => {
   ];
 
   return (
-    <div itemProp="offers" >
+    <div itemProp="offers">
       {/* Hero Section */}
       <section
         itemScope
@@ -60,14 +82,14 @@ const ShedRemoval = () => {
             'linear-gradient(135deg, var(--color-surface) 0%, #ffffff 100%)'
         }}
       >
-         <meta itemProp="areaServed" content="Hampton Roads, VA" />
+        <meta itemProp="areaServed" content="Hampton Roads, VA" />
         <meta itemProp="provider" content="MrDemoPro" />
         <meta itemProp="serviceType" content="Shed Removal" />
         <Container>
           <Row className="align-items-center">
             <Col lg={6} md={12} className="mb-5 mb-lg-0">
               <motion.h1
-              itemProp="name"
+                itemProp="name"
                 className="title-small fw-bold"
                 initial={{opacity: 0, x: -50}}
                 animate={{opacity: 1, x: 0}}
@@ -101,46 +123,31 @@ const ShedRemoval = () => {
                 initial={{opacity: 0}}
                 animate={{opacity: 1}}
                 transition={{delay: 0.5, duration: 0.6}}
+                className="hero-cta-group"
               >
                 <Button
                   size="lg"
-                  className="customButton large"
+                  className="customButton large hero-cta"
                   onClick={() => setShowForm(!showForm)}
                   aria-label="Get a free shed removal quote in Hampton Roads"
-                  style={{
-                    padding: '15px 40px',
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: 'var(--font-weight-semibold)',
-                    borderRadius: '12px',
-                    marginRight: '20px'
-                  }}
                 >
                   Get Free Quote
                 </Button>
+
                 <a
                   href="tel:757-848-4559"
                   aria-label="Call for shed removal services in Hampton Roads"
+                  className="cta-button  hero-badge hero-cta"
                 >
-                  <Button
-                    variant="outline-primary"
-                    size="lg"
-                    style={{
-                      padding: '15px 40px',
-                      fontSize: 'var(--font-size-lg)',
-                      fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px',
-                      borderColor: 'var(--color-primary)',
-                      color: 'var(--color-primary)'
-                    }}
-                  >
-                    📞 Call Now
-                  </Button>
+                  Call (757) 848 4559
                 </a>
               </motion.div>
             </Col>
             <Col lg={6} md={12}>
               {showForm ? (
-                <QuoteForm serviceType="Shed Removal" inline={true} />
+                <div ref={formRef} className="quote-form-wrapper ">
+                  <QuoteForm serviceType="Shed Removal" inline={true} />
+                </div>
               ) : (
                 <motion.img
                   className="img-fluid rounded"
@@ -151,8 +158,8 @@ const ShedRemoval = () => {
                   transition={{delay: 0.2, duration: 0.6}}
                   style={{
                     borderRadius: '16px',
-                    boxShadow: 'var(--shadow-lg)',
-                    maxWidth: '400px'
+
+                    maxWidth: '302px'
                   }}
                 />
               )}
@@ -269,7 +276,7 @@ const ShedRemoval = () => {
                   whileInView={{opacity: 1, y: 0}}
                   transition={{delay: 0.2 + idx * 0.2, duration: 0.5}}
                 >
-                  <div 
+                  <div
                     style={{
                       width: '80px',
                       height: '80px',
@@ -286,18 +293,22 @@ const ShedRemoval = () => {
                   >
                     {step.number}
                   </div>
-                  <div itemProp="step" itemScope itemType="https://schema.org/HowToStep">
-                  <h4
-                    style={{
-                      color: 'var(--color-text-primary)',
-                      marginBottom: '15px'
-                    }}
+                  <div
+                    itemProp="step"
+                    itemScope
+                    itemType="https://schema.org/HowToStep"
                   >
-                    {step.title}
-                  </h4>
-                  <p style={{color: 'var(--color-text-secondary)'}}>
-                    {step.desc}
-                  </p>
+                    <h4
+                      style={{
+                        color: 'var(--color-text-primary)',
+                        marginBottom: '15px'
+                      }}
+                    >
+                      {step.title}
+                    </h4>
+                    <p style={{color: 'var(--color-text-secondary)'}}>
+                      {step.desc}
+                    </p>
                   </div>
                 </motion.div>
               </Col>
@@ -310,7 +321,9 @@ const ShedRemoval = () => {
       <section
         style={{
           padding: '80px 0',
-          backgroundColor: 'var(--color-primary)',
+          background:
+            'linear-gradient(135deg, rgb(236 64 0 / 52%), rgb(236 64 0 / 77%))',
+
           color: 'white'
         }}
       >
@@ -347,27 +360,34 @@ const ShedRemoval = () => {
                 initial={{opacity: 0}}
                 whileInView={{opacity: 1}}
                 transition={{delay: 0.5, duration: 0.6}}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  flexWrap: 'wrap', // allows wrapping on small screens
+                  justifyContent: 'center', // centers horizontally
+                  gap: '16px', // spacing between buttons
+                  alignItems: 'center' // vertical alignment
+                }}
               >
                 <Button
                   size="lg"
                   variant="light"
-                  onClick={() => {
-                    setShowForm(!showForm);
-                    window.scrollTo({top: 0, behavior: 'smooth'});
-                  }}
-                   aria-label="Get free shed removal quote in Hampton Roads"
+                  onClick={() => setShowForm(!showForm)}
+                  aria-label="Get free shed removal quote in Hampton Roads"
                   style={{
                     padding: '15px 40px',
                     fontSize: 'var(--font-size-lg)',
                     fontWeight: 'var(--font-weight-semibold)',
                     borderRadius: '12px',
-                    marginRight: '20px'
+                    minWidth: '200px' // ensures button width consistency
                   }}
                 >
                   Get Free Quote
                 </Button>
-                <a href="tel:757-848-4559"
-                 aria-label="Call for Shed removal services"
+
+                <a
+                  href="tel:757-848-4559"
+                  aria-label="Call for Shed removal services"
                 >
                   <Button
                     size="lg"
@@ -376,10 +396,13 @@ const ShedRemoval = () => {
                       padding: '15px 40px',
                       fontSize: 'var(--font-size-lg)',
                       fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px'
+                      borderRadius: '12px',
+                      minWidth: '200px',
+                      color: '#333',
+                      backgroundColor: '#fff'
                     }}
                   >
-                    📞 Call 757-848-4559
+                    Call 757-848-4559
                   </Button>
                 </a>
               </motion.div>

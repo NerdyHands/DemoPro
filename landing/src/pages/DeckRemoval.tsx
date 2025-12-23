@@ -1,10 +1,24 @@
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
 import QuoteForm from '../components/QuoteForm';
 
 const DeckRemoval = () => {
   const [showForm, setShowForm] = useState(false);
+  const formRef = useRef<HTMLDivElement | null>(null);
+  const scrollPosRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (showForm && formRef.current) {
+      // save current scroll position
+      scrollPosRef.current = window.scrollY;
+      // scroll to form
+      formRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+    } else if (!showForm) {
+      // scroll back to original position when hiding
+      window.scrollTo({top: scrollPosRef.current, behavior: 'smooth'});
+    }
+  }, [showForm]);
 
   return (
     <div itemScope itemType="https://schema.org/Service">
@@ -16,7 +30,7 @@ const DeckRemoval = () => {
             'linear-gradient(135deg, var(--color-surface) 0%, #ffffff 100%)'
         }}
       >
-      <meta itemProp="areaServed" content="Hampton Roads, VA" />
+        <meta itemProp="areaServed" content="Hampton Roads, VA" />
         <meta itemProp="provider" content="MrDemoPro" />
         <meta itemProp="serviceType" content="Deck Removal" />
 
@@ -58,45 +72,31 @@ const DeckRemoval = () => {
                 initial={{opacity: 0}}
                 animate={{opacity: 1}}
                 transition={{delay: 0.5, duration: 0.6}}
+                className="hero-cta-group"
               >
                 <Button
                   size="lg"
-                  className="customButton large"
-                  aria-label="Get a free deck removal quote in Hampton Roads"
+                  className="customButton large hero-cta"
                   onClick={() => setShowForm(!showForm)}
-                  style={{
-                    padding: '15px 40px',
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: 'var(--font-weight-semibold)',
-                    borderRadius: '12px',
-                    marginRight: '20px'
-                  }}
+                  aria-label="Get a free deck removal quote in Hampton Roads"
                 >
                   Get Free Quote
                 </Button>
-                <a href="tel:757-848-4559"
+
+                <a
+                  href="tel:757-848-4559"
                   aria-label="Call for Deck removal services"
+                  className="cta-button  hero-badge hero-cta"
                 >
-                  <Button
-                    variant="outline-primary"
-                    size="lg"
-                    style={{
-                      padding: '15px 40px',
-                      fontSize: 'var(--font-size-lg)',
-                      fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px',
-                      borderColor: 'var(--color-primary)',
-                      color: 'var(--color-primary)'
-                    }}
-                  >
-                    📞 Call Now
-                  </Button>
+                  Call (757) 848 4559
                 </a>
               </motion.div>
             </Col>
             <Col lg={6} md={12}>
-              {showForm ? (
-                <QuoteForm serviceType="Deck Removal" inline={true} />
+           {showForm ? (
+                <div ref={formRef} className="quote-form-wrapper ">
+                  <QuoteForm serviceType="Shed Removal" inline={true} />
+                </div>
               ) : (
                 <motion.img
                   className="img-fluid rounded"
@@ -110,8 +110,8 @@ const DeckRemoval = () => {
                   transition={{delay: 0.2, duration: 0.6}}
                   style={{
                     borderRadius: '16px',
-                    boxShadow: 'var(--shadow-lg)',
-                    maxWidth: '400px'
+
+                    maxWidth: '302px'
                   }}
                 />
               )}
@@ -501,7 +501,9 @@ const DeckRemoval = () => {
       <section
         style={{
           padding: '80px 0',
-          backgroundColor: 'var(--color-primary)',
+          background:
+            'linear-gradient(135deg, rgb(236 64 0 / 52%), rgb(236 64 0 / 77%))',
+
           color: 'white'
         }}
       >
@@ -538,14 +540,20 @@ const DeckRemoval = () => {
                 initial={{opacity: 0}}
                 whileInView={{opacity: 1}}
                 transition={{delay: 0.5, duration: 0.6}}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  gap: '16px',
+                  alignItems: 'center'
+                }}
               >
                 <Button
                   size="lg"
                   variant="light"
-                  onClick={() => {
-                    setShowForm(!showForm);
-                    window.scrollTo({top: 0, behavior: 'smooth'});
-                  }}
+                  onClick={() => setShowForm(!showForm)}
+                  aria-label="Get free deck removal quote in Hampton Roads"
                   style={{
                     padding: '15px 40px',
                     fontSize: 'var(--font-size-lg)',
@@ -556,18 +564,21 @@ const DeckRemoval = () => {
                 >
                   Get Free Quote
                 </Button>
-                <a href="tel:757-848-4559">
-                  <Button
+                <a href="tel:757-848-4559"  aria-label="Call for Deck removal services">
+                   <Button
                     size="lg"
                     variant="outline-light"
                     style={{
                       padding: '15px 40px',
                       fontSize: 'var(--font-size-lg)',
                       fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px'
+                      borderRadius: '12px',
+                      minWidth: '200px',
+                      color: '#333',
+                      backgroundColor: '#fff'
                     }}
                   >
-                    📞 Call 757-848-4559
+                     Call 757-848-4559
                   </Button>
                 </a>
               </motion.div>

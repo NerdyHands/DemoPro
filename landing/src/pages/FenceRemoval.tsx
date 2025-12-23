@@ -1,10 +1,24 @@
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
 import QuoteForm from '../components/QuoteForm';
 
 const FenceRemoval = () => {
   const [showForm, setShowForm] = useState(false);
+  const formRef = useRef<HTMLDivElement | null>(null);
+  const scrollPosRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (showForm && formRef.current) {
+      // save current scroll position
+      scrollPosRef.current = window.scrollY;
+      // scroll to form
+      formRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+    } else if (!showForm) {
+      // scroll back to original position when hiding
+      window.scrollTo({top: scrollPosRef.current, behavior: 'smooth'});
+    }
+  }, [showForm]);
 
   return (
     <div itemScope itemType="https://schema.org/Service">
@@ -58,43 +72,30 @@ const FenceRemoval = () => {
                 initial={{opacity: 0}}
                 animate={{opacity: 1}}
                 transition={{delay: 0.5, duration: 0.6}}
+                className="hero-cta-group"
               >
                 <Button
                   size="lg"
-                  className="customButton large"
-                    aria-label="Get a free Fence removal quote in Hampton Roads"
+                  className="customButton large hero-cta"
+                  aria-label="Get a free Fence removal quote in Hampton Roads"
                   onClick={() => setShowForm(!showForm)}
-                  style={{
-                    padding: '15px 40px',
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: 'var(--font-weight-semibold)',
-                    borderRadius: '12px',
-                    marginRight: '20px'
-                  }}
                 >
                   Get Free Quote
                 </Button>
-                <a href="tel:757-848-4559"  aria-label="Call for Fence removal services">
-                  <Button
-                    variant="outline-primary"
-                    size="lg"
-                    style={{
-                      padding: '15px 40px',
-                      fontSize: 'var(--font-size-lg)',
-                      fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px',
-                      borderColor: 'var(--color-primary)',
-                      color: 'var(--color-primary)'
-                    }}
-                  >
-                    📞 Call Now
-                  </Button>
+                <a
+                  href="tel:757-848-4559"
+                  aria-label="Call for Fence removal services"
+                  className="cta-button  hero-badge hero-cta"
+                >
+                  Call (757) 848 4559
                 </a>
               </motion.div>
             </Col>
             <Col lg={6} md={12}>
               {showForm ? (
-                <QuoteForm serviceType="Fence Removal" inline={true} />
+                <div ref={formRef} className="quote-form-wrapper ">
+                  <QuoteForm serviceType="Shed Removal" inline={true} />
+                </div>
               ) : (
                 <motion.img
                   src="/assets/Icons/fence-removal.webp"
@@ -107,8 +108,8 @@ const FenceRemoval = () => {
                   transition={{delay: 0.2, duration: 0.6}}
                   style={{
                     borderRadius: '16px',
-                    boxShadow: 'var(--shadow-lg)',
-                    maxWidth: '400px'
+
+                    maxWidth: '302px'
                   }}
                 />
               )}
@@ -295,10 +296,11 @@ const FenceRemoval = () => {
       </section>
 
       {/* Process Section */}
-      <section 
-       itemScope
-  itemType="https://schema.org/HowTo"
-      style={{padding: '80px 0'}}>
+      <section
+        itemScope
+        itemType="https://schema.org/HowTo"
+        style={{padding: '80px 0'}}
+      >
         <Container>
           <Row>
             <Col xs={12}>
@@ -328,8 +330,8 @@ const FenceRemoval = () => {
               >
                 <div
                   itemProp="step"
-  itemScope
-  itemType="https://schema.org/HowToStep"
+                  itemScope
+                  itemType="https://schema.org/HowToStep"
                   style={{
                     width: '80px',
                     height: '80px',
@@ -347,8 +349,7 @@ const FenceRemoval = () => {
                   1
                 </div>
                 <h4
-                 itemProp="name"
-                 
+                  itemProp="name"
                   style={{
                     color: 'var(--color-text-primary)',
                     marginBottom: '15px'
@@ -357,8 +358,9 @@ const FenceRemoval = () => {
                   Assessment
                 </h4>
                 <p
-                itemProp="text"
-                style={{color: 'var(--color-text-secondary)'}}>
+                  itemProp="text"
+                  style={{color: 'var(--color-text-secondary)'}}
+                >
                   We evaluate your fence and property to determine the best
                   removal approach.
                 </p>
@@ -374,8 +376,8 @@ const FenceRemoval = () => {
               >
                 <div
                   itemProp="step"
-  itemScope
-  itemType="https://schema.org/HowToStep"
+                  itemScope
+                  itemType="https://schema.org/HowToStep"
                   style={{
                     width: '80px',
                     height: '80px',
@@ -393,7 +395,7 @@ const FenceRemoval = () => {
                   2
                 </div>
                 <h4
-                 itemProp="name"
+                  itemProp="name"
                   style={{
                     color: 'var(--color-text-primary)',
                     marginBottom: '15px'
@@ -401,9 +403,10 @@ const FenceRemoval = () => {
                 >
                   Panel Removal
                 </h4>
-                <p 
-                itemProp="text"
-                style={{color: 'var(--color-text-secondary)'}}>
+                <p
+                  itemProp="text"
+                  style={{color: 'var(--color-text-secondary)'}}
+                >
                   We carefully remove fence panels, gates, and hardware from the
                   posts.
                 </p>
@@ -419,8 +422,8 @@ const FenceRemoval = () => {
               >
                 <div
                   itemProp="step"
-  itemScope
-  itemType="https://schema.org/HowToStep"
+                  itemScope
+                  itemType="https://schema.org/HowToStep"
                   style={{
                     width: '80px',
                     height: '80px',
@@ -438,7 +441,7 @@ const FenceRemoval = () => {
                   3
                 </div>
                 <h4
-                 itemProp="name"
+                  itemProp="name"
                   style={{
                     color: 'var(--color-text-primary)',
                     marginBottom: '15px'
@@ -446,9 +449,10 @@ const FenceRemoval = () => {
                 >
                   Post Removal
                 </h4>
-                <p 
-                itemProp="text"
-                style={{color: 'var(--color-text-secondary)'}}>
+                <p
+                  itemProp="text"
+                  style={{color: 'var(--color-text-secondary)'}}
+                >
                   We remove fence posts and concrete footings from the ground.
                 </p>
               </motion.div>
@@ -463,8 +467,8 @@ const FenceRemoval = () => {
               >
                 <div
                   itemProp="step"
-  itemScope
-  itemType="https://schema.org/HowToStep"
+                  itemScope
+                  itemType="https://schema.org/HowToStep"
                   style={{
                     width: '80px',
                     height: '80px',
@@ -481,7 +485,8 @@ const FenceRemoval = () => {
                 >
                   4
                 </div>
-                <h4  itemProp="name"
+                <h4
+                  itemProp="name"
                   style={{
                     color: 'var(--color-text-primary)',
                     marginBottom: '15px'
@@ -489,9 +494,10 @@ const FenceRemoval = () => {
                 >
                   Final Cleanup
                 </h4>
-                <p 
-                itemProp="text"
-                style={{color: 'var(--color-text-secondary)'}}>
+                <p
+                  itemProp="text"
+                  style={{color: 'var(--color-text-secondary)'}}
+                >
                   We clean up all debris, fill holes, and ensure your property
                   is spotless.
                 </p>
@@ -505,7 +511,8 @@ const FenceRemoval = () => {
       <section
         style={{
           padding: '80px 0',
-          backgroundColor: 'var(--color-primary)',
+                  background:
+            'linear-gradient(135deg, rgb(236 64 0 / 52%), rgb(236 64 0 / 77%))',
           color: 'white'
         }}
       >
@@ -543,39 +550,48 @@ const FenceRemoval = () => {
                 initial={{opacity: 0}}
                 whileInView={{opacity: 1}}
                 transition={{delay: 0.5, duration: 0.6}}
+                 style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  flexWrap: 'wrap', // allows wrapping on small screens
+                  justifyContent: 'center', // centers horizontally
+                  gap: '16px', // spacing between buttons
+                  alignItems: 'center' // vertical alignment
+                }}
               >
                 <Button
                   size="lg"
                   variant="light"
                   aria-label="Get a free fence removal quote in Hampton Roads"
-                  onClick={() => {
-                    setShowForm(!showForm);
-                    window.scrollTo({top: 0, behavior: 'smooth'});
-                  }}
+                 onClick={() => setShowForm(!showForm)}
                   style={{
                     padding: '15px 40px',
                     fontSize: 'var(--font-size-lg)',
                     fontWeight: 'var(--font-weight-semibold)',
                     borderRadius: '12px',
-                    marginRight: '20px'
+                    minWidth: '200px' 
                   }}
                 >
                   Get Free Quote
                 </Button>
-                <a href="tel:757-848-4559"
+                <a
+                  href="tel:757-848-4559"
                   aria-label="Call for fence removal services"
                 >
-                  <Button
+           <Button
                     size="lg"
                     variant="outline-light"
                     style={{
                       padding: '15px 40px',
                       fontSize: 'var(--font-size-lg)',
                       fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px'
+                      borderRadius: '12px',
+                      minWidth: '200px',
+                      color: '#333',
+                      backgroundColor: '#fff'
                     }}
                   >
-                    📞 Call 757-848-4559
+                    Call 757-848-4559
                   </Button>
                 </a>
               </motion.div>

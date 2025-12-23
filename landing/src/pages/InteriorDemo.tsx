@@ -1,17 +1,31 @@
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
 import QuoteForm from '../components/QuoteForm';
 
 const InteriorDemo = () => {
   const [showForm, setShowForm] = useState(false);
+  const formRef = useRef<HTMLDivElement | null>(null);
+  const scrollPosRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (showForm && formRef.current) {
+      // save current scroll position
+      scrollPosRef.current = window.scrollY;
+      // scroll to form
+      formRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+    } else if (!showForm) {
+      // scroll back to original position when hiding
+      window.scrollTo({top: scrollPosRef.current, behavior: 'smooth'});
+    }
+  }, [showForm]);
 
   return (
     <div itemScope itemType="https://schema.org/Service">
       {/* Hero Section */}
       <section
         style={{
-              padding: '80px 0 60px 0',
+          padding: '80px 0 60px 0',
           background:
             'linear-gradient(135deg, var(--color-surface) 0%, #ffffff 100%)'
         }}
@@ -43,7 +57,7 @@ const InteriorDemo = () => {
                 animate={{opacity: 1, y: 0}}
                 transition={{delay: 0.3, duration: 0.6}}
                 style={{
-                    fontSize: 'var(--font-size-lg)',
+                  fontSize: 'var(--font-size-lg)',
                   lineHeight: '1.6',
                   color: 'var(--color-text-secondary)',
                   marginBottom: '40px'
@@ -58,42 +72,31 @@ const InteriorDemo = () => {
                 initial={{opacity: 0}}
                 animate={{opacity: 1}}
                 transition={{delay: 0.6, duration: 0.6}}
+                className="hero-cta-group"
               >
-                <a
-                  href="tel:757-848-4559"
-                  ria-label="Get a free interior demolition quote"
-                  className="btn btn-light btn-lg me-3 mb-3"
-                  style={{
-                      padding: '15px 40px',
-                      fontSize: 'var(--font-size-lg)',
-                      fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px',
-                      borderColor: 'var(--color-primary)',
-                      color: 'var(--color-primary)'
-                    }}
-                >
-                  📞 Call 757-848-4559
-                </a>
                 <Button
-                   className="customButton large"
                   size="lg"
-                    aria-label="Get a free interior removal quote in Hampton Roads"
+                  className="customButton large hero-cta"
                   onClick={() => setShowForm(!showForm)}
-                 style={{
-                    padding: '15px 40px',
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: 'var(--font-weight-semibold)',
-                    borderRadius: '12px',
-                    marginRight: '20px'
-                  }}
+                  aria-label="Get a free interior removal quote in Hampton Roads"
                 >
                   Get Free Quote
                 </Button>
+
+                <a
+                  href="tel:757-848-4559"
+                  ria-label="Get a free interior demolition quote"
+                  className="cta-button  hero-badge hero-cta"
+                >
+                  Call (757) 848 4559
+                </a>
               </motion.div>
             </Col>
             <Col lg={6} md={12}>
               {showForm ? (
-                <QuoteForm serviceType="Interior Demo" inline={true} />
+                <div ref={formRef} className="quote-form-wrapper ">
+                  <QuoteForm serviceType="Shed Removal" inline={true} />
+                </div>
               ) : (
                 <motion.img
                   src="/assets/Icons/hammer.webp"
@@ -105,7 +108,11 @@ const InteriorDemo = () => {
                   initial={{opacity: 0, x: 50}}
                   animate={{opacity: 1, x: 0}}
                   transition={{delay: 0.2, duration: 0.6}}
-                  style={{boxShadow: '0 20px 40px rgba(0,0,0,0.3)'}}
+                  style={{
+                    borderRadius: '16px',
+
+                    maxWidth: '302px'
+                  }}
                 />
               )}
             </Col>
@@ -382,7 +389,8 @@ const InteriorDemo = () => {
       <section
         style={{
           padding: '80px 0',
-          backgroundColor: 'var(--color-primary)',
+          background:
+            'linear-gradient(135deg, rgb(236 64 0 / 52%), rgb(236 64 0 / 77%))',
           color: 'white'
         }}
       >
@@ -392,43 +400,72 @@ const InteriorDemo = () => {
             initial={{opacity: 0}}
             whileInView={{opacity: 1}}
             transition={{duration: 0.6}}
+                 style={{
+              color:"#000000"
+            }}
           >
             Ready to Start Your Interior Demo Project?
           </motion.h2>
           <motion.p
             className="lead mb-5"
+            style={{
+              color:"#ffffff"
+            }}
             initial={{opacity: 0, y: 20}}
             whileInView={{opacity: 1, y: 0}}
             transition={{delay: 0.3, duration: 0.6}}
           >
-            Get your free estimate today! Call us at 757-848-4559 or request a
-            quote online.
+            Get your free estimate today! Call or request a quote online.
           </motion.p>
           <motion.div
             initial={{opacity: 0}}
             whileInView={{opacity: 1}}
             transition={{delay: 0.6, duration: 0.6}}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              flexWrap: 'wrap', // allows wrapping on small screens
+              justifyContent: 'center', // centers horizontally
+              gap: '16px', // spacing between buttons
+              alignItems: 'center' // vertical alignment
+            }}
           >
-            <a
-              href="tel:757-848-4559"
-              aria-label="Call for interior demolition services in Hampton Roads"
-              className="btn btn-light btn-lg me-3 mb-3"
-              style={{fontWeight: 'bold'}}
-            >
-              📞 Call Now: 757-848-4559
-            </a>
             <Button
-              variant="outline-light"
-              ria-label="Get a free interior demolition quote"
               size="lg"
-              className="mb-3"
-              onClick={() => {
-                setShowForm(!showForm);
-                window.scrollTo({top: 0, behavior: 'smooth'});
+              variant="light"
+              onClick={() => setShowForm(!showForm)}
+              aria-label="Get a free interior demolition quote"
+              style={{
+                padding: '15px 40px',
+                fontSize: 'var(--font-size-lg)',
+                fontWeight: 'var(--font-weight-semibold)',
+                borderRadius: '12px',
+                minWidth: '200px' // ensures button width consistency
               }}
             >
               Get Free Quote
             </Button>
+
+            <a
+              href="tel:757-848-4559"
+              aria-label="Call for interior demolition services in Hampton Roads"
+            >
+              <Button
+                size="lg"
+                variant="outline-light"
+                style={{
+                  padding: '15px 40px',
+                  fontSize: 'var(--font-size-lg)',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  borderRadius: '12px',
+                  minWidth: '200px',
+                  color: '#333',
+                  backgroundColor: '#fff'
+                }}
+              >
+                Call 757-848-4559
+              </Button>
+            </a>
           </motion.div>
         </Container>
       </section>
