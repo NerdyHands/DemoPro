@@ -736,7 +736,7 @@
 }
 
 .form-input {
-  padding: 0.75rem;
+  padding: inherit;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
@@ -939,7 +939,7 @@
 }
 
 .total-amount-display {
-  padding: 0.75rem;
+  padding: inherit;
   background-color: #f8f9fa;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -984,7 +984,7 @@
 
 .line-item-textarea {
   width: 100%;
-  padding: 0.75rem;
+  padding: inherit;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;

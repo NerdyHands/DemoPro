@@ -530,7 +530,7 @@
 }
 
 .form-input {
-  padding: 0.75rem;
+  padding:inherit;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
@@ -1037,7 +1037,7 @@
 
 .line-item-textarea {
   width: 100%;
-  padding: 0.75rem;
+  padding: inherit;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
