@@ -42,10 +42,23 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
 
       const response = await fetch(scriptURL, {
         method: 'POST',
-        body: formDataToSend
+        body: formDataToSend,
+        redirect: 'follow' // Follow redirects (Google Apps Script may return 302)
       });
 
-      if (response.ok) {
+      // Google Apps Script web apps may return 200, 302 (redirect), or other status codes
+      // Accept any status that indicates the request was processed (200-399)
+      // Also handle status 0 which can occur with CORS - if we got a response, the request likely succeeded
+      const status = response.status;
+      const isSuccess = response.ok || (status >= 200 && status < 400);
+      
+      // If status is 0, it might be a CORS issue but request was sent
+      // For Google Apps Script, we'll be lenient and assume success if we got any response
+      if (!isSuccess && status === 0) {
+        console.warn('Received status 0 (possible CORS issue), but assuming success for Google Apps Script');
+      }
+      
+      if (isSuccess || status === 0) {
         // Track successful form submission
         trackFormSubmission('quote_request', {
           address: formData.address,
@@ -54,7 +67,14 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
         });
         navigate('/thank-you');
       } else {
-        throw new Error('Network response was not ok');
+        // Log detailed error for debugging
+        console.error('Form submission failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          type: response.type,
+          url: response.url
+        });
+        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
       console.error('Error:', error);

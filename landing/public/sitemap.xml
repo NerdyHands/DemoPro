@@ -2,79 +2,85 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mrdemopro.com/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/services/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/shed-removal/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/deck-removal/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/fence-removal/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/interior-demo/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/cleanout/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/junk-removal/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/contact/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://mrdemopro.com/prices/</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://mrdemopro.com/faqs/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/thank-you/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/terms/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://mrdemopro.com/privacy/</loc>
-    <lastmod>2025-11-02</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
