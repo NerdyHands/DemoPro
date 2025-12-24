@@ -28,23 +28,99 @@ const ShedRemoval = () => {
     }
   }, [showForm]);
 
+  // const features = [
+  //   {
+  //     icon: '⚡',
+  //     title: 'Fast & Efficient',
+  //     desc: 'Our experienced team works quickly and efficiently to remove your shed in a single visit, minimizing disruption to your daily routine.'
+  //   },
+  //   {
+  //     icon: '🛡️',
+  //     title: 'Safe & Professional',
+  //     desc: 'We use proper safety equipment and techniques to ensure the removal process is safe for our team and your property.'
+  //   },
+  //   {
+  //     icon: '🧹',
+  //     title: 'Complete Cleanup',
+  //     desc: "We don't just remove the shed - we clean up all debris and materials, leaving your property spotless and ready for new projects."
+  //   }
+  // ];
+
   const features = [
     {
-      icon: '⚡',
+      key: 'fast',
       title: 'Fast & Efficient',
       desc: 'Our experienced team works quickly and efficiently to remove your shed in a single visit, minimizing disruption to your daily routine.'
     },
     {
-      icon: '🛡️',
+      key: 'safe',
       title: 'Safe & Professional',
       desc: 'We use proper safety equipment and techniques to ensure the removal process is safe for our team and your property.'
     },
     {
-      icon: '🧹',
+      key: 'clean',
       title: 'Complete Cleanup',
-      desc: "We don't just remove the shed - we clean up all debris and materials, leaving your property spotless and ready for new projects."
+      desc: "We don't just remove the shed — we clean up all debris and materials, leaving your property spotless and ready for new projects."
     }
   ];
+
+  const FeatureIcon = ({type}: {type: string}) => {
+    switch (type) {
+      case 'fast':
+        return (
+          <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+            <path
+              d="M12 36L28 12L24 28H40L20 52L24 36H12Z"
+              stroke="white"
+              strokeWidth="2"
+            />
+          </svg>
+        );
+        case 'safe':
+        return (
+          <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+            {/* Shield */}
+            <path
+              d="M32 10L48 16V28C48 40 38 48 32 52C26 48 16 40 16 28V16Z"
+              stroke="white"
+              strokeWidth="2"
+            />
+            {/* Check */}
+            <path d="M24 30L30 36L40 26" stroke="white" strokeWidth="2" />
+          </svg>
+        );
+
+   
+      case 'clean':
+        return (
+          <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+            <path
+              d="M14 40L30 20L36 26L20 46Z"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <line
+              x1="38"
+              y1="10"
+              x2="26"
+              y2="22"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <line
+              x1="44"
+              y1="16"
+              x2="32"
+              y2="28"
+              stroke="white"
+              strokeWidth="2"
+            />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
 
   const steps = [
     {
@@ -214,22 +290,21 @@ const ShedRemoval = () => {
                       style={{
                         width: '64px',
                         height: '64px',
-                        backgroundColor: 'var(--color-primary)',
+                        backgroundColor: 'rgb(236 107 58)', // orange
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        margin: '0 auto',
-                        color: 'white',
-                        fontSize: '24px'
+                        margin: '0 auto'
                       }}
                     >
-                      {feature.icon}
+                      <FeatureIcon type={feature.key} />
                     </div>
                   </div>
+
                   <h3
                     style={{
-                      color: 'var(--color-primary)',
+                      color: '#000000',
                       textAlign: 'center',
                       marginBottom: '20px'
                     }}

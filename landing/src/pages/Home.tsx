@@ -1,29 +1,38 @@
-import { useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { trackFormSubmission } from "../config/gtm";
+import {useState, useRef} from 'react';
+import {Container, Row, Col, Button} from 'react-bootstrap';
+import {Link, useNavigate} from 'react-router-dom';
+import {motion} from 'framer-motion';
+import {trackFormSubmission} from '../config/gtm';
 
 const Home = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    address: "",
-    contact: "",
+    address: '',
+    contact: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const learnMoreRef = useRef<HTMLHRElement | null>(null);
 
   const handleScrollToLearnMore = () => {
-    const element = document.getElementById("scroll-learn-more");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    const headerOffset = 80;
+
+    if (learnMoreRef.current) {
+      const elementPosition = learnMoreRef.current.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
+    const {name, value} = e.target;
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
@@ -33,32 +42,32 @@ const Home = () => {
 
     try {
       const scriptURL =
-        "https://script.google.com/macros/s/AKfycbwxdfDsv0GMztRmpg6r0Jmocw9MuHelOfZFImoXtxtE5kHbCcWhVmX_Ue3eWokw5WZdAA/exec";
+        'https://script.google.com/macros/s/AKfycbwxdfDsv0GMztRmpg6r0Jmocw9MuHelOfZFImoXtxtE5kHbCcWhVmX_Ue3eWokw5WZdAA/exec';
 
       const formDataToSend = new FormData();
-      formDataToSend.append("address", formData.address);
-      formDataToSend.append("contact", formData.contact);
-      formDataToSend.append("form_type", "quote_request");
+      formDataToSend.append('address', formData.address);
+      formDataToSend.append('contact', formData.contact);
+      formDataToSend.append('form_type', 'quote_request');
 
       const response = await fetch(scriptURL, {
-        method: "POST",
-        body: formDataToSend,
+        method: 'POST',
+        body: formDataToSend
       });
 
       if (response.ok) {
         // Track successful form submission
-        trackFormSubmission("quote_request", {
+        trackFormSubmission('quote_request', {
           address: formData.address,
-          contact: formData.contact,
+          contact: formData.contact
         });
-        navigate("/thank-you");
+        navigate('/thank-you');
       } else {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok');
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
       alert(
-        "There was an error submitting your request. Please try again or call us at 757-848-4559."
+        'There was an error submitting your request. Please try again or call us at 757-848-4559.'
       );
     } finally {
       setIsSubmitting(false);
@@ -73,72 +82,81 @@ const Home = () => {
         role="banner"
         aria-label="Hero section - Mr Demo Pro Demolition Services"
         style={{
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
           // minHeight: "90vh",
-          display: "flex",
-          alignItems: "center",
-          paddingTop: "1px",
-          paddingBottom: "6px",
-          padding: "0.75rem ",
-          position: "relative",
+          display: 'flex',
+          alignItems: 'center',
+          paddingTop: '1px',
+          paddingBottom: '6px',
+          padding: 'inherit',
+          position: 'relative'
         }}
       >
         {/* Background Overlay */}
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
             background:
-              "linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4))",
-            zIndex: 1,
+              'linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4))',
+            zIndex: 1
           }}
         />
 
         <div
           className="hero-inner"
-          style={{ width: "100%", position: "relative", zIndex: 2 }}
+          style={{width: '100%', position: 'relative', zIndex: 2}}
         >
           <Container>
             <Row className="align-items-center">
               {/* Left Content Block - Company Information */}
-              <Col
+              {/* <Col
                 lg={7}
                 md={12}
                 style={{
-                  padding: "40px 30px",
-                  borderRadius: "16px",
+                  padding: '40px 30px',
+                  marginTop:"40px",
+                  borderRadius: '16px'
+                }}
+              > */}
+              <Col
+                lg={7}
+                md={12}
+                className="mobile-spacing"
+                style={{
+                  borderRadius: '16px'
                 }}
               >
                 <motion.div
                   className="hero-left-block"
                   style={{
-                    backgroundColor: "var(--color-primary)",
-                    borderRadius: "16px",
-                    padding: "40px 30px",
-                    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
-                    textAlign: "center",
+                    backgroundColor: 'var(--color-primary)',
+                    borderRadius: '16px',
+                    padding: '40px 30px',
+                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+                    textAlign: 'center'
                   }}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8 }}
+                  initial={{opacity: 0, x: -50}}
+                  animate={{opacity: 1, x: 0}}
+                  transition={{duration: 0.8}}
                 >
                   <h1
                     className="hero-main-title text-white"
                     style={{
-                      marginBottom: "15px",
-                      fontSize: "2rem",
-                      fontWeight: "600",
-                      lineHeight: "1.4",
-                      fontFamily: "var(--font-family-secondary)",
-                      letterSpacing: "-0.025em",
+                      marginBottom: '15px',
+                      fontSize: '2rem',
+                      fontWeight: '600',
+                      lineHeight: '1.4',
+                      fontFamily: 'var(--font-family-secondary)',
+                      letterSpacing: '-0.025em'
                     }}
                   >
-                    Mr Demo Pro  Professional Demolition Services
+                    Mr Demo Pro Professional Demolition Services
                   </h1>
 
                   <div className="mb-3">
@@ -151,8 +169,8 @@ const Home = () => {
                       decoding="async"
                       fetchPriority="high"
                       style={{
-                        maxHeight: "120px",
-                        width: "auto",
+                        maxHeight: '120px',
+                        width: 'auto'
                       }}
                     />
                   </div>
@@ -161,11 +179,11 @@ const Home = () => {
                     className="hero-subtitle text-white mb-3"
                     style={{
                       // marginBottom: '30px',
-                      fontSize: "1.4rem",
-                      fontWeight: "600",
-                      lineHeight: "1.3",
-                      fontFamily: "var(--font-family-secondary)",
-                      letterSpacing: "-0.01em",
+                      fontSize: '1.4rem',
+                      fontWeight: '600',
+                      lineHeight: '1.3',
+                      fontFamily: 'var(--font-family-secondary)',
+                      letterSpacing: '-0.01em'
                     }}
                   >
                     Your Demolition Experts in Hampton Roads!
@@ -175,10 +193,10 @@ const Home = () => {
                     className="hero-description text-white mb-4"
                     style={{
                       // marginBottom: '40px',
-                      fontSize: "1rem",
-                      fontWeight: "400",
-                      lineHeight: "1.5",
-                      fontFamily: "var(--font-family-primary)",
+                      fontSize: '1rem',
+                      fontWeight: '400',
+                      lineHeight: '1.5',
+                      fontFamily: 'var(--font-family-primary)'
                     }}
                   >
                     Professional demolition services in Hampton, Newport News,
@@ -192,29 +210,29 @@ const Home = () => {
                       aria-label="Call Mr Demo Pro at 757-848-4559"
                       className="phone-link text-white text-decoration-none btn btn-primary"
                       style={{
-                        fontSize: "1.1rem",
-                        fontWeight: "600",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "15px",
-                        backgroundColor: "rgba(255, 255, 255, 0.2)",
-                        padding: "18px 30px",
-                        borderRadius: "12px",
-                        textDecoration: "none",
-                        fontFamily: "var(--font-family-primary)",
-                        lineHeight: "1.2",
+                        fontSize: '1.1rem',
+                        fontWeight: '600',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '15px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        padding: '18px 30px',
+                        borderRadius: '12px',
+                        textDecoration: 'none',
+                        fontFamily: 'var(--font-family-primary)',
+                        lineHeight: '1.2'
                       }}
                     >
                       <span
                         style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderRadius: "50%",
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '50%',
                           background:
-                            "linear-gradient(135deg, #ff7b00, #ff4500)",
-                          boxShadow: "0 4px 10px rgba(255,120,0,0.4)",
-                          padding: "14px",
+                            'linear-gradient(135deg, #ff7b00, #ff4500)',
+                          boxShadow: '0 4px 10px rgba(255,120,0,0.4)',
+                          padding: '14px'
                         }}
                       >
                         <svg
@@ -241,25 +259,25 @@ const Home = () => {
                 <motion.div
                   className="hero-right-block"
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    borderRadius: "16px",
-                    padding: "59px 30px",
-                    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
-                    textAlign: "center",
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderRadius: '16px',
+                    padding: '59px 30px',
+                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+                    textAlign: 'center'
                   }}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
+                  initial={{opacity: 0, x: 50}}
+                  animate={{opacity: 1, x: 0}}
+                  transition={{duration: 0.8, delay: 0.2}}
                 >
                   <h3
                     className="quote-form-title"
                     style={{
-                      marginBottom: "15px",
-                      fontSize: "1.4rem",
-                      fontWeight: "600",
-                      color: "var(--color-text-primary)",
-                      fontFamily: "var(--font-family-primary)",
-                      lineHeight: "1.4",
+                      marginBottom: '14px',
+                      fontSize: '1.4rem',
+                      fontWeight: '600',
+                      color: 'var(--color-text-primary)',
+                      fontFamily: 'var(--font-family-primary)',
+                      lineHeight: '1.4'
                     }}
                   >
                     Please text or email me a no-obligation demolition quote.
@@ -268,12 +286,12 @@ const Home = () => {
                   <p
                     className="quote-form-subtitle"
                     style={{
-                      marginBottom: "30px",
-                      fontSize: "1.1rem",
-                      fontWeight: "400",
-                      color: "var(--color-text-secondary)",
-                      fontFamily: "var(--font-family-primary)",
-                      lineHeight: "1.4",
+                      marginBottom: '30px',
+                      fontSize: '1.1rem',
+                      fontWeight: '400',
+                      color: 'var(--color-text-secondary)',
+                      fontFamily: 'var(--font-family-primary)',
+                      lineHeight: '1.4'
                     }}
                   >
                     We service Hampton, Newport News, Yorktown, and Norfolk
@@ -290,19 +308,22 @@ const Home = () => {
                         onChange={handleChange}
                         required
                         style={{
-                          padding: "18px",
-                          fontSize: "1.1rem",
-                          borderRadius: "8px",
-                          border: "2px solid var(--color-border)",
-                          fontFamily: "var(--font-family-primary)",
-                          fontWeight: "400",
+                          padding: '18px',
+                          fontSize: '1.1rem',
+                          borderRadius: '8px',
+                          border: '2px solid var(--color-border)',
+                          fontFamily: 'var(--font-family-primary)',
+                          fontWeight: '400'
                         }}
                       />
                     </div>
 
-                    <div className="mb-4" style={{
-                         paddingBottom:"32px"
-                    }}>
+                    <div
+                      className="mb-4"
+                      style={{
+                        paddingBottom: '32px'
+                      }}
+                    >
                       <input
                         type="text"
                         className="form-control"
@@ -312,13 +333,12 @@ const Home = () => {
                         onChange={handleChange}
                         required
                         style={{
-                          padding: "18px",
-                          fontSize: "1.1rem",
-                          borderRadius: "8px",
-                          border: "2px solid var(--color-border)",
-                          fontFamily: "var(--font-family-primary)",
-                          fontWeight: "400",
-                       
+                          padding: '18px',
+                          fontSize: '1.1rem',
+                          borderRadius: '8px',
+                          border: '2px solid var(--color-border)',
+                          fontFamily: 'var(--font-family-primary)',
+                          fontWeight: '400'
                         }}
                       />
                     </div>
@@ -328,17 +348,17 @@ const Home = () => {
                       className="btn btn-primary w-100"
                       disabled={isSubmitting}
                       style={{
-                        padding: "18px",
-                        fontSize: "1.1rem",
-                        fontWeight: "600",
-                        borderRadius: "8px",
-                        backgroundColor: "var(--color-primary)",
-                        border: "none",
-                        fontFamily: "var(--font-family-primary)",
-                        textTransform: "none",
+                        padding: '18px',
+                        fontSize: '1.1rem',
+                        fontWeight: '600',
+                        borderRadius: '8px',
+                        backgroundColor: 'var(--color-primary)',
+                        border: 'none',
+                        fontFamily: 'var(--font-family-primary)',
+                        textTransform: 'none'
                       }}
                     >
-                      {isSubmitting ? "Submitting..." : "Get Free Quote"}
+                      {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
                     </Button>
                   </form>
                 </motion.div>
@@ -348,9 +368,9 @@ const Home = () => {
 
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "0.5rem",
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: '0.5rem'
             }}
           >
             <Button
@@ -359,10 +379,10 @@ const Home = () => {
               className="text-white btn--scroll-to"
               onClick={handleScrollToLearnMore}
               style={{
-                fontSize: "1rem",
-                textDecoration: "none",
-                padding: "4px 6px",
-                fontWeight: "500",
+                fontSize: '1rem',
+                textDecoration: 'none',
+                padding: '4px 6px',
+                fontWeight: '500'
               }}
             >
               Learn more ↓
@@ -373,22 +393,23 @@ const Home = () => {
 
       {/* Services Section - Improved Spacing */}
       <hr
-        id="scroll-learn-more"
-        style={{ borderTop: "0px solid transparent", margin: "0" }}
+        ref={learnMoreRef}
+        style={{borderTop: '0px solid transparent', margin: '0'}}
       />
-      <section id="key-features" style={{ padding: "80px 0 60px 0" }}>
+
+      <section id="key-features" style={{padding: '80px 0 60px 0'}}>
         <Container className="text-center">
           <Row>
             <Col xs={12}>
               <motion.h2
                 className="title-small fw-bold"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.6 }}
+                initial={{opacity: 0}}
+                whileInView={{opacity: 1}}
+                transition={{duration: 0.6}}
                 style={{
-                  color: "var(--color-primary)",
-                  marginBottom: "60px",
-                  fontSize: "var(--font-size-4xl)",
+                  color: 'var(--color-primary)',
+                  marginBottom: '60px',
+                  fontSize: 'var(--font-size-4xl)'
                 }}
               >
                 Full-Service Demolition Contractor
@@ -399,9 +420,9 @@ const Home = () => {
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
+                initial={{opacity: 0, y: 50}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.2, duration: 0.5}}
                 // style={{ position: "relative" }}
               >
                 <div className="mb-3">
@@ -424,18 +445,18 @@ const Home = () => {
                     to="/shed-removal"
                     aria-label="Get a shed removal quote in Hampton Roads"
                     onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
+                      window.scrollTo({top: 0, behavior: 'smooth'})
                     }
                   >
                     <Button
                       variant="primary"
                       style={{
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        backgroundColor: "rgb(242 124 80)",
-                        border: "none",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        borderRadius: '5px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'rgb(242 124 80)',
+                        border: 'none',
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       Get Quote
@@ -449,9 +470,9 @@ const Home = () => {
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
+                initial={{opacity: 0, y: 50}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.4, duration: 0.5}}
                 // style={{ position: "relative" }}
               >
                 <div className="mb-3">
@@ -474,18 +495,18 @@ const Home = () => {
                     to="/deck-removal"
                     aria-label="Get a deck removal quote in Hampton Roads"
                     onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
+                      window.scrollTo({top: 0, behavior: 'smooth'})
                     }
                   >
                     <Button
                       variant="primary"
                       style={{
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        backgroundColor: "rgb(242 124 80)",
-                        border: "none",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        borderRadius: '5px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'rgb(242 124 80)',
+                        border: 'none',
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       Get Quote
@@ -499,9 +520,9 @@ const Home = () => {
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
+                initial={{opacity: 0, y: 50}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.6, duration: 0.5}}
               >
                 <div className="mb-3">
                   <img
@@ -523,18 +544,18 @@ const Home = () => {
                     to="/fence-removal"
                     aria-label="Get a fence removal quote in Hampton Roads"
                     onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
+                      window.scrollTo({top: 0, behavior: 'smooth'})
                     }
                   >
                     <Button
                       variant="primary"
                       style={{
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        backgroundColor: "rgb(242 124 80)",
-                        border: "none",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        borderRadius: '5px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'rgb(242 124 80)',
+                        border: 'none',
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       Get Quote
@@ -548,9 +569,9 @@ const Home = () => {
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
+                initial={{opacity: 0, y: 50}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.8, duration: 0.5}}
                 // style={{ position: "relative" }}
               >
                 <div className="mb-3">
@@ -573,18 +594,18 @@ const Home = () => {
                     to="/interior-demo"
                     aria-label="Get an interior demolition quote in Hampton Roads"
                     onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
+                      window.scrollTo({top: 0, behavior: 'smooth'})
                     }
                   >
                     <Button
                       variant="primary"
                       style={{
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        backgroundColor: "rgb(242 124 80)",
-                        border: "none",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        borderRadius: '5px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'rgb(242 124 80)',
+                        border: 'none',
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       Get Quote
@@ -598,9 +619,9 @@ const Home = () => {
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.0, duration: 0.5 }}
+                initial={{opacity: 0, y: 50}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 1.0, duration: 0.5}}
                 // style={{ position: "relative" }}
               >
                 <div className="mb-3">
@@ -623,18 +644,18 @@ const Home = () => {
                     to="/junk-removal"
                     aria-label="Get a junk removal quote in Hampton Roads"
                     onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
+                      window.scrollTo({top: 0, behavior: 'smooth'})
                     }
                   >
                     <Button
                       variant="primary"
                       style={{
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        backgroundColor: "rgb(242 124 80)",
-                        border: "none",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        borderRadius: '5px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'rgb(242 124 80)',
+                        border: 'none',
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       Get Quote
@@ -648,9 +669,9 @@ const Home = () => {
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2, duration: 0.5 }}
+                initial={{opacity: 0, y: 50}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 1.2, duration: 0.5}}
                 // style={{ position: "relative" }}
               >
                 <div className="mb-3">
@@ -672,18 +693,18 @@ const Home = () => {
                     to="/cleanout"
                     aria-label="Get a property cleanout quote in Hampton Roads"
                     onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
+                      window.scrollTo({top: 0, behavior: 'smooth'})
                     }
                   >
                     <Button
                       variant="primary"
                       style={{
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        backgroundColor: "rgb(242 124 80)",
-                        border: "none",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        borderRadius: '5px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'rgb(242 124 80)',
+                        border: 'none',
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       Get Quote
@@ -700,8 +721,8 @@ const Home = () => {
       <section
         id="features"
         style={{
-          padding: "80px 0",
-          backgroundColor: "var(--color-surface)",
+          padding: '80px 0',
+          backgroundColor: 'var(--color-surface)'
         }}
       >
         <Container>
@@ -709,13 +730,13 @@ const Home = () => {
             <Col xs={12}>
               <motion.h2
                 className="title-small text-center fw-bold"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.6 }}
+                initial={{opacity: 0}}
+                whileInView={{opacity: 1}}
+                transition={{duration: 0.6}}
                 style={{
-                  color: "var(--color-primary)",
-                  marginBottom: "50px",
-                  fontSize: "var(--font-size-4xl)",
+                  color: 'var(--color-primary)',
+                  marginBottom: '50px',
+                  fontSize: 'var(--font-size-4xl)'
                 }}
               >
                 Why Choose Mr Demo Pro for Demolition Services?
@@ -724,10 +745,10 @@ const Home = () => {
             <Col md={12} className="text-center">
               <motion.div
                 className="ratio ratio-16x9"
-                style={{ maxWidth: "900px", margin: "0 auto" }}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
+                style={{maxWidth: '900px', margin: '0 auto'}}
+                initial={{opacity: 0, y: 30}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.3, duration: 0.6}}
               >
                 <video
                   className="w-100"
@@ -736,8 +757,8 @@ const Home = () => {
                   aria-label="Introduction video about Mr Demo Pro demolition services"
                   controls
                   style={{
-                    borderRadius: "16px",
-                    boxShadow: "var(--shadow-lg)",
+                    borderRadius: '16px',
+                    boxShadow: 'var(--shadow-lg)'
                   }}
                 >
                   <source src="/assets/img/MrDemoPro.mp4" type="video/mp4" />
@@ -750,32 +771,32 @@ const Home = () => {
       </section>
 
       {/* Hampton Roads Section - Improved Proportions */}
-      <section id="main-features" style={{ padding: "80px 0" }}>
+      <section id="main-features" style={{padding: '80px 0'}}>
         <Container>
-          <Row className="align-items-center" style={{ marginBottom: "80px" }}>
+          <Row className="align-items-center" style={{marginBottom: '80px'}}>
             <Col lg={6} md={12} className="mb-5 mb-lg-0">
               <motion.h2
                 className="title-small fw-bold"
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
+                initial={{opacity: 0, x: -50}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{duration: 0.6}}
                 style={{
-                  color: "var(--color-primary)",
-                  marginBottom: "30px",
-                  fontSize: "var(--font-size-3xl)",
+                  color: 'var(--color-primary)',
+                  marginBottom: '30px',
+                  fontSize: 'var(--font-size-3xl)'
                 }}
               >
                 Serving Hampton Roads: Yorktown, Norfolk, Newport News & Hampton
               </motion.h2>
               <motion.h3
                 className="subtitle-small"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
+                initial={{opacity: 0, y: 20}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.3, duration: 0.6}}
                 style={{
-                  fontSize: "var(--font-size-lg)",
-                  lineHeight: "1.6",
-                  color: "var(--color-text-secondary)",
+                  fontSize: 'var(--font-size-lg)',
+                  lineHeight: '1.6',
+                  color: 'var(--color-text-secondary)'
                 }}
               >
                 Mr Demo Pro is proud to provide professional demolition services
@@ -789,82 +810,79 @@ const Home = () => {
                 src="/assets/img/features/hampton-roads.webp"
                 alt="Hampton Roads demolition service area served by Mr Demo Pro"
                 loading="lazy"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
+                initial={{opacity: 0, x: 50}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{delay: 0.2, duration: 0.6}}
                 style={{
-                  borderRadius: "16px",
-                  boxShadow: "var(--shadow-lg)",
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-lg)'
                 }}
               />
             </Col>
           </Row>
 
-          <Row className="align-items-center" style={{ marginBottom: "80px" }}>
+          <Row className="align-items-center" style={{marginBottom: '80px'}}>
             <Col lg={6} md={12} className="mb-5 mb-lg-0">
               <motion.img
                 className="img-fluid rounded"
                 src="/assets/img/features/get-in-touch.webp"
                 alt="Get in touch with MrDemoPro for free consultation"
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
+                initial={{opacity: 0, x: -50}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{delay: 0.2, duration: 0.6}}
                 style={{
-                  borderRadius: "16px",
-                  boxShadow: "var(--shadow-lg)",
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-lg)'
                 }}
               />
             </Col>
             <Col lg={6} md={12}>
               <motion.h2
                 className="title-small fw-bold"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
+                initial={{opacity: 0, x: 50}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{duration: 0.6}}
                 style={{
-                  marginBottom: "30px",
-                  fontSize: "var(--font-size-3xl)",
-                  color: "var(--color-text-primary)",
+                  marginBottom: '30px',
+                  fontSize: 'var(--font-size-3xl)',
+                  color: 'var(--color-text-primary)'
                 }}
               >
                 Free Demolition Estimates – Call 757-848-4559
               </motion.h2>
               <motion.h3
                 className="subtitle-small"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
+                initial={{opacity: 0, y: 20}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.3, duration: 0.6}}
                 style={{
-                  fontSize: "var(--font-size-lg)",
-                  lineHeight: "1.6",
-                  color: "var(--color-text-secondary)",
-                  marginBottom: "40px",
+                  fontSize: 'var(--font-size-lg)',
+                  lineHeight: '1.6',
+                  color: 'var(--color-text-secondary)',
+                  marginBottom: '40px'
                 }}
               >
                 Are you ready to start? Reach MrDemoPro on a free consultation
                 and estimate today.
               </motion.h3>
               <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
+                initial={{opacity: 0}}
+                whileInView={{opacity: 1}}
+                transition={{delay: 0.5, duration: 0.6}}
               >
-           
-                    <Link
-                     to="/services"
-                   aria-label="View demolition services offered by Mr Demo Pro"
-                    onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
-                    }
-                  >
+                <Link
+                  to="/services"
+                  aria-label="View demolition services offered by Mr Demo Pro"
+                  onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+                >
                   <Button
                     size="lg"
                     className="customButton large"
                     style={{
-                      padding: "15px 40px",
-                      fontSize: "var(--font-size-lg)",
-                      fontWeight: "var(--font-weight-semibold)",
-                      borderRadius: "12px",
+                      padding: '15px 40px',
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      borderRadius: '12px'
                     }}
                   >
                     Get Quote
@@ -878,45 +896,46 @@ const Home = () => {
             <Col lg={6} md={12} className="mb-5 mb-lg-0">
               <motion.h2
                 className="title-small fw-bold"
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
+                initial={{opacity: 0, x: -50}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{duration: 0.6}}
                 style={{
-                  color: "var(--color-primary)",
-                  marginBottom: "30px",
-                  fontSize: "var(--font-size-3xl)",
+                  color: 'var(--color-primary)',
+                  marginBottom: '30px',
+                  fontSize: 'var(--font-size-3xl)'
                 }}
               >
-               Our Demolition Services Overview 
+                Our Demolition Services Overview
               </motion.h2>
               <motion.h3
                 className="subtitle-small"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
+                initial={{opacity: 0, y: 20}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.3, duration: 0.6}}
                 style={{
-                  fontSize: "var(--font-size-lg)",
-                  lineHeight: "1.6",
-                  color: "var(--color-text-secondary)",
+                  fontSize: 'var(--font-size-lg)',
+                  lineHeight: '1.6',
+                  color: 'var(--color-text-secondary)'
                 }}
               >
                 MrDemoPro offers a wide variety of demolition services to its
                 clients in Hampton Roads, VA. Our team is made up of experts who
                 are committed to providing you with quality service throughout
-                the entire process. Below are some of the detailed demolition and removal services we provide.
+                the entire process. Below are some of the detailed demolition
+                and removal services we provide.
               </motion.h3>
             </Col>
             <Col lg={6} md={12}>
               <motion.img
                 className="img-fluid rounded"
                 src="/assets/img/features/services-overview.webp"
-              alt="Overview of demolition and removal services by Mr Demo Pro"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
+                alt="Overview of demolition and removal services by Mr Demo Pro"
+                initial={{opacity: 0, x: 50}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{delay: 0.2, duration: 0.6}}
                 style={{
-                  borderRadius: "16px",
-                  boxShadow: "var(--shadow-lg)",
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-lg)'
                 }}
               />
             </Col>

@@ -20,6 +20,55 @@ const InteriorDemo = () => {
     }
   }, [showForm]);
 
+  const CheckIcon = () => (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      {/* Circle background */}
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        fill="none"
+        stroke="var(--color-primary)"
+        strokeWidth="2"
+      />
+
+      {/* Check mark */}
+      <path
+        d="M7 12.5L10.5 16L17 9"
+        stroke="var(--color-primary)"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+   const AreaIcon = () => (
+  <svg
+    width="36"
+    height="36"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    {/* Orange filled circle */}
+    <circle cx="12" cy="12" r="12" fill="var(--color-primary)" />
+    {/* White pin */}
+    <path
+      d="M12 7C9.8 7 8 8.8 8 11c0 2.6 3.2 5.9 3.6 6.3a.5.5 0 0 0 .8 0C12.8 16.9 16 13.6 16 11c0-2.2-1.8-4-4-4z"
+      fill="white"
+    />
+    <circle cx="12" cy="11" r="1.5" fill="white" />
+  </svg>
+);
+
+
   return (
     <div itemScope itemType="https://schema.org/Service">
       {/* Hero Section */}
@@ -149,7 +198,7 @@ const InteriorDemo = () => {
                   boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
                 }}
               >
-                <div
+                {/* <div
                   className="mb-3"
                   itemProp="hasOfferCatalog"
                   itemScope
@@ -164,7 +213,85 @@ const InteriorDemo = () => {
                 </div>
                 <h4 itemProp="itemOffered" className="fw-bold mb-3">
                   Wall Removal
+                </h4> */}
+                <div
+                  className="mb-3 d-flex justify-content-center"
+                  itemProp="hasOfferCatalog"
+                  itemScope
+                  itemType="https://schema.org/OfferCatalog"
+                >
+                  <div
+                    style={{
+                         width: 56,
+                      height: 56,
+                      borderRadius: '50%',
+                      backgroundColor: 'rgb(236 107 58)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <svg
+                      width="56"
+                      height="56"
+                      viewBox="0 0 64 64"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      role="img"
+                      aria-label="Wall removal service"
+                      style={{color: 'white'}}
+                    >
+                      <title>Wall removal service</title>
+
+                      {/* Wall */}
+                      <rect
+                        x="14"
+                        y="18"
+                        width="36"
+                        height="28"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+
+                      {/* Cracks */}
+                      <path
+                        d="M22 18V28L18 32L24 36V46"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M34 18V26L38 30L32 34V46"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+
+                      {/* Hammer */}
+                      <line
+                        x1="44"
+                        y1="12"
+                        x2="30"
+                        y2="26"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <rect
+                        x="26"
+                        y="22"
+                        width="10"
+                        height="6"
+                        rx="1.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <h4 itemProp="itemOffered" className="fw-bold mb-3 text-center">
+                  Wall Removal
                 </h4>
+
                 <p>
                   Safe removal of interior walls, load-bearing and
                   non-load-bearing, with proper structural support.
@@ -183,7 +310,7 @@ const InteriorDemo = () => {
                   boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
                 }}
               >
-                <div
+                {/* <div
                   className="mb-3"
                   itemProp="hasOfferCatalog"
                   itemScope
@@ -198,7 +325,98 @@ const InteriorDemo = () => {
                 </div>
                 <h4 itemProp="itemOffered" className="fw-bold mb-3">
                   Fixture Removal
+                </h4> */}
+                <div
+                  className="mb-3 d-flex justify-content-center"
+                  itemProp="hasOfferCatalog"
+                  itemScope
+                  itemType="https://schema.org/OfferCatalog"
+                >
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: '50%',
+                      backgroundColor: 'rgb(236 107 58)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <svg
+                      width="56"
+                      height="56"
+                      viewBox="0 0 64 64"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      role="img"
+                      aria-label="Fixture removal service"
+                      style={{color: 'white'}}
+                    >
+                      <title>Fixture removal service</title>
+
+                      {/* Light fixture */}
+                      <rect
+                        x="24"
+                        y="10"
+                        width="16"
+                        height="10"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <line
+                        x1="32"
+                        y1="20"
+                        x2="32"
+                        y2="30"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+
+                      {/* Fixture base */}
+                      <rect
+                        x="22"
+                        y="30"
+                        width="20"
+                        height="8"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+
+                      {/* Screw / removal indicator */}
+                      <circle
+                        cx="32"
+                        cy="44"
+                        r="6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <line
+                        x1="28"
+                        y1="44"
+                        x2="36"
+                        y2="44"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <line
+                        x1="32"
+                        y1="40"
+                        x2="32"
+                        y2="48"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <h4 itemProp="itemOffered" className="fw-bold mb-3 text-center">
+                  Fixture Removal
                 </h4>
+
                 <p>
                   Professional removal of light fixtures, ceiling fans, and
                   electrical components.
@@ -217,7 +435,7 @@ const InteriorDemo = () => {
                   boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
                 }}
               >
-                <div
+                {/* <div
                   className="mb-3"
                   itemProp="hasOfferCatalog"
                   itemScope
@@ -232,7 +450,92 @@ const InteriorDemo = () => {
                 </div>
                 <h4 itemProp="itemOffered" className="fw-bold mb-3">
                   Flooring Removal
+                </h4> */}
+                <div
+                  className="mb-3 d-flex justify-content-center"
+                  itemProp="hasOfferCatalog"
+                  itemScope
+                  itemType="https://schema.org/OfferCatalog"
+                >
+                  <div
+                    style={{
+                          width: 56,
+                      height: 56,
+                      borderRadius: '50%',
+                      backgroundColor: 'rgb(236 107 58)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <svg
+                      width="56"
+                      height="56"
+                      viewBox="0 0 64 64"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      role="img"
+                      aria-label="Flooring removal service"
+                      style={{color: 'white'}}
+                    >
+                      <title>Flooring removal service</title>
+
+                      {/* Floor planks */}
+                      <rect
+                        x="10"
+                        y="36"
+                        width="44"
+                        height="6"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <rect
+                        x="10"
+                        y="44"
+                        width="44"
+                        height="6"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <rect
+                        x="10"
+                        y="28"
+                        width="44"
+                        height="6"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+
+                      {/* Crowbar / pry tool */}
+                      <path
+                        d="M44 12L30 30"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M46 14L32 32"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+
+                      {/* Lifted plank */}
+                      <path
+                        d="M14 26L24 20L34 26"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <h4 itemProp="itemOffered" className="fw-bold mb-3 text-center">
+                  Flooring Removal
                 </h4>
+
                 <p>
                   Complete removal of old flooring including tile, carpet,
                   hardwood, and laminate.
@@ -253,6 +556,53 @@ const InteriorDemo = () => {
         <Container>
           <Row className="align-items-center">
             <Col lg={6} md={12} className="mb-5 mb-lg-0">
+              <motion.h2
+                className="display-5 fw-bold mb-4"
+                initial={{opacity: 0, x: -50}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{duration: 0.6}}
+                style={{color: 'var(--color-primary)'}}
+              >
+                Why Choose Mr Demo Pro for Interior Demo?
+              </motion.h2>
+
+              <motion.div
+                initial={{opacity: 0, y: 20}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.3, duration: 0.6}}
+              >
+                {[
+                  {
+                    title: 'Licensed & Insured',
+                    desc: 'Fully licensed and insured for your protection and peace of mind.'
+                  },
+                  {
+                    title: 'Experienced Team',
+                    desc: 'Years of experience in interior demolition with attention to detail.'
+                  },
+                  {
+                    title: 'Safe & Clean',
+                    desc: 'We maintain a clean work environment and follow all safety protocols.'
+                  },
+                  {
+                    title: 'Free Estimates',
+                    desc: 'No-obligation free estimates for all interior demo projects.'
+                  }
+                ].map((item, idx) => (
+                  <div className="mb-4 d-flex align-items-start" key={idx}>
+                    <div style={{marginRight: '10px', marginTop: '4px'}}>
+                      <CheckIcon />
+                    </div>
+                    <div>
+                      <h5 className="fw-bold mb-2">{item.title}</h5>
+                      <p className="mb-0">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </Col>
+
+            {/* <Col lg={6} md={12} className="mb-5 mb-lg-0">
               <motion.h2
                 className="display-5 fw-bold mb-4"
                 initial={{opacity: 0, x: -50}}
@@ -295,16 +645,15 @@ const InteriorDemo = () => {
                   </p>
                 </div>
               </motion.div>
-            </Col>
+            </Col> */}
             <Col lg={6} md={12}>
               <motion.img
-                src="/assets/img/services/interior-demo-process.jpg"
+                src="/assets/Icons/hammer.webp"
                 alt="Interior demolition process"
                 className="img-fluid rounded"
                 initial={{opacity: 0, x: 50}}
                 whileInView={{opacity: 1, x: 0}}
                 transition={{delay: 0.2, duration: 0.6}}
-                style={{boxShadow: '0 20px 40px rgba(0,0,0,0.2)'}}
               />
             </Col>
           </Row>
@@ -336,7 +685,7 @@ const InteriorDemo = () => {
               </motion.p>
             </Col>
           </Row>
-          <Row className="text-center">
+          {/* <Row className="text-center">
             <Col md={3} sm={6} className="mb-4">
               <motion.div
                 itemProp="areaServed"
@@ -381,7 +730,32 @@ const InteriorDemo = () => {
                 <p>Interior demo services</p>
               </motion.div>
             </Col>
-          </Row>
+          </Row> */}
+
+          <Row className="text-center">
+  {[
+    { name: 'Yorktown', delay: 0.2 },
+    { name: 'Norfolk', delay: 0.4 },
+    { name: 'Newport News', delay: 0.6 },
+    { name: 'Hampton', delay: 0.8 },
+  ].map((area, i) => (
+    <Col key={i} md={3} sm={6} className="mb-4">
+      <motion.div
+        itemProp="areaServed"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: area.delay, duration: 0.5 }}
+      >
+        <div className="mb-2 d-flex justify-content-center">
+          <AreaIcon />
+        </div>
+        <h5 className="fw-bold">{area.name}</h5>
+        <p className="mb-0">Interior demo services</p>
+      </motion.div>
+    </Col>
+  ))}
+</Row>
+
         </Container>
       </section>
 
@@ -400,8 +774,8 @@ const InteriorDemo = () => {
             initial={{opacity: 0}}
             whileInView={{opacity: 1}}
             transition={{duration: 0.6}}
-                 style={{
-              color:"#000000"
+            style={{
+              color: '#000000'
             }}
           >
             Ready to Start Your Interior Demo Project?
@@ -409,7 +783,7 @@ const InteriorDemo = () => {
           <motion.p
             className="lead mb-5"
             style={{
-              color:"#ffffff"
+              color: '#ffffff'
             }}
             initial={{opacity: 0, y: 20}}
             whileInView={{opacity: 1, y: 0}}

@@ -20,6 +20,89 @@ const FenceRemoval = () => {
     }
   }, [showForm]);
 
+  const FenceFeatureIcon = ({type}: {type: string}) => {
+    switch (type) {
+      case 'fast':
+        return (
+          <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+            {/* Speed lines */}
+            <path d="M10 22H30" stroke="white" strokeWidth="2" />
+            <path d="M10 32H26" stroke="white" strokeWidth="2" />
+            <path d="M10 42H22" stroke="white" strokeWidth="2" />
+            {/* Fence post */}
+            <rect
+              x="36"
+              y="18"
+              width="10"
+              height="28"
+              rx="2"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <line
+              x1="36"
+              y1="28"
+              x2="46"
+              y2="28"
+              stroke="white"
+              strokeWidth="2"
+            />
+          </svg>
+        );
+
+      case 'safe':
+        return (
+          <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+            {/* Shield */}
+            <path
+              d="M32 10L48 16V28C48 40 38 48 32 52C26 48 16 40 16 28V16Z"
+              stroke="white"
+              strokeWidth="2"
+            />
+            {/* Check */}
+            <path d="M24 30L30 36L40 26" stroke="white" strokeWidth="2" />
+          </svg>
+        );
+
+      case 'cleanup':
+        return (
+          <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+            {/* Broom */}
+            <path d="M42 10L20 36" stroke="white" strokeWidth="2" />
+            <rect
+              x="16"
+              y="36"
+              width="14"
+              height="8"
+              rx="2"
+              stroke="white"
+              strokeWidth="2"
+            />
+            {/* Fence debris */}
+            <line
+              x1="34"
+              y1="44"
+              x2="40"
+              y2="40"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <line
+              x1="38"
+              y1="48"
+              x2="44"
+              y2="44"
+              stroke="white"
+              strokeWidth="2"
+            />
+          </svg>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div itemScope itemType="https://schema.org/Service">
       {/* Hero Section */}
@@ -141,7 +224,7 @@ const FenceRemoval = () => {
             </Col>
           </Row>
 
-          <Row>
+          {/* <Row>
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100 p-4"
@@ -291,6 +374,75 @@ const FenceRemoval = () => {
                 </p>
               </motion.div>
             </Col>
+          </Row> */}
+          <Row>
+            {[
+              {
+                key: 'fast',
+                title: 'Fast & Efficient',
+                desc: 'Our experienced team works quickly to remove your fence, minimizing disruption to your property and daily routine.',
+                delay: 0.2
+              },
+              {
+                key: 'safe',
+                title: 'Safe & Professional',
+                desc: 'We use proper safety equipment and techniques to ensure the removal process is safe for our team and your property.',
+                delay: 0.4
+              },
+              {
+                key: 'cleanup',
+                title: 'Complete Cleanup',
+                desc: 'We remove all fence materials, posts, and debris, leaving your property clean and ready for new installations or landscaping.',
+                delay: 0.6
+              }
+            ].map((item, idx) => (
+              <Col key={idx} lg={4} md={6} sm={6} xs={12} className="mb-5">
+                <motion.div
+                  className="feature-item h-100 p-4"
+                  initial={{opacity: 0, y: 50}}
+                  whileInView={{opacity: 1, y: 0}}
+                  transition={{delay: item.delay, duration: 0.5}}
+                  style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    boxShadow: 'var(--shadow-md)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  <div className="mb-3 text-center">
+                    <div
+                      style={{
+                        width: '64px',
+                        height: '64px',
+                        backgroundColor: 'rgb(236 107 58)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto'
+                      }}
+                    >
+                      <FenceFeatureIcon type={item.key} />
+                    </div>
+                  </div>
+
+                  <h3
+                    style={{
+                      color: '#000000',
+                      textAlign: 'center',
+                      marginBottom: '20px'
+                    }}
+                  >
+                    {item.title}
+                  </h3>
+
+                  <p style={{textAlign: 'center', flexGrow: 1}}>{item.desc}</p>
+                </motion.div>
+              </Col>
+            ))}
           </Row>
         </Container>
       </section>
@@ -511,7 +663,7 @@ const FenceRemoval = () => {
       <section
         style={{
           padding: '80px 0',
-                  background:
+          background:
             'linear-gradient(135deg, rgb(236 64 0 / 52%), rgb(236 64 0 / 77%))',
           color: 'white'
         }}
@@ -550,7 +702,7 @@ const FenceRemoval = () => {
                 initial={{opacity: 0}}
                 whileInView={{opacity: 1}}
                 transition={{delay: 0.5, duration: 0.6}}
-                 style={{
+                style={{
                   display: 'flex',
                   flexDirection: 'row',
                   flexWrap: 'wrap', // allows wrapping on small screens
@@ -563,13 +715,13 @@ const FenceRemoval = () => {
                   size="lg"
                   variant="light"
                   aria-label="Get a free fence removal quote in Hampton Roads"
-                 onClick={() => setShowForm(!showForm)}
+                  onClick={() => setShowForm(!showForm)}
                   style={{
                     padding: '15px 40px',
                     fontSize: 'var(--font-size-lg)',
                     fontWeight: 'var(--font-weight-semibold)',
                     borderRadius: '12px',
-                    minWidth: '200px' 
+                    minWidth: '200px'
                   }}
                 >
                   Get Free Quote
@@ -578,7 +730,7 @@ const FenceRemoval = () => {
                   href="tel:757-848-4559"
                   aria-label="Call for fence removal services"
                 >
-           <Button
+                  <Button
                     size="lg"
                     variant="outline-light"
                     style={{

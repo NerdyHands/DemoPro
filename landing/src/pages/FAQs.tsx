@@ -110,7 +110,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -142,7 +142,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -174,7 +174,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -205,7 +205,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -236,7 +236,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -269,7 +269,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -301,7 +301,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -333,7 +333,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -365,7 +365,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -398,7 +398,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -429,7 +429,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -461,7 +461,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -492,7 +492,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -523,7 +523,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header
@@ -554,7 +554,7 @@ const FAQs = () => {
                       style={{
                         marginBottom: '20px',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px'
+                        borderRadius: '2px'
                       }}
                     >
                       <Accordion.Header

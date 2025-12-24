@@ -21,6 +21,75 @@ const JunkRemoval = () => {
     }
   }, [showForm]);
 
+  const AreaIcon = () => (
+  <svg
+    width="36"
+    height="36"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    {/* Orange filled circle */}
+    <circle cx="12" cy="12" r="12" fill="var(--color-primary)" />
+    {/* White pin */}
+    <path
+      d="M12 7C9.8 7 8 8.8 8 11c0 2.6 3.2 5.9 3.6 6.3a.5.5 0 0 0 .8 0C12.8 16.9 16 13.6 16 11c0-2.2-1.8-4-4-4z"
+      fill="white"
+    />
+    <circle cx="12" cy="11" r="1.5" fill="white" />
+  </svg>
+);
+
+
+  const JunkFeatureIcon = ({ type }: { type: string }) => {
+  switch (type) {
+    case 'sameDay':
+      return (
+        <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+          {/* Clock */}
+          <circle cx="32" cy="32" r="18" stroke="white" strokeWidth="2"/>
+          <line x1="32" y1="32" x2="32" y2="20" stroke="white" strokeWidth="2"/>
+          <line x1="32" y1="32" x2="42" y2="32" stroke="white" strokeWidth="2"/>
+          {/* Speed lines */}
+          <path d="M8 26H16" stroke="white" strokeWidth="2"/>
+          <path d="M6 32H14" stroke="white" strokeWidth="2"/>
+          <path d="M8 38H16" stroke="white" strokeWidth="2"/>
+        </svg>
+      );
+
+    case 'eco':
+      return (
+        <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+          {/* Leaf */}
+          <path d="M32 12C18 12 14 30 14 30C14 30 18 52 32 52C46 52 50 30 50 30C50 30 46 12 32 12Z"
+            stroke="white" strokeWidth="2"
+          />
+          <path d="M32 20V44" stroke="white" strokeWidth="2"/>
+          <path d="M24 30L32 34L40 30" stroke="white" strokeWidth="2"/>
+        </svg>
+      );
+
+    case 'full':
+      return (
+        <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+          {/* Arm */}
+          <path d="M22 26C22 22 26 18 30 18C34 18 36 22 36 26V34"
+            stroke="white" strokeWidth="2"
+          />
+          <path d="M36 34L44 36V42C44 44 42 46 40 46H30C26 46 22 42 22 38Z"
+            stroke="white" strokeWidth="2"
+          />
+          {/* Dumbbell line */}
+          <line x1="18" y1="26" x2="22" y2="26" stroke="white" strokeWidth="2"/>
+        </svg>
+      );
+
+    default:
+      return null;
+  }
+};
+
+
   return (
     <div itemScope itemType="https://schema.org/Service">
       {/* Hero Section */}
@@ -144,7 +213,7 @@ const JunkRemoval = () => {
             </Col>
           </Row>
 
-          <Row>
+          {/* <Row>
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100 p-4"
@@ -294,7 +363,79 @@ const JunkRemoval = () => {
                 </p>
               </motion.div>
             </Col>
-          </Row>
+          </Row> */}
+          <Row>
+  {[
+    {
+      key: 'sameDay',
+      title: 'Same-Day Service',
+      desc: "Book today and we'll haul away your junk the same day. Fast turnaround times without compromising quality service.",
+      delay: 0.2
+    },
+    {
+      key: 'eco',
+      title: 'Eco-Friendly Disposal',
+      desc: "We recycle and donate items whenever possible, ensuring responsible disposal that's good for the environment.",
+      delay: 0.4
+    },
+    {
+      key: 'full',
+      title: 'Full-Service Solution',
+      desc: "From lifting heavy items to hauling away debris, we handle everything so you don't have to lift a finger.",
+      delay: 0.6
+    }
+  ].map((item, idx) => (
+    <Col key={idx} lg={4} md={6} sm={6} xs={12} className="mb-5">
+      <motion.div
+        className="feature-item h-100 p-4"
+        initial={{opacity: 0, y: 50}}
+        whileInView={{opacity: 1, y: 0}}
+        transition={{delay: item.delay, duration: 0.5}}
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: '#ffffff',
+          borderRadius: '16px',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--color-border)'
+        }}
+      >
+        <div className="mb-3 text-center">
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              backgroundColor: '#f97316',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto'
+            }}
+          >
+            <JunkFeatureIcon type={item.key} />
+          </div>
+        </div>
+
+        <h3
+          style={{
+            color: '#000000',
+            textAlign: 'center',
+            marginBottom: '20px'
+          }}
+        >
+          {item.title}
+        </h3>
+
+        <p style={{textAlign: 'center', flexGrow: 1}}>
+          {item.desc}
+        </p>
+      </motion.div>
+    </Col>
+  ))}
+</Row>
+
         </Container>
       </section>
 
@@ -645,7 +786,7 @@ const JunkRemoval = () => {
 
       {/* Service Areas */}
       <section style={{padding: '80px 0'}}>
-        <Container>
+        {/* <Container>
           <Row>
             <Col xs={12} className="text-center mb-5">
               <motion.h2
@@ -710,7 +851,54 @@ const JunkRemoval = () => {
               </motion.div>
             </Col>
           </Row>
-        </Container>
+        </Container> */}
+        <Container>
+  <Row>
+    <Col xs={12} className="text-center mb-5">
+      <motion.h2
+        className="display-5 fw-bold mb-4"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        style={{ color: 'var(--color-primary)' }}
+      >
+        Serving Hampton Roads Area
+      </motion.h2>
+      <motion.p
+        className="lead"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
+        We provide professional junk removal services throughout the Hampton Roads region
+      </motion.p>
+    </Col>
+  </Row>
+
+  <Row className="text-center">
+    {[
+      { name: 'Yorktown', delay: 0.2 },
+      { name: 'Norfolk', delay: 0.4 },
+      { name: 'Newport News', delay: 0.6 },
+      { name: 'Hampton', delay: 0.8 },
+    ].map((area, i) => (
+      <Col key={i} md={3} sm={6} className="mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: area.delay, duration: 0.5 }}
+        >
+          <div className="mb-2 d-flex justify-content-center">
+            <AreaIcon />
+          </div>
+          <h5 className="fw-bold">{area.name}</h5>
+          <p className="mb-0">Junk removal services</p>
+        </motion.div>
+      </Col>
+    ))}
+  </Row>
+</Container>
+
       </section>
 
       {/* CTA Section */}

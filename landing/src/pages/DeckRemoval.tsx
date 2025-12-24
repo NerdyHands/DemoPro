@@ -20,6 +20,52 @@ const DeckRemoval = () => {
     }
   }, [showForm]);
 
+const DeckFeatureIcon = ({type}: {type: string}) => {
+  switch (type) {
+    case 'dismantle':
+      return (
+        <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+          {/* Hammer */}
+          <path d="M38 10L46 18L42 22L34 14Z" stroke="white" strokeWidth="2"/>
+          <path d="M34 14L16 32" stroke="white" strokeWidth="3"/>
+          {/* Wood plank */}
+          <rect x="10" y="36" width="30" height="8" rx="2" stroke="white" strokeWidth="2"/>
+        </svg>
+      );
+
+    case 'remove':
+      return (
+        <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+          {/* Truck body */}
+          <rect x="10" y="28" width="28" height="12" rx="2" stroke="white" strokeWidth="2"/>
+          <path d="M38 30H48L54 36V40H38Z" stroke="white" strokeWidth="2"/>
+          {/* Wheels */}
+          <circle cx="18" cy="42" r="3" stroke="white" strokeWidth="2"/>
+          <circle cx="40" cy="42" r="3" stroke="white" strokeWidth="2"/>
+          {/* Debris */}
+          <path d="M16 26L20 22L24 26" stroke="white" strokeWidth="2"/>
+        </svg>
+      );
+
+    case 'cleanup':
+      return (
+        <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
+          {/* Broom handle */}
+          <path d="M42 10L20 36" stroke="white" strokeWidth="2"/>
+          {/* Broom head */}
+          <rect x="16" y="36" width="14" height="8" rx="2" stroke="white" strokeWidth="2"/>
+          {/* Dust */}
+          <circle cx="34" cy="46" r="1.5" fill="white"/>
+          <circle cx="38" cy="48" r="1.5" fill="white"/>
+          <circle cx="42" cy="46" r="1.5" fill="white"/>
+        </svg>
+      );
+
+    default:
+      return null;
+  }
+};
+
   return (
     <div itemScope itemType="https://schema.org/Service">
       {/* Hero Section */}
@@ -93,7 +139,7 @@ const DeckRemoval = () => {
               </motion.div>
             </Col>
             <Col lg={6} md={12}>
-           {showForm ? (
+              {showForm ? (
                 <div ref={formRef} className="quote-form-wrapper ">
                   <QuoteForm serviceType="Shed Removal" inline={true} />
                 </div>
@@ -143,7 +189,7 @@ const DeckRemoval = () => {
             </Col>
           </Row>
 
-          <Row>
+          {/* <Row>
             <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
               <motion.div
                 className="feature-item h-100 p-4"
@@ -296,7 +342,80 @@ const DeckRemoval = () => {
                 </p>
               </motion.div>
             </Col>
-          </Row>
+          </Row> */}
+
+          <Row>
+  {[
+    {
+      key: 'dismantle',
+      title: 'Expert Dismantling',
+      desc: 'Our skilled team carefully dismantles your deck piece by piece, ensuring no damage to your property or surrounding structures.',
+      delay: 0.2
+    },
+    {
+      key: 'remove',
+      title: 'Complete Removal',
+      desc: 'We remove all deck materials, including posts, beams, and hardware, leaving your yard completely clear and ready for new projects.',
+      delay: 0.4
+    },
+    {
+      key: 'cleanup',
+      title: 'Thorough Cleanup',
+      desc: 'After removal, we thoroughly clean the area, removing all debris, nails, and materials to ensure your property is spotless.',
+      delay: 0.6
+    }
+  ].map((item, idx) => (
+    <Col key={idx} lg={4} md={6} sm={6} xs={12} className="mb-5">
+      <motion.div
+        className="feature-item h-100 p-4"
+        initial={{opacity: 0, y: 50}}
+        whileInView={{opacity: 1, y: 0}}
+        transition={{delay: item.delay, duration: 0.5}}
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: '#ffffff',
+          borderRadius: '16px',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--color-border)'
+        }}
+      >
+        <div className="mb-3 text-center">
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              backgroundColor: 'rgb(236 107 58)', // orange
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto'
+            }}
+          >
+            <DeckFeatureIcon type={item.key} />
+          </div>
+        </div>
+
+        <h3
+          style={{
+            color: '#000000',
+            textAlign: 'center',
+            marginBottom: '20px'
+          }}
+        >
+          {item.title}
+        </h3>
+
+        <p style={{textAlign: 'center', flexGrow: 1}}>
+          {item.desc}
+        </p>
+      </motion.div>
+    </Col>
+  ))}
+</Row>
+
         </Container>
       </section>
 
@@ -564,8 +683,11 @@ const DeckRemoval = () => {
                 >
                   Get Free Quote
                 </Button>
-                <a href="tel:757-848-4559"  aria-label="Call for Deck removal services">
-                   <Button
+                <a
+                  href="tel:757-848-4559"
+                  aria-label="Call for Deck removal services"
+                >
+                  <Button
                     size="lg"
                     variant="outline-light"
                     style={{
@@ -578,7 +700,7 @@ const DeckRemoval = () => {
                       backgroundColor: '#fff'
                     }}
                   >
-                     Call 757-848-4559
+                    Call 757-848-4559
                   </Button>
                 </a>
               </motion.div>

@@ -994,3 +994,16 @@ form, .quote-form-wrapper {
   scroll-margin-top: 120px; 
 }
 
+
+
+.mobile-spacing {
+  /* default: desktop values (do nothing, inherit) */
+  padding: 40px 30px !important;
+}
+
+@media (max-width: 767.98px) {
+  .mobile-spacing {
+    padding: 0px 10px !important;
+    margin-top: 40px !important;
+  }
+}
