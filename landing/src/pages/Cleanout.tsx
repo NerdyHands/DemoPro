@@ -194,14 +194,7 @@ const Cleanout = () => {
                   boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
                 }}
               >
-                {/* <div className="mb-3">
-                  <img
-                    src="/assets/Icons/cleanout.webp"
-                    alt="Estate cleanout service"
-                    width="80"
-                    height="80"
-                  />
-                </div> */}
+              
 
                 <div className="mb-3 d-flex justify-content-center">
                   <div

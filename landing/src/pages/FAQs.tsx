@@ -1,4 +1,4 @@
-import {Container, Row, Col, Accordion} from 'react-bootstrap';
+import {Container, Row, Col, Accordion, Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
 
@@ -47,7 +47,7 @@ const FAQs = () => {
           aria-labelledby="faq-heading"
           style={{
             padding: '80px 0 60px 0',
-            borderRadius:"8px",
+            borderRadius: '8px',
             background:
               'linear-gradient(135deg, var(--color-surface) 0%, #ffffff 100%)'
           }}
@@ -587,11 +587,13 @@ const FAQs = () => {
         </section>
 
         {/* Contact CTA Section */}
+        {/* Contact CTA Section */}
         <section
           aria-labelledby="faq-cta"
           style={{
             padding: '80px 0',
-            backgroundColor: 'var(--color-primary)',
+            background:
+              'linear-gradient(135deg, rgb(236 64 0 / 52%), rgb(236 64 0 / 77%))',
             color: 'white'
           }}
         >
@@ -599,6 +601,7 @@ const FAQs = () => {
             <Row className="text-center">
               <Col xs={12}>
                 <motion.h2
+                  id="faq-cta"
                   className="title-small fw-bold"
                   initial={{opacity: 0}}
                   whileInView={{opacity: 1}}
@@ -610,6 +613,7 @@ const FAQs = () => {
                 >
                   Still Have Questions?
                 </motion.h2>
+
                 <motion.p
                   className="lead"
                   initial={{opacity: 0, y: 20}}
@@ -625,57 +629,56 @@ const FAQs = () => {
                   Can't find the answer you're looking for? Contact us directly
                   and we'll be happy to help!
                 </motion.p>
+
                 <motion.div
                   initial={{opacity: 0}}
                   whileInView={{opacity: 1}}
                   transition={{delay: 0.5, duration: 0.6}}
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: '16px',
+                    alignItems: 'center'
+                  }}
                 >
                   <Link
                     to="/contact/"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
                     }
+                    className="btn btn-light btn-lg"
+                    style={{
+                      padding: '15px 40px',
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      borderRadius: '12px',
+                      minWidth: '200px',
+                      textDecoration: 'none'
+                    }}
                   >
-                    <button
-                      className="btn btn-light btn-lg"
-                      style={{
-                        padding: '15px 40px',
-                        fontSize: 'var(--font-size-lg)',
-                        fontWeight: 'var(--font-weight-semibold)',
-                        borderRadius: '12px',
-                        marginRight: '20px',
-                        border: 'none'
-                      }}
-                    >
-                      Contact Us
-                    </button>
+                    Contact Us
                   </Link>
-                  <a href="tel:757-848-4559">
-                    <button
-                      className="btn btn-outline-light btn-lg"
+
+                  <a
+                    href="tel:757-848-4559"
+                    aria-label="Call mrdemopro at 757-848-4559 for professional demolition services"
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline-light"
                       style={{
                         padding: '15px 40px',
                         fontSize: 'var(--font-size-lg)',
                         fontWeight: 'var(--font-weight-semibold)',
                         borderRadius: '12px',
-                        border: '2px solid white',
-                        gap: '10px'
+                        minWidth: '200px',
+                        color: '#333',
+                        backgroundColor: '#fff'
                       }}
                     >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.06 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 3.08 4.18 2 2 0 0 1 5 2h3a2 2 0 0 1 2 1.72c.12 1.05.35 2.07.68 3.05a2 2 0 0 1-.45 2.11L9.91 9.91a16 16 0 0 0 6 6l1.03-1.03a2 2 0 0 1 2.11-.45c.98.33 2 .56 3.05.68A2 2 0 0 1 22 16.92z"
-                          fill="#fff"
-                        />
-                      </svg>
-                      757-848-4559
-                    </button>
+                      Call 757-848-4559
+                    </Button>
                   </a>
                 </motion.div>
               </Col>

@@ -99,8 +99,28 @@ const Home = () => {
           position: 'relative'
         }}
       >
+        <img
+          src="/assets/img/backgrounds/steptodown.com779769.webp"
+          alt="Demolition site background - Mr Demo Pro"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          width="1920"
+          height="1080"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: '50% 18%',
+
+            zIndex: 0
+          }}
+        />
+
         {/* Background Overlay */}
-        <div
+        {/* <div
           style={{
             position: 'absolute',
             top: 0,
@@ -108,7 +128,18 @@ const Home = () => {
             right: 0,
             bottom: 0,
             background:
-              'linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4))',
+              'linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1))',
+            zIndex: 1
+          }}
+        /> */}
+
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(255, 255, 255, 0.08)', // light glass tint
+            backdropFilter: 'blur(10px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(10px) saturate(140%)',
             zIndex: 1
           }}
         />
@@ -375,7 +406,8 @@ const Home = () => {
             style={{
               display: 'flex',
               justifyContent: 'center',
-              marginTop: '0.5rem'
+              marginTop: '0.5rem',
+              marginBottom:'0.5rem'
             }}
           >
             <Button

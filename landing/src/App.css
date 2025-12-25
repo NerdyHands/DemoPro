@@ -19,6 +19,33 @@ html {
   padding-inline: 1rem; /* modern padding shorthand for L/R */
 }
 
+
+#hero-area {
+  padding-top: 100px;
+}
+
+#hero-area img {
+  object-position: 50% 18%;
+}
+
+@media (max-width: 768px) {
+  #hero-area {
+    min-height: 82vh;
+  }
+
+  #hero-area img {
+    object-position: 50% 0%;
+  }
+}
+
+@media (max-width: 480px) {
+  #hero-area {
+    min-height: 75vh;
+  }
+}
+
+
+
 /* Professional Button System */
 .btn {
   font-family: var(--font-family-primary);
@@ -328,7 +355,6 @@ html {
 
 /* Enhanced Hero Section */
 #hero-area {
-  background-image: url('/assets/img/backgrounds/steptodown.com779769.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -847,7 +873,6 @@ footer a:hover {
   border: 1px solid #000000;
 }
 
-
 .hamburger {
   width: 26px;
   height: 20px;
@@ -911,11 +936,8 @@ footer a:hover {
 
   border: 2px solid rgba(236, 65, 0, 0.45);
 
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
     0 6px 18px rgba(236, 65, 0, 0.15);
-
-  
 
   position: relative;
   overflow: hidden;
@@ -925,11 +947,7 @@ footer a:hover {
 
 /* hover = stronger intent */
 .hero-badge:hover {
-  background: linear-gradient(
-    135deg,
-    rgb(236, 65, 0),
-    rgb(255, 120, 60)
-  );
+  background: linear-gradient(135deg, rgb(236, 65, 0), rgb(255, 120, 60));
   color: #ffffff;
   border-color: transparent;
   box-shadow: 0 12px 28px rgba(236, 65, 0, 0.35);
@@ -955,12 +973,16 @@ footer a:hover {
 }
 
 @keyframes badge-shine {
-  0% { left: -40%; }
-  60% { left: 120%; }
-  100% { left: 120%; }
+  0% {
+    left: -40%;
+  }
+  60% {
+    left: 120%;
+  }
+  100% {
+    left: 120%;
+  }
 }
-
-
 
 .hero-cta-group {
   display: flex;
@@ -990,11 +1012,10 @@ footer a:hover {
   }
 }
 
-form, .quote-form-wrapper {
-  scroll-margin-top: 120px; 
+form,
+.quote-form-wrapper {
+  scroll-margin-top: 120px;
 }
-
-
 
 .mobile-spacing {
   /* default: desktop values (do nothing, inherit) */
@@ -1006,4 +1027,15 @@ form, .quote-form-wrapper {
     padding: 0px 10px !important;
     margin-top: 40px !important;
   }
+}
+
+.navbar-brand:focus,
+.navbar-brand:focus-visible,
+.navbar-brand:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.navbar-brand img {
+  outline: none;
 }

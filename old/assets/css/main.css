@@ -188,14 +188,9 @@ html {
   background: #333;
 }
 
-/* #hero-area {
-  background: url(../img/backgrounds/hero-bg.jpg) fixed;
-  background-size: cover;
-  color: #fff;
-} */
 
 #hero-area {
-  background: url(../img/backgrounds/steptodown.com779769.jpg) center repeat;
+
   background-size: cover;
   color: #fff;
   position: relative;
