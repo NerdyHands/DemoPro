@@ -78,6 +78,8 @@ function doPost(e) {
     }
     
     // Return success response
+    // Note: CORS headers are handled automatically by Google Apps Script web apps
+    // when deployed with "Who has access: Anyone"
     return ContentService
       .createTextOutput(JSON.stringify({ success: true, message: 'Form submitted successfully' }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -86,6 +88,8 @@ function doPost(e) {
     console.error('Error processing form submission:', error);
     
     // Return error response
+    // Note: CORS headers are handled automatically by Google Apps Script web apps
+    // when deployed with "Who has access: Anyone"
     return ContentService
       .createTextOutput(JSON.stringify({ success: false, error: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -94,6 +98,8 @@ function doPost(e) {
 
 function doGet(e) {
   // Handle GET requests (for testing)
+  // Note: CORS headers are handled automatically by Google Apps Script web apps
+  // when deployed with "Who has access: Anyone"
   return ContentService
     .createTextOutput('Mr Demo Pro Form Handler is working!')
     .setMimeType(ContentService.MimeType.TEXT);

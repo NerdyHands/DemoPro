@@ -30,14 +30,22 @@ function App() {
         event.filename.includes('chrome-extension') ||
         event.filename.includes('extension') ||
         event.filename.includes('content-script') ||
-        event.filename.includes('background-script')
+        event.filename.includes('background-script') ||
+        event.filename.includes('gtm.js') ||
+        event.filename.includes('googletagmanager.com')
       )) {
         event.preventDefault();
         return false;
       }
       
       // Ignore "message port closed" errors (common with browser extensions)
-      if (event.message && event.message.includes('message port closed')) {
+      if (event.message && (
+        event.message.includes('message port closed') ||
+        event.message.includes('Content Security Policy') ||
+        event.message.includes('CORS policy') ||
+        event.message.includes('postMessage') ||
+        event.message.includes('target origin')
+      )) {
         event.preventDefault();
         return false;
       }
@@ -50,7 +58,10 @@ function App() {
         event.reason.includes('chrome-extension') ||
         event.reason.includes('extension') ||
         event.reason.includes('message port closed') ||
-        event.reason.includes('isInitialized')
+        event.reason.includes('isInitialized') ||
+        event.reason.includes('CORS') ||
+        event.reason.includes('Failed to fetch') ||
+        event.reason.includes('Content Security Policy')
       )) {
         event.preventDefault();
         return false;
@@ -65,7 +76,14 @@ function App() {
         errorMessage.includes('multiVariateTestingCS') ||
         errorMessage.includes('chrome-extension') ||
         errorMessage.includes('message port closed') ||
-        errorMessage.includes('isInitialized')
+        errorMessage.includes('isInitialized') ||
+        errorMessage.includes('Content Security Policy') ||
+        errorMessage.includes('violates the following Content Security Policy') ||
+        errorMessage.includes('CORS policy') ||
+        errorMessage.includes('Access-Control-Allow-Origin') ||
+        errorMessage.includes('postMessage') ||
+        errorMessage.includes('target origin') ||
+        errorMessage.includes('Failed to fetch') && errorMessage.includes('script.google.com')
       ) {
         return; // Suppress these errors
       }

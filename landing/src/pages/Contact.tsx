@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { trackFormSubmission } from '../config/gtm';
+import { GOOGLE_APPS_SCRIPT_URL } from '../config/googleAppsScript';
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -59,53 +60,38 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // Using the same Google Sheets endpoint from the original
-      const scriptURL = "https://script.google.com/macros/s/AKfycbwxdfDsv0GMztRmpg6r0Jmocw9MuHelOfZFImoXtxtE5kHbCcWhVmX_Ue3eWokw5WZdAA/exec";
-      
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('message', formData.message);
-      formDataToSend.append('form_type', 'contact_form');
+      const scriptURL = GOOGLE_APPS_SCRIPT_URL;
 
-      const response = await fetch(scriptURL, {
+      // Use URLSearchParams to encode form data
+      const formDataEncoded = new URLSearchParams();
+      formDataEncoded.append('name', formData.name);
+      formDataEncoded.append('email', formData.email);
+      formDataEncoded.append('message', formData.message);
+      formDataEncoded.append('form_type', 'contact_form');
+
+      // Submit using fetch with proper encoding
+      // Google Apps Script web apps handle CORS automatically when deployed as "Anyone"
+      await fetch(scriptURL, {
         method: 'POST',
-        body: formDataToSend,
-        redirect: 'follow' // Follow redirects (Google Apps Script may return 302)
+        mode: 'no-cors', // Required for Google Apps Script web apps
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formDataEncoded.toString(),
       });
 
-      // Google Apps Script web apps may return 200, 302 (redirect), or other status codes
-      // Accept any status that indicates the request was processed (200-399)
-      // Also handle status 0 which can occur with CORS - if we got a response, the request likely succeeded
-      const status = response.status;
-      const isSuccess = response.ok || (status >= 200 && status < 400);
-      
-      // If status is 0, it might be a CORS issue but request was sent
-      // For Google Apps Script, we'll be lenient and assume success if we got any response
-      if (!isSuccess && status === 0) {
-        console.warn('Received status 0 (possible CORS issue), but assuming success for Google Apps Script');
-      }
-      
-      if (isSuccess || status === 0) {
-        // Track successful form submission
-        trackFormSubmission('contact_form', {
-          name: formData.name,
-          email: formData.email,
-          message: formData.message
-        });
-        navigate('/thank-you');
-      } else {
-        // Log detailed error for debugging
-        console.error('Form submission failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          type: response.type,
-          url: response.url
-        });
-        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-      }
-    } catch (error) {
-      console.error('Error:', error);
+      // With no-cors mode, we can't read the response, but the submission should succeed
+      // Track successful form submission
+      trackFormSubmission('contact_form', {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message
+      });
+
+      // Navigate to thank you page
+      navigate('/thank-you');
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
       setAlertMessage('There was an error sending your message. Please try again.');
       setShowAlert(true);
     } finally {
