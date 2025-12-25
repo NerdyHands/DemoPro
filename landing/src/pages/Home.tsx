@@ -447,7 +447,7 @@ const Home = () => {
                 </p>
                 <div className="html_button">
                   <Link
-                    to="/shed-removal"
+                    to="/shed-removal/"
                     aria-label="Get a shed removal quote in Hampton Roads"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
@@ -497,7 +497,7 @@ const Home = () => {
                 </p>
                 <div className="html_button">
                   <Link
-                    to="/deck-removal"
+                    to="/deck-removal/"
                     aria-label="Get a deck removal quote in Hampton Roads"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
@@ -546,7 +546,7 @@ const Home = () => {
                 </p>
                 <div className="html_button">
                   <Link
-                    to="/fence-removal"
+                    to="/fence-removal/"
                     aria-label="Get a fence removal quote in Hampton Roads"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
@@ -596,7 +596,7 @@ const Home = () => {
                 </p>
                 <div className="html_button">
                   <Link
-                    to="/interior-demo"
+                    to="/interior-demo/"
                     aria-label="Get an interior demolition quote in Hampton Roads"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
@@ -646,7 +646,7 @@ const Home = () => {
                 </p>
                 <div className="html_button">
                   <Link
-                    to="/junk-removal"
+                    to="/junk-removal/"
                     aria-label="Get a junk removal quote in Hampton Roads"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
@@ -695,7 +695,7 @@ const Home = () => {
                 </p>
                 <div className="html_button">
                   <Link
-                    to="/cleanout"
+                    to="/cleanout/"
                     aria-label="Get a property cleanout quote in Hampton Roads"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
@@ -876,7 +876,7 @@ const Home = () => {
                 transition={{delay: 0.5, duration: 0.6}}
               >
                 <Link
-                  to="/services"
+                  to="/services/"
                   aria-label="View demolition services offered by Mr Demo Pro"
                   onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
                 >

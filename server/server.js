@@ -158,31 +158,69 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enhanced logging middleware
+// Enhanced logging middleware with bot filtering
 const logger = (req, res, next) => {
   const start = Date.now();
+  const userAgent = req.headers['user-agent'] || '';
   
-  // Log request
-  console.log(`\n📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
-  console.log(`🔍 Query:`, req.query);
-  console.log(`📋 Headers:`, {
-    'Content-Type': req.headers['content-type'],
-    'Authorization': req.headers.authorization ? 'Bearer ***' : 'None',
-    'User-Agent': req.headers['user-agent']?.substring(0, 50) + '...'
-  });
+  // Common bot/scanner user agents to filter
+  const botPatterns = [
+    /bot/i, /crawler/i, /spider/i, /scanner/i, /norton/i, /symantec/i,
+    /security/i, /avast/i, /avg/i, /kaspersky/i, /mcafee/i, /nmap/i,
+    /masscan/i, /zmap/i, /shodan/i, /censys/i, /curl/i, /wget/i,
+    /python-requests/i, /go-http-client/i, /java/i, /okhttp/i,
+    /Trident/i, /MSIE/i, /Internet Explorer/i
+  ];
   
-  if (req.body && Object.keys(req.body).length > 0) {
-    console.log(`📦 Body:`, JSON.stringify(req.body, null, 2));
+  // Common bot/scanner paths to filter
+  const botPaths = [
+    '/loginMsg.js', '/cgi/', '/admin', '/wp-admin', '/wp-login',
+    '/.env', '/config.php', '/phpmyadmin', '/.git', '/shell',
+    '/.well-known/', '/favicon.ico'
+  ];
+  
+  const isBotRequest = botPatterns.some(pattern => pattern.test(userAgent)) ||
+                       botPaths.some(path => req.path.toLowerCase().includes(path.toLowerCase())) ||
+                       (req.path === '/' && !req.headers.authorization && !req.query);
+  
+  // Skip detailed logging for bot requests and root path without auth
+  if (!isBotRequest) {
+    // Log request
+    console.log(`\n📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
+    if (Object.keys(req.query).length > 0) {
+      console.log(`🔍 Query:`, req.query);
+    }
+    console.log(`📋 Headers:`, {
+      'Content-Type': req.headers['content-type'],
+      'Authorization': req.headers.authorization ? 'Bearer ***' : 'None',
+      'User-Agent': userAgent.substring(0, 50) + '...'
+    });
+    
+    if (req.body && Object.keys(req.body).length > 0) {
+      console.log(`📦 Body:`, JSON.stringify(req.body, null, 2));
+    }
   }
   
-  // Log response
+  // Log response (simplified for bot requests)
   res.on('finish', () => {
     const duration = Date.now() - start;
-    const statusColor = res.statusCode >= 400 ? '🔴' : res.statusCode >= 300 ? '🟡' : '🟢';
-    console.log(`${statusColor} [${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
     
-    if (res.statusCode >= 400) {
-      console.log(`❌ Error Response:`, res.locals.error || 'No error details');
+    if (isBotRequest && res.statusCode === 404) {
+      // Silently ignore 404s from bots
+      return;
+    }
+    
+    const statusColor = res.statusCode >= 400 ? '🔴' : res.statusCode >= 300 ? '🟡' : '🟢';
+    
+    if (isBotRequest) {
+      // Minimal logging for bot requests
+      console.log(`${statusColor} [${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms) [Bot/Scanner]`);
+    } else {
+      console.log(`${statusColor} [${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
+      
+      if (res.statusCode >= 400) {
+        console.log(`❌ Error Response:`, res.locals.error || 'No error details');
+      }
     }
   });
   
@@ -442,6 +480,24 @@ app.get('*', (req, res, next) => {
 app.use('/api/*', (req, res) => {
   res.status(404).json({
     error: 'API route not found',
+    message: `Cannot ${req.method} ${req.originalUrl}`
+  });
+});
+
+// 404 handler for undefined routes (non-API)
+app.use((req, res) => {
+  // Don't set error details for bot/scanner requests
+  const userAgent = req.headers['user-agent'] || '';
+  const isBotRequest = /bot|crawler|spider|scanner|norton|symantec|security|avast|avg|kaspersky|mcafee|nmap|masscan|zmap|shodan|censys|curl|wget|python-requests|go-http-client|java|okhttp|Trident|MSIE|Internet Explorer/i.test(userAgent) ||
+                       ['/loginMsg.js', '/cgi/', '/admin', '/wp-admin', '/.env'].some(path => req.path.toLowerCase().includes(path.toLowerCase()));
+  
+  // For bot requests, just send a simple 404 without JSON (faster response)
+  if (isBotRequest) {
+    return res.status(404).end();
+  }
+  
+  res.status(404).json({
+    error: 'Not Found',
     message: `Cannot ${req.method} ${req.originalUrl}`
   });
 });

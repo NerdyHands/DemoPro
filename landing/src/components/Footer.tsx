@@ -41,7 +41,7 @@ const Footer = () => {
               >
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
-                    to="/services"
+                    to="/services/"
                     onClick={() =>
                       window.scrollTo({ top: 0, behavior: "smooth" })
                     }
@@ -63,7 +63,7 @@ const Footer = () => {
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
-                    to="/contact"
+                    to="/contact/"
                     onClick={() =>
                       window.scrollTo({ top: 0, behavior: "smooth" })
                     }
@@ -85,7 +85,7 @@ const Footer = () => {
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
-                    to="/faqs"
+                    to="/faqs/"
                     onClick={() =>
                       window.scrollTo({ top: 0, behavior: "smooth" })
                     }
@@ -107,7 +107,7 @@ const Footer = () => {
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
-                    to="/terms"
+                    to="/terms/"
                     onClick={() =>
                       window.scrollTo({ top: 0, behavior: "smooth" })
                     }
@@ -129,7 +129,7 @@ const Footer = () => {
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
-                    to="/privacy"
+                    to="/privacy/"
                     onClick={() =>
                       window.scrollTo({ top: 0, behavior: "smooth" })
                     }

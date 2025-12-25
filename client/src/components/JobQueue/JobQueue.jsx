@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { jobApi, technicianApi } from '../../services/jobApi';
+import '../BidBoardLayout/BidBoardLayout.css';
 import './JobQueue.css';
 
 const JobQueue = () => {
@@ -224,138 +225,160 @@ const JobQueue = () => {
     </div>
   );
 
+  const getJobsByStatus = (status) => {
+    return jobs.filter(j => j.status === status);
+  };
+
+  const getStatusCounts = () => {
+    const counts = { Pending: 0, Assigned: 0, 'In Progress': 0, 'On Hold': 0, Completed: 0, Cancelled: 0 };
+    jobs.forEach(job => {
+      if (counts.hasOwnProperty(job.status)) {
+        counts[job.status]++;
+      }
+    });
+    return counts;
+  };
+
+  const statusCounts = getStatusCounts();
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount || 0);
+  };
+
+  const formatDateShort = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'N/A';
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      });
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  const JobStatusSection = ({ status, statusLabel }) => {
+    const statusJobs = getJobsByStatus(status);
+    const count = statusCounts[status] || 0;
+    
+    return (
+      <div className="bid-board-status-section">
+        <div className="bid-board-status-header">
+          <input type="checkbox" defaultChecked />
+          <span className="bid-board-status-title">{statusLabel}</span>
+          <span className="bid-board-status-count">{count}</span>
+          <span className="bid-board-status-value">($0)</span>
+        </div>
+        <div className="bid-board-cards-container">
+          {statusJobs.length === 0 ? (
+            <div className="bid-board-empty-state">No jobs</div>
+          ) : (
+            statusJobs.map((job) => {
+              const customerName = job.customer
+                ? `${job.customer.firstName || ''} ${job.customer.lastName || ''}`.trim()
+                : 'Unknown Customer';
+              
+              return (
+                <div key={job._id} className="bid-board-card">
+                  <div className="bid-board-card-header">
+                    <div className="bid-board-card-checkbox">
+                      <input type="checkbox" />
+                    </div>
+                    <div className="bid-board-card-content">
+                      <div className="bid-board-card-label">JOB</div>
+                      <div className="bid-board-card-title">{job.title || job.jobId}</div>
+                      <div className="bid-board-card-value">
+                        <strong>Customer:</strong> {customerName}
+                      </div>
+                      {job.priority && (
+                        <div className="bid-board-card-value" style={{ fontSize: '0.8rem', marginTop: '0.25rem', color: getPriorityColor(job.priority) }}>
+                          Priority: {job.priority}
+                        </div>
+                      )}
+                      {job.assignedTechnician && (
+                        <div className="bid-board-card-value" style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                          Assigned to: {job.assignedTechnician.firstName} {job.assignedTechnician.lastName}
+                        </div>
+                      )}
+                      {job.progress?.percentage !== undefined && (
+                        <div className="bid-board-card-value" style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                          Progress: {job.progress.percentage}%
+                        </div>
+                      )}
+                      <div className="bid-board-card-meta">
+                        <div className="bid-board-card-due-date">
+                          {job.endDate 
+                            ? `DUE ${formatDateShort(job.endDate).toUpperCase()}${job.isOverdue ? ' ⚠️ OVERDUE' : ''}`
+                            : 'NO DUE DATE'}
+                        </div>
+                        <div className="bid-board-card-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          {!job.assignedTechnician && (
+                            <button
+                              onClick={() => {
+                                setAssigningJobId(job._id);
+                                setShowAssignModal(true);
+                              }}
+                              className="bid-board-card-btn bid-board-card-btn-primary"
+                            >
+                              Assign
+                            </button>
+                          )}
+                          <button className="bid-board-card-btn bid-board-card-btn-secondary">
+                            View
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <svg className="bid-board-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                      <line x1="12" y1="9" x2="12" y2="13"></line>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const AllJobsTab = () => (
-    <div className="all-jobs">
-      <div className="jobs-filters">
-        <select 
-          value={filters.status} 
-          onChange={(e) => handleFilterChange('status', e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="Assigned">Assigned</option>
-          <option value="In Progress">In Progress</option>
-          <option value="On Hold">On Hold</option>
-          <option value="Completed">Completed</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
-
-        <select 
-          value={filters.priority} 
-          onChange={(e) => handleFilterChange('priority', e.target.value)}
-        >
-          <option value="">All Priorities</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-          <option value="Critical">Critical</option>
-        </select>
-
-        <select 
-          value={filters.assignedTechnician} 
-          onChange={(e) => handleFilterChange('assignedTechnician', e.target.value)}
-        >
-          <option value="">All Technicians</option>
-          {technicians.map(tech => (
-            <option key={tech._id} value={tech._id}>
-              {tech.firstName} {tech.lastName}
-            </option>
-          ))}
-        </select>
-
-        <label className="checkbox-filter">
-          <input 
-            type="checkbox" 
-            checked={filters.overdue}
-            onChange={(e) => handleFilterChange('overdue', e.target.checked)}
+    <div className="bid-board-container">
+      <div className="bid-board-search-filter">
+        <div className="bid-board-search">
+          <input
+            type="text"
+            placeholder="Search jobs..."
+            onChange={(e) => handleFilterChange('search', e.target.value)}
           />
-          Overdue Only
-        </label>
+          <div className="bid-board-search-icon">🔍</div>
+        </div>
+        <button className="bid-board-filter-btn">
+          <span>⚙️</span>
+          Filter
+        </button>
+        <div className="bid-board-sort-dropdown">
+          <span>Job Due Date</span>
+          <span>☰</span>
+        </div>
       </div>
 
-      <div className="jobs-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Job</th>
-              <th>Customer</th>
-              <th>Status</th>
-              <th>Priority</th>
-              <th>Assigned To</th>
-              <th>Due Date</th>
-              <th>Progress</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {jobs.map(job => (
-              <tr key={job._id} className={job.isOverdue ? 'overdue-row' : ''}>
-                <td>
-                  <div className="job-cell">
-                    <strong>{job.title}</strong>
-                    <br />
-                    <small>{job.jobId}</small>
-                  </div>
-                </td>
-                <td>
-                  {job.customer?.firstName} {job.customer?.lastName}
-                </td>
-                <td>
-                  <span 
-                    className="status-badge" 
-                    style={{ backgroundColor: getStatusColor(job.status) }}
-                  >
-                    {job.status}
-                  </span>
-                </td>
-                <td>
-                  <span 
-                    className="priority-badge"
-                    style={{ color: getPriorityColor(job.priority) }}
-                  >
-                    {job.priority}
-                  </span>
-                </td>
-                <td>
-                  {job.assignedTechnician ? 
-                    `${job.assignedTechnician.firstName} ${job.assignedTechnician.lastName}` : 
-                    <button 
-                      className="assign-btn small"
-                      onClick={() => {
-                        setAssigningJobId(job._id);
-                        setShowAssignModal(true);
-                      }}
-                    >
-                      Assign
-                    </button>
-                  }
-                </td>
-                <td>
-                  {formatDate(job.endDate)}
-                  {job.isOverdue && <span className="overdue-indicator">⚠️</span>}
-                </td>
-                <td>
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
-                      style={{ width: `${job.progress?.percentage || 0}%` }}
-                    ></div>
-                    <span className="progress-text">{job.progress?.percentage || 0}%</span>
-                  </div>
-                </td>
-                <td>
-                  <div className="job-actions">
-                    <button 
-                      className="action-btn"
-                    >
-                      View
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="bid-board-status-sections">
+        <JobStatusSection status="Pending" statusLabel="Pending" />
+        <JobStatusSection status="Assigned" statusLabel="Assigned" />
+        <JobStatusSection status="In Progress" statusLabel="In Progress" />
+        <JobStatusSection status="On Hold" statusLabel="On Hold" />
+        <div className="bid-board-status-separator"></div>
+        <JobStatusSection status="Completed" statusLabel="Completed" />
+        <JobStatusSection status="Cancelled" statusLabel="Cancelled" />
       </div>
     </div>
   );
@@ -459,32 +482,60 @@ const JobQueue = () => {
 
   return (
     <div className="job-queue">
-      <div className="queue-header">
-        <h2>Job Queue Management</h2>
-        {error && <div className="error-message">{error}</div>}
-      </div>
+      <div className="bid-board-container">
+        <div className="bid-board-header">
+          <div className="bid-board-title-section">
+            <h1 className="bid-board-title">Job Queue</h1>
+            <p className="bid-board-subtitle">Manage jobs and assignments</p>
+          </div>
+        </div>
 
-      <div className="queue-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          Overview
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'all-jobs' ? 'active' : ''}`}
-          onClick={() => setActiveTab('all-jobs')}
-        >
-          All Jobs
-        </button>
-      </div>
+        {error && (
+          <div className="error-container">
+            <p className="error-message">{error}</p>
+          </div>
+        )}
 
-      <div className="queue-content">
-        {activeTab === 'overview' && <OverviewTab />}
-        {activeTab === 'all-jobs' && <AllJobsTab />}
-      </div>
+        <div className="queue-tabs" style={{ marginBottom: '1.5rem', borderBottom: '2px solid #e0e0e0', display: 'flex', gap: '1rem' }}>
+          <button 
+            className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+            style={{ 
+              padding: '0.75rem 1.5rem', 
+              border: 'none', 
+              background: 'none', 
+              cursor: 'pointer',
+              borderBottom: activeTab === 'overview' ? '2px solid #20b2aa' : '2px solid transparent',
+              color: activeTab === 'overview' ? '#20b2aa' : '#666',
+              fontWeight: activeTab === 'overview' ? 600 : 400
+            }}
+          >
+            Overview
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'all-jobs' ? 'active' : ''}`}
+            onClick={() => setActiveTab('all-jobs')}
+            style={{ 
+              padding: '0.75rem 1.5rem', 
+              border: 'none', 
+              background: 'none', 
+              cursor: 'pointer',
+              borderBottom: activeTab === 'all-jobs' ? '2px solid #20b2aa' : '2px solid transparent',
+              color: activeTab === 'all-jobs' ? '#20b2aa' : '#666',
+              fontWeight: activeTab === 'all-jobs' ? 600 : 400
+            }}
+          >
+            All Jobs
+          </button>
+        </div>
 
-      <AssignmentModal />
+        <div className="queue-content">
+          {activeTab === 'overview' && <OverviewTab />}
+          {activeTab === 'all-jobs' && <AllJobsTab />}
+        </div>
+
+        <AssignmentModal />
+      </div>
     </div>
   );
 };

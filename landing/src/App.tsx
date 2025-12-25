@@ -229,7 +229,7 @@ function App() {
                       <Link to="/" className="btn btn-primary me-3">
                         Go Home
                       </Link>
-                      <Link to="/services" className="btn btn-outline-primary">
+                      <Link to="/services/" className="btn btn-outline-primary">
                         View Services
                       </Link>
                     </div>

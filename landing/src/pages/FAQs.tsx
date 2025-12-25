@@ -631,7 +631,7 @@ const FAQs = () => {
                   transition={{delay: 0.5, duration: 0.6}}
                 >
                   <Link
-                    to="/contact"
+                    to="/contact/"
                     onClick={() =>
                       window.scrollTo({top: 0, behavior: 'smooth'})
                     }

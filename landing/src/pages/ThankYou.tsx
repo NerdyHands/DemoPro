@@ -116,7 +116,7 @@ const ThankYou = () => {
                     Back to Home
                   </Button>
                 </Link>
-                <Link to="/services">
+                <Link to="/services/">
                   <Button
                     variant="outline-primary"
                     style={{

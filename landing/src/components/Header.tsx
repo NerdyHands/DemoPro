@@ -129,10 +129,10 @@ const Header = () => {
                   <Nav className="text-center" style={{gap: '0.5rem'}}>
                     {[
                       {name: 'Home', path: '/'},
-                      {name: 'Services', path: '/services'},
-                      {name: 'Prices', path: '/prices'},
-                      {name: 'Contact Us', path: '/contact'},
-                      {name: 'FAQs', path: '/faqs'}
+                      {name: 'Services', path: '/services/'},
+                      {name: 'Prices', path: '/prices/'},
+                      {name: 'Contact Us', path: '/contact/'},
+                      {name: 'FAQs', path: '/faqs/'}
                     ].map(item => (
                       <Nav.Link
                         key={item.path}
