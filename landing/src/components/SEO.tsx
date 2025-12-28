@@ -9,7 +9,8 @@ interface SEOProps {
   ogImage?: string;
   ogType?: string;
   twitterCard?: string;
-  structuredData?: object;
+  // structuredData?: object;
+  structuredData?: object | object[];
   noIndex?: boolean;
 }
 
@@ -32,7 +33,9 @@ const SEO: React.FC<SEOProps> = ({
   const defaultStructuredData = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": "https://mrdemopro.com/#business",
     "name": "Mr Demo Pro",
+    "inLanguage": "en-US",
     "description": "Professional demolition services specializing in shed removal, deck removal, and fence removal in Hampton Roads, VA",
     "url": "https://mrdemopro.com",
     "telephone": "757-848-4559",
@@ -60,7 +63,10 @@ const SEO: React.FC<SEOProps> = ({
     "logo": "https://mrdemopro.com/main-logo.png"
   };
 
-  const finalStructuredData = structuredData || defaultStructuredData;
+  // const finalStructuredData = structuredData || defaultStructuredData;
+const finalStructuredData = structuredData
+  ? Array.isArray(structuredData) ? structuredData : [structuredData]
+  : [defaultStructuredData];
 
   return (
     <Helmet>
@@ -89,7 +95,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:url" content={canonicalUrl || "https://mrdemopro.com"} />
       <meta property="og:site_name" content="Mr Demo Pro" />
       <meta property="og:locale" content="en_US" />
-      <meta property="og:updated_time" content={new Date().toISOString()} />
+      {/* <meta property="og:updated_time" content={new Date().toISOString()} /> */}
       
       {/* Twitter Card Meta Tags */}
       <meta name="twitter:card" content={twitterCard} />
