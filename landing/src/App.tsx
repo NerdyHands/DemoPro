@@ -17,6 +17,7 @@ import Cleanout from './pages/Cleanout';
 import JunkRemoval from './pages/JunkRemoval';
 import FAQs from './pages/FAQs';
 import ThankYou from './pages/ThankYou';
+import Blog from './pages/Blog';
 import seoConfig from './config/seoConfig';
 import './App.css';
 
@@ -140,6 +141,79 @@ function App() {
                 </>
               }
             />
+            {/* Service Pages */}
+            <Route
+              path="/services/shed-removal"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.shedRemoval}
+                    canonicalUrl="https://mrdemopro.com/services/shed-removal/"
+                  />
+                  <ShedRemoval />
+                </>
+              }
+            />
+            <Route
+              path="/services/deck-removal"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.deckRemoval}
+                    canonicalUrl="https://mrdemopro.com/services/deck-removal/"
+                  />
+                  <DeckRemoval />
+                </>
+              }
+            />
+            <Route
+              path="/services/fence-removal"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.fenceRemoval}
+                    canonicalUrl="https://mrdemopro.com/services/fence-removal/"
+                  />
+                  <FenceRemoval />
+                </>
+              }
+            />
+            <Route
+              path="/services/interior-demo"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.interiorDemo}
+                    canonicalUrl="https://mrdemopro.com/services/interior-demo/"
+                  />
+                  <InteriorDemo />
+                </>
+              }
+            />
+            <Route
+              path="/services/cleanout"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.cleanout}
+                    canonicalUrl="https://mrdemopro.com/services/cleanout/"
+                  />
+                  <Cleanout />
+                </>
+              }
+            />
+            <Route
+              path="/services/junk-removal"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.junkRemoval}
+                    canonicalUrl="https://mrdemopro.com/services/junk-removal/"
+                  />
+                  <JunkRemoval />
+                </>
+              }
+            />
             <Route
               path="/prices"
               element={
@@ -174,78 +248,6 @@ function App() {
                     canonicalUrl="https://mrdemopro.com/contact/"
                   />
                   <Contact />
-                </>
-              }
-            />
-            <Route
-              path="/shed-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.shedRemoval}
-                    canonicalUrl="https://mrdemopro.com/shed-removal/"
-                  />
-                  <ShedRemoval />
-                </>
-              }
-            />
-            <Route
-              path="/deck-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.deckRemoval}
-                    canonicalUrl="https://mrdemopro.com/deck-removal/"
-                  />
-                  <DeckRemoval />
-                </>
-              }
-            />
-            <Route
-              path="/fence-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.fenceRemoval}
-                    canonicalUrl="https://mrdemopro.com/fence-removal/"
-                  />
-                  <FenceRemoval />
-                </>
-              }
-            />
-            <Route
-              path="/interior-demo"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.interiorDemo}
-                    canonicalUrl="https://mrdemopro.com/interior-demo/"
-                  />
-                  <InteriorDemo />
-                </>
-              }
-            />
-            <Route
-              path="/cleanout"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.cleanout}
-                    canonicalUrl="https://mrdemopro.com/cleanout/"
-                  />
-                  <Cleanout />
-                </>
-              }
-            />
-            <Route
-              path="/junk-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.junkRemoval}
-                    canonicalUrl="https://mrdemopro.com/junk-removal/"
-                  />
-                  <JunkRemoval />
                 </>
               }
             />
@@ -305,6 +307,18 @@ function App() {
                     </h1>
                   </div>
                 </>
+              }
+            />
+            <Route
+              path="/blog"
+              element={
+                <Blog />
+              }
+            />
+            <Route
+              path="/blog/*"
+              element={
+                <Blog />
               }
             />
             <Route

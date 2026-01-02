@@ -74,7 +74,7 @@ const Cleanout = () => {
       <SEOHead
         title="Cleanout Services in Hampton Roads, VA"
         description="Professional cleanout services in Hampton Roads, VA. Estate cleanouts, construction debris removal, and property cleanouts with full cleanup. Get a free quote today."
-        canonicalUrl="https://mrdemopro.com/cleanout"
+        canonicalUrl="https://mrdemopro.com/services/cleanout"
         structuredData={[
           {
             '@context': 'https://schema.org',
@@ -93,7 +93,7 @@ const Cleanout = () => {
               'Newport News, VA',
               'Yorktown, VA'
             ],
-            url: 'https://mrdemopro.com/cleanout'
+            url: 'https://mrdemopro.com/services/cleanout'
           }
         ]}
       />

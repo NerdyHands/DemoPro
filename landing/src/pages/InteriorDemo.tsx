@@ -74,7 +74,7 @@ const InteriorDemo = () => {
       <SEOHead
         title="Interior Demolition Services in Hampton Roads, VA "
         description="Professional interior demolition services in Hampton Roads, VA. Safe wall removal, flooring removal, and fixture demolition for remodeling projects. Get a free estimate today."
-        canonicalUrl="https://mrdemopro.com/interior-demo/"
+        canonicalUrl="https://mrdemopro.com/services/interior-demo/"
         structuredData={[
           {
             '@context': 'https://schema.org',
@@ -93,7 +93,7 @@ const InteriorDemo = () => {
               telephone: '757-848-4559'
             },
             
-            url: 'https://mrdemopro.com/interior-demo/'
+            url: 'https://mrdemopro.com/services/interior-demo/'
           }
         ]}
       />

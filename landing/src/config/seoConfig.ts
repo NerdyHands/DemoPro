@@ -111,7 +111,7 @@ export const seoConfig = {
     title: "Shed Removal Services in Hampton Roads, VA | Mr Demo Pro",
     description: "Professional shed removal services in Hampton Roads, VA. Fast, efficient, and affordable shed demolition. Free estimates. Call 757-848-4559 for expert shed removal.",
     keywords: "shed removal, shed demolition, shed removal Hampton Roads, shed removal Virginia Beach, shed removal Norfolk, shed removal Chesapeake, shed removal Newport News, shed removal Hampton, old shed removal, shed disposal",
-    canonicalUrl: "https://mrdemopro.com/shed-removal/",
+    canonicalUrl: "https://mrdemopro.com/services/shed-removal/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -130,7 +130,7 @@ export const seoConfig = {
     title: "Deck Removal Services in Hampton Roads, VA | Mr Demo Pro", 
     description: "Expert deck removal services in Hampton Roads, VA. Safe and efficient deck demolition. Transform your outdoor space. Free estimates. Call 757-848-4559.",
     keywords: "deck removal, deck demolition, deck removal Hampton Roads, deck removal Virginia Beach, deck removal Norfolk, deck removal Chesapeake, deck removal Newport News, deck removal Hampton, old deck removal, deck disposal, outdoor deck removal",
-    canonicalUrl: "https://mrdemopro.com/deck-removal/",
+    canonicalUrl: "https://mrdemopro.com/services/deck-removal/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -149,7 +149,7 @@ export const seoConfig = {
     title: "Fence Removal Services in Hampton Roads, VA | Mr Demo Pro",
     description: "Professional fence removal services in Hampton Roads, VA. Quick and efficient fence demolition. Remove old, damaged fences safely. Free estimates. Call 757-848-4559.",
     keywords: "fence removal, fence demolition, fence removal Hampton Roads, fence removal Virginia Beach, fence removal Norfolk, fence removal Chesapeake, fence removal Newport News, fence removal Hampton, old fence removal, fence disposal, damaged fence removal",
-    canonicalUrl: "https://mrdemopro.com/fence-removal/",
+    canonicalUrl: "https://mrdemopro.com/services/fence-removal/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -168,7 +168,7 @@ export const seoConfig = {
     title: "Interior Demo Services in Hampton Roads, VA | Mr Demo Pro",
     description: "Professional interior demolition services in Hampton Roads, VA. Expert interior demo for renovations and remodeling. Free estimates. Call 757-848-4559 for quality interior demolition work.",
     keywords: "interior demo, interior demolition, interior demolition Hampton Roads, interior demo Virginia Beach, interior demo Norfolk, interior demo Chesapeake, interior demo Newport News, interior demo Hampton, interior demo Yorktown, renovation demolition, remodeling demo",
-    canonicalUrl: "https://mrdemopro.com/interior-demo/",
+    canonicalUrl: "https://mrdemopro.com/services/interior-demo/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -188,7 +188,7 @@ export const seoConfig = {
     title: "Cleanout Services in Hampton Roads, VA | Mr Demo Pro",
     description: "Professional cleanout services in Hampton Roads, VA. Expert property cleanout and debris removal. Free estimates. Call 757-848-4559 for cleanout services.",
     keywords: "cleanout services, property cleanout, cleanout Hampton Roads, cleanout Virginia Beach, cleanout Norfolk, cleanout Chesapeake, cleanout Newport News, cleanout Hampton, cleanout Yorktown, debris removal, property cleanup",
-    canonicalUrl: "https://mrdemopro.com/cleanout/",
+    canonicalUrl: "https://mrdemopro.com/services/cleanout/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -207,7 +207,7 @@ export const seoConfig = {
     title: "Junk Removal Services in Hampton Roads, VA | Mr Demo Pro",
     description: "Fast and reliable junk removal services in Hampton Roads, VA. Same-day service for furniture, appliances, and general junk removal. Free estimates. Call 757-848-4559.",
     keywords: "junk removal, junk removal Hampton Roads, junk removal Virginia Beach, junk removal Norfolk, junk removal Chesapeake, junk removal Newport News, junk removal Hampton, furniture removal, appliance removal, hauling service, debris removal",
-    canonicalUrl: "https://mrdemopro.com/junk-removal/",
+    canonicalUrl: "https://mrdemopro.com/services/junk-removal/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",

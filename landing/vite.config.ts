@@ -17,9 +17,10 @@ export default defineConfig({
     target: 'es2015',
     rollupOptions: {
       output: {
-        // Ensure SEO files are at root level
+        // Ensure SEO files and redirect files are at root level
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'sitemap.xml' || assetInfo.name === 'robots.txt') {
+          if (assetInfo.name === 'sitemap.xml' || assetInfo.name === 'robots.txt' || 
+              assetInfo.name === '_redirects' || assetInfo.name === '.htaccess') {
             return '[name][extname]';
           }
           return 'assets/[name]-[hash][extname]';

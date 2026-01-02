@@ -9,42 +9,42 @@ const Services = () => {
     {
       title: 'Shed Removal',
       img: '/assets/Icons/shed-removal.webp',
-      link: '/shed-removal/',
+      link: '/services/shed-removal/',
       aria: 'Get a shed removal quote in Hampton Roads',
       desc: 'Outdated or unwanted sheds can be an eyesore and take up valuable space in your yard. Our team is equipped to safely and efficiently remove any type of shed, leaving your property clean and ready for new possibilities.'
     },
     {
       title: 'Deck Removal',
       img: '/assets/Icons/deck-removal.webp',
-      link: '/deck-removal/',
+      link: '/services/deck-removal/',
       aria: 'Get a deck removal quote in Hampton Roads',
       desc: "Whether you're upgrading your outdoor space or dealing with a deteriorating deck, we offer comprehensive deck removal services. Our team takes care of everything from disassembling to removing rubbish so you can have a hassle-free experience."
     },
     {
       title: 'Fence Removal',
       img: '/assets/Icons/fence-removal.webp',
-      link: '/fence-removal/',
+      link: '/services/fence-removal/',
       aria: 'Get a fence removal quote in Hampton Roads',
       desc: "Old or damaged fences can detract from your property's appearance and security. We provide fast and effective fence removal services, clearing the way for new installations or open spaces."
     },
     {
       title: 'Interior Demolition',
       img: '/assets/Icons/hammer.webp',
-      link: '/interior-demo/',
+      link: '/services/interior-demo/',
       aria: 'Get an interior demolition quote in Hampton Roads',
       desc: 'Professional interior demolition services for renovations and remodeling. We safely remove walls, fixtures, and interior structures to prepare your space for new construction.'
     },
     {
       title: 'Junk Removal',
       img: '/assets/Icons/trash.webp',
-      link: '/junk-removal/',
+      link: '/services/junk-removal/',
       aria: 'Get a junk removal quote in Hampton Roads',
       desc: 'Fast and reliable junk removal services. We remove unwanted items from your home or business, including furniture, appliances, and general junk.'
     },
     {
       title: 'Cleanout Services',
       img: '/assets/Icons/cleanout.webp',
-      link: '/cleanout/',
+      link: '/services/cleanout/',
       aria: 'Get a property cleanout quote in Hampton Roads',
       desc: 'Complete property cleanout and debris removal services. We handle everything from estate cleanouts to construction debris removal, leaving your property clean and ready.'
     }

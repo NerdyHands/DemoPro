@@ -109,7 +109,7 @@ const FenceRemoval = () => {
       <SEOHead
         title="Fence Removal Services in Hampton Roads, VA "
         description="Professional fence removal services in Hampton Roads, VA. Fast, safe, and complete fence and post removal with full cleanup. Get your free quote today."
-        canonicalUrl="https://mrdemopro.com/fence-removal"
+        canonicalUrl="https://mrdemopro.com/services/fence-removal"
         structuredData={[
           {
             '@context': 'https://schema.org',
@@ -128,7 +128,7 @@ const FenceRemoval = () => {
               'Newport News, VA',
               'Yorktown, VA'
             ],
-            url: 'https://mrdemopro.com/fence-removal'
+            url: 'https://mrdemopro.com/services/fence-removal'
           }
         ]}
       />

@@ -100,7 +100,7 @@ const DeckRemoval = () => {
       <SEOHead
         title="Deck Removal Services in Hampton Roads, VA"
         description="Professional deck removal services in Hampton Roads, VA. Safe dismantling, full cleanup, and fast service for homes and businesses. Get your free quote today."
-        canonicalUrl="https://mrdemopro.com/deck-removal"
+        canonicalUrl="https://mrdemopro.com/services/deck-removal"
         structuredData={[
           {
             '@context': 'https://schema.org',
@@ -118,7 +118,7 @@ const DeckRemoval = () => {
               name: 'MrDemoPro',
               telephone: '757-848-4559'
             },
-            url: 'https://mrdemopro.com/deck-removal'
+            url: 'https://mrdemopro.com/services/deck-removal'
           }
         ]}
       />

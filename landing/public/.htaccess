@@ -1,0 +1,10 @@
+# Apache .htaccess
+# Blog is now served directly on /blog (no redirect)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# Handle React Router - redirect all requests to index.html except for existing files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+</IfModule>
+

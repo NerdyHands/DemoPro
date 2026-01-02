@@ -120,7 +120,7 @@ const JunkRemoval = () => {
       <SEOHead
         title="Junk Removal Services in Hampton Roads, VA"
         description="Fast, affordable junk removal services in Hampton Roads, VA. Same-day service for homes and businesses. Call for a free quote today."
-        canonicalUrl="https://mrdemopro.com/junk-removal"
+        canonicalUrl="https://mrdemopro.com/services/junk-removal"
         structuredData={[
           {
             '@context': 'https://schema.org',
@@ -138,7 +138,7 @@ const JunkRemoval = () => {
               name: 'Mr Demo Pro',
               telephone: '757-848-4559'
             },
-            url: 'https://mrdemopro.com/junk-removal'
+            url: 'https://mrdemopro.com/services/junk-removal'
           }
         ]}
       />

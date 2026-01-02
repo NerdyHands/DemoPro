@@ -457,7 +457,7 @@ const Home = () => {
                   </p>
                   <div className="html_button">
                     <Link
-                      to="/shed-removal/"
+                      to="/services/shed-removal/"
                       aria-label="Get a shed removal quote in Hampton Roads"
                       onClick={() =>
                         window.scrollTo({top: 0, behavior: 'smooth'})
@@ -507,7 +507,7 @@ const Home = () => {
                   </p>
                   <div className="html_button">
                     <Link
-                      to="/deck-removal/"
+                      to="/services/deck-removal/"
                       aria-label="Get a deck removal quote in Hampton Roads"
                       onClick={() =>
                         window.scrollTo({top: 0, behavior: 'smooth'})
@@ -556,7 +556,7 @@ const Home = () => {
                   </p>
                   <div className="html_button">
                     <Link
-                      to="/fence-removal/"
+                      to="/services/fence-removal/"
                       aria-label="Get a fence removal quote in Hampton Roads"
                       onClick={() =>
                         window.scrollTo({top: 0, behavior: 'smooth'})
@@ -607,7 +607,7 @@ const Home = () => {
                   </p>
                   <div className="html_button">
                     <Link
-                      to="/interior-demo/"
+                      to="/services/interior-demo/"
                       aria-label="Get an interior demolition quote in Hampton Roads"
                       onClick={() =>
                         window.scrollTo({top: 0, behavior: 'smooth'})
@@ -657,7 +657,7 @@ const Home = () => {
                   </p>
                   <div className="html_button">
                     <Link
-                      to="/junk-removal/"
+                      to="/services/junk-removal/"
                       aria-label="Get a junk removal quote in Hampton Roads"
                       onClick={() =>
                         window.scrollTo({top: 0, behavior: 'smooth'})
@@ -706,7 +706,7 @@ const Home = () => {
                   </p>
                   <div className="html_button">
                     <Link
-                      to="/cleanout/"
+                      to="/services/cleanout/"
                       aria-label="Get a property cleanout quote in Hampton Roads"
                       onClick={() =>
                         window.scrollTo({top: 0, behavior: 'smooth'})

@@ -1,5 +1,5 @@
 import {useState, useEffect, useRef} from 'react';
-import {Navbar, Nav, Container} from 'react-bootstrap';
+import {Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
 import {Link, useLocation} from 'react-router-dom';
 
 const Header = () => {
@@ -127,10 +127,127 @@ const Header = () => {
               <div className="ms-auto">
                 <nav aria-label="Primary navigation">
                   <Nav className="text-center" style={{gap: '0.5rem'}}>
+                    <Nav.Link
+                      as={Link}
+                      to="/"
+                      onClick={handleNavClick}
+                      aria-current={
+                        location.pathname === '/' ? 'page' : undefined
+                      }
+                      style={{
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        color: '#1a202c',
+                        padding: '0.75rem 1rem',
+                        borderRadius: '0.5rem',
+                        textDecoration: 'none',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = 'rgb(236, 65, 0)';
+                        e.currentTarget.style.backgroundColor =
+                          'rgba(236, 65, 0, 0.1)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = '#1a202c';
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      Home
+                    </Nav.Link>
+
+                    <NavDropdown
+                      title="Services"
+                      id="services-dropdown"
+                      style={{
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        color: '#1a202c'
+                      }}
+                    >
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        All Services
+                      </NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/shed-removal/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Shed Removal
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/deck-removal/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Deck Removal
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/fence-removal/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Fence Removal
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/interior-demo/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Interior Demolition
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/junk-removal/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Junk Removal
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/cleanout/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Cleanout Services
+                      </NavDropdown.Item>
+                    </NavDropdown>
+
                     {[
-                      {name: 'Home', path: '/'},
-                      {name: 'Services', path: '/services/'},
                       {name: 'Prices', path: '/prices/'},
+                      {name: 'Blog', path: '/blog/'},
                       {name: 'Contact Us', path: '/contact/'},
                       {name: 'FAQs', path: '/faqs/'}
                     ].map(item => (

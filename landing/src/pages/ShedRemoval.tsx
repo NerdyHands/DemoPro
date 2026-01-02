@@ -151,7 +151,7 @@ const ShedRemoval = () => {
         <SEOHead
           title="Shed Removal Services in Hampton Roads, VA"
           description="Professional shed removal services in Hampton Roads, VA. Fast, safe, and complete shed demolition and cleanup. Get your free quote today."
-          canonicalUrl="https://mrdemopro.com/shed-removal"
+          canonicalUrl="https://mrdemopro.com/services/shed-removal"
           structuredData={[
             {
               '@context': 'https://schema.org',
@@ -170,7 +170,7 @@ const ShedRemoval = () => {
                 'Newport News, VA',
                 'Yorktown, VA'
               ],
-              url: 'https://mrdemopro.com/shed-removal'
+              url: 'https://mrdemopro.com/services/shed-removal'
             }
           ]}
         />

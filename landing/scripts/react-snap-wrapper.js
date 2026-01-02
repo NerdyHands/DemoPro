@@ -11,6 +11,9 @@ const TIMEOUT = 120000; // 2 minutes timeout
 
 console.log('🚀 Starting react-snap...');
 console.log('Note: If this fails, the build will continue without prerendering.');
+console.log('ℹ️  Note: "Failed to load resource" errors are expected during prerendering');
+console.log('   (external resources like GTM cannot load during static generation)');
+console.log('   These errors do not affect the build or production site.\n');
 
 const reactSnap = spawn('npx', ['react-snap'], {
   stdio: 'inherit',

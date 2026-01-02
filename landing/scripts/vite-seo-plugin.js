@@ -10,8 +10,8 @@ export function seoPlugin() {
   return {
     name: 'seo-plugin',
     generateBundle(options, bundle) {
-      // Ensure sitemap.xml and robots.txt are in the bundle
-      const seoFiles = ['sitemap.xml', 'robots.txt'];
+      // Ensure sitemap.xml, robots.txt, and redirect files are in the bundle
+      const seoFiles = ['sitemap.xml', 'robots.txt', '_redirects', '.htaccess'];
       
       seoFiles.forEach(fileName => {
         const publicPath = path.join(process.cwd(), 'public', fileName);
@@ -39,7 +39,7 @@ export function seoPlugin() {
     writeBundle(options, bundle) {
       console.log('🔍 Verifying SEO files in dist directory...');
       
-      const seoFiles = ['sitemap.xml', 'robots.txt'];
+      const seoFiles = ['sitemap.xml', 'robots.txt', '_redirects', '.htaccess'];
       let allPresent = true;
       
       seoFiles.forEach(fileName => {

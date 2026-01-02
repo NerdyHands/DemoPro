@@ -2,7 +2,8 @@
 
 /**
  * Sitemap Generator for Mr Demo Pro
- * This script generates an updated sitemap.xml file based on the current routes from App.tsx
+ * This script preserves manual sitemap structure and only updates dates.
+ * Falls back to auto-generation if no manual sitemap exists.
  */
 
 import fs from 'fs';
@@ -19,9 +20,34 @@ const OUTPUT_FILE = path.join(__dirname, '../public/sitemap.xml');
 const DIST_OUTPUT_FILE = path.join(__dirname, '../dist/sitemap.xml');
 
 /**
- * Generate XML sitemap content
+ * Get today's date in YYYY-MM-DD format
  */
-function generateSitemap() {
+function getTodayDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Update dates in existing sitemap while preserving structure
+ */
+function updateSitemapDates(sitemapContent) {
+  const today = getTodayDate();
+  // Replace all lastmod dates with today's date
+  // Matches: <lastmod>YYYY-MM-DD</lastmod>
+  const updatedContent = sitemapContent.replace(
+    /<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g,
+    `<lastmod>${today}</lastmod>`
+  );
+  return updatedContent;
+}
+
+/**
+ * Generate XML sitemap content (auto-generation fallback)
+ */
+function generateSitemapAuto() {
   // Get routes from App.tsx automatically (fresh each time)
   const routes = getRoutesWithMetadata();
   
@@ -44,6 +70,32 @@ function generateSitemap() {
 }
 
 /**
+ * Generate or update sitemap
+ * Preserves manual sitemap structure and only updates dates
+ */
+function generateSitemap() {
+  // Check if manual sitemap exists
+  if (fs.existsSync(OUTPUT_FILE)) {
+    try {
+      const existingContent = fs.readFileSync(OUTPUT_FILE, 'utf8');
+      // Verify it's a valid sitemap
+      if (existingContent.includes('<?xml') && existingContent.includes('<urlset')) {
+        console.log('📝 Found manual sitemap, updating dates only...');
+        const updatedContent = updateSitemapDates(existingContent);
+        return updatedContent;
+      }
+    } catch (error) {
+      console.warn(`⚠️  Error reading manual sitemap: ${error.message}`);
+      console.log('🔄 Falling back to auto-generation...');
+    }
+  }
+  
+  // Fall back to auto-generation if no manual sitemap exists
+  console.log('🔄 No manual sitemap found, generating from routes...');
+  return generateSitemapAuto();
+}
+
+/**
  * Write sitemap to file
  */
 function writeSitemap(content, filePath) {
@@ -59,9 +111,8 @@ function writeSitemap(content, filePath) {
  * Main function
  */
 function main() {
-  console.log('🚀 Generating sitemap for Mr Demo Pro...');
+  console.log('🚀 Processing sitemap for Mr Demo Pro...');
   
-  const routes = getRoutesWithMetadata();
   const sitemapContent = generateSitemap();
   
   // Write to public directory (for development)
@@ -70,8 +121,11 @@ function main() {
   // Write to dist directory (for production)
   writeSitemap(sitemapContent, DIST_OUTPUT_FILE);
   
-  console.log('✅ Sitemap generation completed!');
-  console.log(`📊 Generated ${routes.length} URLs`);
+  // Count URLs in the sitemap
+  const urlCount = (sitemapContent.match(/<url>/g) || []).length;
+  
+  console.log('✅ Sitemap processing completed!');
+  console.log(`📊 Processed ${urlCount} URLs`);
 }
 
 // Run the script
