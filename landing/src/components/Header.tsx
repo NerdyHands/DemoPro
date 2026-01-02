@@ -247,7 +247,6 @@ const Header = () => {
 
                     {[
                       {name: 'Prices', path: '/prices/'},
-                      {name: 'Blog', path: '/blog/'},
                       {name: 'Contact Us', path: '/contact/'},
                       {name: 'FAQs', path: '/faqs/'}
                     ].map(item => (
@@ -281,6 +280,31 @@ const Header = () => {
                         {item.name}
                       </Nav.Link>
                     ))}
+                    <Nav.Link
+                      as={Link}
+                      to="/blog/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        color: '#1a202c',
+                        padding: '0.75rem 1rem',
+                        borderRadius: '0.5rem',
+                        textDecoration: 'none',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = 'rgb(236, 65, 0)';
+                        e.currentTarget.style.backgroundColor =
+                          'rgba(236, 65, 0, 0.1)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = '#1a202c';
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      Blog
+                    </Nav.Link>
                   </Nav>
                 </nav>
               </div>

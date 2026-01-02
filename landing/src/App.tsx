@@ -17,7 +17,6 @@ import Cleanout from './pages/Cleanout';
 import JunkRemoval from './pages/JunkRemoval';
 import FAQs from './pages/FAQs';
 import ThankYou from './pages/ThankYou';
-import Blog from './pages/Blog';
 import seoConfig from './config/seoConfig';
 import './App.css';
 
@@ -307,18 +306,6 @@ function App() {
                     </h1>
                   </div>
                 </>
-              }
-            />
-            <Route
-              path="/blog"
-              element={
-                <Blog />
-              }
-            />
-            <Route
-              path="/blog/*"
-              element={
-                <Blog />
               }
             />
             <Route
