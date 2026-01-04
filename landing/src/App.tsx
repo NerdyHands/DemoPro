@@ -17,6 +17,9 @@ import Cleanout from './pages/Cleanout';
 import JunkRemoval from './pages/JunkRemoval';
 import FAQs from './pages/FAQs';
 import ThankYou from './pages/ThankYou';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import BlogTag from './pages/BlogTag';
 import seoConfig from './config/seoConfig';
 import './App.css';
 
@@ -276,6 +279,33 @@ function App() {
                 </>
               }
             />
+            <Route
+              path="/blog"
+              element={
+                <>
+                  <SEO
+                    title="Blog | Mr Demo Pro"
+                    description="Guides, tips, and updates from Mr Demo Pro."
+                    canonicalUrl="https://mrdemopro.com/blog"
+                  />
+                  <Blog />
+                </>
+              }
+            />
+            <Route
+              path="/blog/tag/:tag"
+              element={
+                <>
+                  <SEO
+                    title="Blog Tag | Mr Demo Pro"
+                    description="Browse posts by tag."
+                    canonicalUrl="https://mrdemopro.com/blog"
+                  />
+                  <BlogTag />
+                </>
+              }
+            />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route
               path="/terms"
               element={

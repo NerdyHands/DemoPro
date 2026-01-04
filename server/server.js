@@ -8,6 +8,9 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config();
 
+const { validateEnv } = require('./src/config/validateEnv');
+const cron = require('node-cron');
+const { syncNotionPosts } = require('./src/notion/notionService');
 const projectRoutes = require('./routes/projects');
 const userRoutes = require('./routes/users');
 const authRoutes = require('./routes/auth');
@@ -28,7 +31,9 @@ const technicianRoutes = require('./routes/technicians');
 const jobProgressRoutes = require('./routes/jobProgress');
 const milestoneRoutes = require('./routes/milestones');
 const chatGptRoutes = require('./routes/chatgpt');
-const blogRoutes = require('./routes/blog');
+const blogRoutes = require('./src/routes/blogRoutes');
+const blogAnalyticsRoutes = require('./src/routes/blogAnalyticsRoutes');
+const seoRoutes = require('./src/routes/seoRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 const mlsRoutes = require('./routes/mls');
 
@@ -38,6 +43,8 @@ const storageManager = new StorageManager();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+validateEnv({ requireMongo: true });
 
 // Trust proxy for accurate IP detection behind load balancers/proxies
 const resolveTrustProxySetting = () => {
@@ -93,10 +100,19 @@ app.use('/api/', limiter);
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',')
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
   : process.env.NODE_ENV === 'production' 
-    ? ['https://mr-demo-pro-server-187337178119.us-east4.run.app', 'https://mrdemopro.com', 'https://app.mrdemopro.com']
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+    ? ['https://mrdemopro.com', 'https://www.mrdemopro.com']
+    : [
+        'http://localhost:3000', 
+        'http://localhost:3001', 
+        'http://localhost:5173', // Vite default port
+        'http://localhost:5174', // Vite alternative port
+        'http://127.0.0.1:3000', 
+        'http://127.0.0.1:3001',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:5174'
+      ];
 
 console.log('🔧 CORS Configuration:');
 console.log('📋 Allowed origins:', allowedOrigins);
@@ -248,6 +264,67 @@ mongoose.connect(MONGODB_URI, {
 .then(() => {
   console.log('✅ Connected to MongoDB successfully');
   console.log(`📊 Connected to: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`);
+  
+  // Set up Notion blog sync cron job (every 15 minutes)
+  // Can be disabled by setting ENABLE_NOTION_SYNC_CRON=false
+  if (process.env.ENABLE_NOTION_SYNC_CRON !== 'false') {
+    console.log('📅 [CRON] Setting up Notion blog sync cron job (every 15 minutes)...');
+    
+    let isRunning = false; // Prevent overlapping syncs
+    
+    cron.schedule('*/15 * * * *', async () => {
+      // Skip if previous sync is still running
+      if (isRunning) {
+        console.log('⏭️  [CRON] Previous Notion sync still running, skipping this run...');
+        return;
+      }
+      
+      isRunning = true;
+      const startTime = Date.now();
+      
+      try {
+        console.log('🔄 [CRON] Starting scheduled Notion blog sync...');
+        console.log(`   Time: ${new Date().toISOString()}`);
+        
+        const env = validateEnv({ requireNotion: false, requireMongo: false, exitOnError: false });
+        
+        if (!env.notionApiKey || !env.notionDatabaseId) {
+          console.log('⚠️  [CRON] Notion credentials not configured, skipping sync');
+          return;
+        }
+        
+                const metrics = await syncNotionPosts({
+                  notionApiKey: env.notionApiKey,
+                  databaseId: env.notionDatabaseId,
+                  tagsDatabaseId: env.notionTagsDatabaseId,
+                  authorsDatabaseId: env.notionAuthorsDatabaseId
+                });
+        
+        const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+        console.log('✅ [CRON] Scheduled Notion sync completed:', {
+          ...metrics,
+          duration: `${duration}s`,
+          nextRun: 'in 15 minutes'
+        });
+      } catch (error) {
+        const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+        console.error(`❌ [CRON] Scheduled Notion sync failed after ${duration}s:`, error.message);
+        if (error.stack) {
+          console.error('   Stack:', error.stack.split('\n').slice(0, 3).join('\n   '));
+        }
+      } finally {
+        isRunning = false;
+      }
+    }, {
+      scheduled: true,
+      timezone: 'America/New_York' // Adjust timezone as needed
+    });
+    
+    console.log('✅ [CRON] Notion blog sync cron job scheduled (runs every 15 minutes)');
+    console.log('   To disable: Set ENABLE_NOTION_SYNC_CRON=false in environment variables');
+  } else {
+    console.log('ℹ️  [CRON] Notion sync cron job disabled (ENABLE_NOTION_SYNC_CRON=false)');
+  }
 })
 .catch((error) => {
   console.error('❌ MongoDB connection error:', error);
@@ -393,8 +470,10 @@ app.use('/api/job-progress', jobProgressRoutes);
 app.use('/api/milestones', milestoneRoutes);
 app.use('/api/chatgpt', chatGptRoutes);
 app.use('/api/blog', blogRoutes);
+app.use('/api/blog/events', blogAnalyticsRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/mls', mlsRoutes);
+app.use('/', seoRoutes);
 
 // Serve landing app static files (supports both local and Docker paths)
 const possibleStaticDirs = [

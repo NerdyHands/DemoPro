@@ -256,6 +256,56 @@ npm run dev
 gcloud logs read --service=mr-demo-pro-server --limit=50
 ```
 
+## Notion Blog Sync
+
+- Environment: `NOTION_API_KEY`, `NOTION_POSTS_DB_ID`, `MONGODB_URI`
+- Schema: `posts` collection with slug, published/publishedAt, SEO fields, featured flag, tags, contentHtml/contentJson, lastNotionEditedTime, syncedAt (see `src/models/Post.js`)
+- Worker: `node scripts/syncNotionPosts.js` (uses official Notion SDK, paginated fetch, block HTML renderer, idempotent upsert by `notionPageId`)
+- Metrics: scanned/updated/skipped/failed logged on each run; skips unchanged pages by comparing `last_edited_time`
+- Rendering: supports paragraph, heading 1/2/3, lists, to-do, quote, code (HTML-escaped), divider, callout, image, bookmark, toggle
+- API (DB only, no Notion calls):
+  - `GET /api/blog` (published list, sorted featured desc then publishedAt desc, optional `?tag=`, includes `readingTime`)
+  - `GET /api/blog/:slug` (contentHtml/Json, SEO fields, `readingTime`, JSON-LD object in `structuredData`, 404 if missing)
+  - `GET /api/blog/:slug/related` (by tag overlap, excludes self)
+  - `POST /api/blog/events` (analytics hook; event types: page_view, scroll_depth, outbound_click)
+- SEO surfaces: `/sitemap.xml` and `/robots.txt` generated from published posts; set `SITE_URL` for canonical host
+- Caching: blog APIs set `Cache-Control: public, max-age=300, stale-while-revalidate=600`
+
+## 15-Minute Sync Strategy
+
+- Cron: `*/15 * * * * node /app/scripts/syncNotionPosts.js`
+- PM2: `pm2 start scripts/syncNotionPosts.js --name notion-sync --cron "*/15 * * * *"`
+- GitHub Actions (self-hosted or with secrets configured):
+  ```yaml
+  on:
+    schedule:
+      - cron: "*/15 * * * *"
+  jobs:
+    sync:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with: { node-version: 18 }
+        - run: npm ci
+          working-directory: server
+        - run: node scripts/syncNotionPosts.js
+          working-directory: server
+          env:
+            NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+            NOTION_POSTS_DB_ID: ${{ secrets.NOTION_POSTS_DB_ID }}
+            MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  ```
+- Safe to rerun; upserts by `notionPageId` and only updates when Notion `last_edited_time` is newer.
+
+## Frontend SEO & Performance Checklist
+
+- SEO: SSR/SSG for `/blog/{slug}`, unique `<title>`/`<meta description>`, Open Graph/Twitter tags, canonical URLs, clean URLs, sitemap at `/sitemap.xml`, `robots.txt`, JSON-LD `BlogPosting`
+- Performance: pre-render blog pages, lazy-load images, prefer webp/avif, code-split blog routes, cache HTTP/CDN, target Core Web Vitals (LCP < 2.5s, CLS < 0.1, INP < 200ms)
+- UX/Content: strong typography, styled headings/lists/callouts/code (with syntax highlighting), table of contents from headings, reading time (available via API), related posts by tag (API provided), featured posts, tag archive pages, graceful empty states
+- Accessibility: semantic `article/nav/aside`, contrast-safe palette, keyboard navigation, alt text for images with fallbacks, minimal/appropriate ARIA
+- Analytics & Growth: track page views, scroll depth, outbound clicks (use `/api/blog/events`); hooks for GA/Plausible/PostHog; easy CTA injections (newsletter/lead magnet); social share buttons (X, LinkedIn, Facebook)
+
 ## Contributing
 
 1. Fork the repository

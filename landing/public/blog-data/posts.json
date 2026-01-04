@@ -1,0 +1,103 @@
+{
+  "posts": [
+    {
+      "title": "How to blog: A mini guide",
+      "slug": "how-to-blog",
+      "excerpt": "Blogging is one of the most popular ways to increase traffic on a website. Many people think blogging is just for personal brands and trending topics, but it's much more than that.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/how-to-blog/img_-281-29.png",
+      "publishedAt": "2023-08-07T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 5
+    },
+    {
+      "title": "Launch your e-commerce store in 2023",
+      "slug": "ecommerce",
+      "excerpt": "E-commerce stores have great advantages over physical stores such as being able to update product information and more. As a business owner, it's important to take advantage of everything you can to increase the number of sales and e-commerce stores are definitely a good way to do so!",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/ecommerce/img_-285-29.png",
+      "publishedAt": "2023-08-07T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 5
+    },
+    {
+      "title": "Is Notion the best CMS?",
+      "slug": "notion-cms",
+      "excerpt": "Notion CMS is a powerful open source content management system that will allow you to update your website from anywhere in the world. Notion CMS is free to use and if you have any issues, you can reach out to their 24/7 support team.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/notion-cms/img_-284-29.png",
+      "publishedAt": "2023-08-06T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 6
+    },
+    {
+      "title": "Why do you need an online portfolio?",
+      "slug": "online-portfolio",
+      "excerpt": "An online portfolio is a page that showcases your work for others to see. It is also a way for you to share what you do with future employers.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/online-portfolio/img_-286-29.png",
+      "publishedAt": "2023-08-04T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 7
+    },
+    {
+      "title": "How to build a successful landing page",
+      "slug": "landing-page",
+      "excerpt": "To convert visitors into customers. The best landing pages are designed to do just that. Of course, there are different kinds of landing pages, each of them appealing to different kinds of visitors.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/landing-page/img_-283-29.png",
+      "publishedAt": "2023-08-01T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 6
+    },
+    {
+      "title": "Content marketing techniques",
+      "slug": "content-marketing",
+      "excerpt": "Content marketing is a marketing approach focused on creating and distributing relevant and valuable content to attract, acquire, and engage a clearly defined and understood target audience — with the objective of driving profitable customer action.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/content-marketing/img_-282-29.png",
+      "publishedAt": "2023-08-01T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 5
+    },
+    {
+      "title": "Benefits of Blogging",
+      "slug": "blogging",
+      "excerpt": "Blogging is a great way to share your knowledge and expertise with the world. However, until now, bloggers have had to use several different services to create, maintain and promote their blogs. Blogging is an increasingly popular medium to generate leads and customers. If a business has a blog, they're more likely to convert their leads into customers. Notion can help you build, maintain and promote your blog.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/blogging/img_-281-29.png",
+      "publishedAt": "2023-07-25T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 4
+    },
+    {
+      "title": "Features of Notion",
+      "slug": "notion-features",
+      "excerpt": "Notion is a new note-taking application for the 21st century. It brings the best of all worlds in terms of simplicity and power.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/notion-features/img_-283-29.png",
+      "publishedAt": "2023-06-08T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 6
+    },
+    {
+      "title": "Blogging metrics",
+      "slug": "blogging-metrics",
+      "excerpt": "The best way to get better at blogging is to do it regularly. This is why many bloggers like to aim for daily or even more frequent posts.",
+      "coverUrl": "https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-images/blogging-metrics/img_-282-29.png",
+      "publishedAt": "2023-06-08T00:00:00.000Z",
+      "tags": [],
+      "authors": [],
+      "featured": false,
+      "readingTime": 4
+    }
+  ]
+}

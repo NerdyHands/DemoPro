@@ -6,6 +6,15 @@ import { seoPlugin } from './scripts/vite-seo-plugin.js'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), seoPlugin()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
   build: {
     // Ensure static assets are copied
     copyPublicDir: true,

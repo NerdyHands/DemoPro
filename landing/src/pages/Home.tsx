@@ -166,13 +166,13 @@ const Home = () => {
                       letterSpacing: '-0.025em'
                     }}
                   >
-                    Mr Demo Pro Professional Demolition Services
+                    Mr Demo Pro <br /> Demolition Contractor
                   </h1>
 
                   <div className="mb-3">
                     <img
                       src="/main-logo.webp"
-                      alt="Mr Demo Pro logo – Professional Demolition Services"
+                      alt="Mr Demo Pro logo – Demolition Contractor"
                       width={240}
                       height={120}
                       loading="eager"
@@ -209,8 +209,8 @@ const Home = () => {
                       fontFamily: 'var(--font-family-primary)'
                     }}
                   >
-                    Professional demolition services in Hampton, Newport News,
-                    Yorktown, and Norfolk, VA
+                    Demolition contractor serving Hampton, Newport News, Suffolk, Norfolk,
+                    Yorktown, Virginia Beach, and Chesapeake
                   </p>
 
                   <div className="mb-3">
@@ -289,23 +289,8 @@ const Home = () => {
                       fontFamily: 'var(--font-family-primary)',
                       lineHeight: '1.4'
                     }}
-                  >
-                    Please text or email me a no-obligation demolition quote.
+                  > Enter your information below and we'll get back to you with a free demolition quote
                   </h3>
-
-                  <p
-                    className="quote-form-subtitle"
-                    style={{
-                      marginBottom: '30px',
-                      fontSize: '1.1rem',
-                      fontWeight: '400',
-                      color: 'var(--color-text-secondary)',
-                      fontFamily: 'var(--font-family-primary)',
-                      lineHeight: '1.4'
-                    }}
-                  >
-                    We service Hampton, Newport News, Yorktown, and Norfolk
-                  </p>
 
                   <form className="quote-form" onSubmit={handleSubmit}>
                     <div className="mb-3">

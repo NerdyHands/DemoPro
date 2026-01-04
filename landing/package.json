@@ -61,7 +61,8 @@
       "/junk-removal",
       "/thank-you",
       "/privacy",
-      "/terms"
+      "/terms",
+      "/blog"
     ],
     "skipThirdPartyRequests": true,
     "cacheAjaxRequests": false,
