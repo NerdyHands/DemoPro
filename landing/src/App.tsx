@@ -1,5 +1,5 @@
 import React from 'react';
-import {Routes, Route, Link} from 'react-router-dom';
+import {Routes, Route, Link, useLocation} from 'react-router-dom';
 import {HelmetProvider} from 'react-helmet-async';
 import {Container} from 'react-bootstrap';
 import Header from './components/Header';
@@ -20,10 +20,21 @@ import ThankYou from './pages/ThankYou';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import BlogTag from './pages/BlogTag';
+import DiyVsProDemolition from './pages/DiyVsProDemolition';
 import seoConfig from './config/seoConfig';
+import {trackPageView} from './config/gtm';
 import './App.css';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/diy-vs-pro-demolition' || location.pathname === '/diy-vs-pro-demolition/';
+
+  // Track SPA route changes (GTM doesn't automatically fire page views on client-side navigation)
+  React.useEffect(() => {
+    // Use full URL so GTM tags can populate page_location / page_path consistently
+    trackPageView(document.title, window.location.href);
+  }, [location.pathname, location.search, location.hash]);
+
   // Global error handler to prevent external script errors from affecting the app
   React.useEffect(() => {
     const handleError = (event: ErrorEvent) => {
@@ -114,11 +125,10 @@ function App() {
   }, []);
 
   return (
-    <HelmetProvider>
-      <div className="App">
-        <Header />
-        <main>
-          <Routes>
+    <div className="App">
+      {!isLandingPage && <Header />}
+      <main>
+        <Routes>
             <Route
               path="/"
               element={
@@ -307,6 +317,14 @@ function App() {
             />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route
+              path="/diy-vs-pro-demolition"
+              element={
+                <>
+                  <DiyVsProDemolition />
+                </>
+              }
+            />
+            <Route
               path="/terms"
               element={
                 <>
@@ -387,8 +405,15 @@ function App() {
             />
           </Routes>
         </main>
-        <Footer />
+        {!isLandingPage && <Footer />}
       </div>
+  );
+}
+
+function App() {
+  return (
+    <HelmetProvider>
+      <AppContent />
     </HelmetProvider>
   );
 }

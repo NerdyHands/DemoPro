@@ -10,6 +10,7 @@
     "build": "echo 'No build step required'",
     "test": "jest",
     "test:connection": "node test.js",
+    "generate:checklist-pdf": "node scripts/test-demolition-checklist-pdf.js",
     "docker": "copy .env.production .env && docker build -t gcr.io/cosmic-answer-439316-f1/mr-demo-pro-server:latest .",
     "docker:build": "docker build -t gcr.io/cosmic-answer-439316-f1/mr-demo-pro-server:latest .",
     "docker:push": "docker push gcr.io/cosmic-answer-439316-f1/mr-demo-pro-server:latest",

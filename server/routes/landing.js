@@ -3,6 +3,8 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const LandingPage = require('../models/LandingPage');
 const path = require('path');
+const fs = require('fs');
+const DemolitionPrepChecklistPdfService = require('../services/demolitionPrepChecklistPdfService');
 
 // Serve landing page
 router.get('/', (req, res) => {
@@ -389,6 +391,29 @@ router.get('/export', async (req, res) => {
   }
 });
 
+// GET /api/landing/demolition-prep-checklist - Generate and download demolition prep checklist PDF
+router.get('/demolition-prep-checklist', async (req, res) => {
+  try {
+    console.log('📄 Generating Demolition Prep Checklist PDF');
+
+    const pdfService = new DemolitionPrepChecklistPdfService();
+    const pdfResult = await pdfService.generateDemolitionPrepChecklistPdf();
+
+    res.download(pdfResult.filePath, pdfResult.fileName, (err) => {
+      if (err) {
+        console.error('❌ Error sending demolition prep checklist PDF:', err);
+        return res.status(500).json({ success: false, error: 'Failed to send PDF file' });
+      }
+      // Clean up file after download
+      fs.unlink(pdfResult.filePath, () => {});
+    });
+
+  } catch (error) {
+    console.error('❌ Error generating demolition prep checklist PDF:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Health check for landing page
 router.get('/health', (req, res) => {
   res.json({
@@ -400,7 +425,8 @@ router.get('/health', (req, res) => {
       unsubscribe: 'POST /unsubscribe',
       resubscribe: 'POST /resubscribe',
       stats: 'GET /stats',
-      signups: 'GET /signups'
+      signups: 'GET /signups',
+      demolitionPrepChecklist: 'GET /demolition-prep-checklist'
     }
   });
 });

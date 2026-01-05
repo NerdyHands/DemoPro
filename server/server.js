@@ -476,9 +476,12 @@ app.use('/api/mls', mlsRoutes);
 app.use('/', seoRoutes);
 
 // Serve landing app static files (supports both local and Docker paths)
+// Note: Vite builds to 'dist', not 'build'
 const possibleStaticDirs = [
-  path.join(__dirname, '../landing/build'),
-  path.join(process.cwd(), 'landing/build'),
+  path.join(__dirname, '../landing/dist'),
+  path.join(__dirname, '../landing/build'), // Legacy support
+  path.join(process.cwd(), 'landing/dist'),
+  path.join(process.cwd(), 'landing/build'), // Legacy support
   path.join(process.cwd(), 'landing-build')
 ];
 

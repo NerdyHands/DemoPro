@@ -14,10 +14,12 @@
     "web-vitals": "^5.0.3"
   },
   "scripts": {
-    "start": "copy .env.development .env && node start-client.js",
-    "dev": "copy .env.development .env && node start-client.js",
-    "build": "copy .env.production .env && react-scripts build",
-    "build:dev": "copy .env.development .env && react-scripts build",
+    "copy-env": "node scripts/copy-env.js",
+    "start": "npm run copy-env .env.development .env && node start-client.js",
+    "dev": "npm run copy-env .env.development .env && node start-client.js",
+    "build": "npm run copy-env .env.production .env && react-scripts build",
+    "build:dev": "npm run copy-env .env.development .env && react-scripts build",
+    "build:ci": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src/**/*.{js,jsx}",

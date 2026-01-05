@@ -196,7 +196,7 @@ const Home = () => {
                       letterSpacing: '-0.01em'
                     }}
                   >
-                    Your Demolition Experts in Hampton Roads!
+                    Fast, Safe Demolition in Hampton Roads
                   </h2>
 
                   <p
@@ -209,8 +209,7 @@ const Home = () => {
                       fontFamily: 'var(--font-family-primary)'
                     }}
                   >
-                    Demolition contractor serving Hampton, Newport News, Suffolk, Norfolk,
-                    Yorktown, Virginia Beach, and Chesapeake
+                    We remove old structures quickly with no stress so you can get your project done right.
                   </p>
 
                   <div className="mb-3">
@@ -356,7 +355,7 @@ const Home = () => {
                         textTransform: 'none'
                       }}
                     >
-                      {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
+                      {isSubmitting ? 'Submitting...' : 'Get a Free Quote Today'}
                     </Button>
                   </form>
                 </motion.div>
@@ -718,6 +717,190 @@ const Home = () => {
           </Container>
         </section>
       </main>
+
+      {/* Simple Plan Section */}
+      <section
+        id="plan"
+        style={{
+          padding: '80px 0',
+          backgroundColor: 'var(--color-surface)'
+        }}
+      >
+        <Container>
+          <Row>
+            <Col xs={12}>
+              <motion.h2
+                className="title-small text-center fw-bold"
+                initial={{opacity: 0}}
+                whileInView={{opacity: 1}}
+                transition={{duration: 0.6}}
+                style={{
+                  color: 'var(--color-primary)',
+                  marginBottom: '60px',
+                  fontSize: 'var(--font-size-4xl)'
+                }}
+              >
+                Simple 3-Step Process
+              </motion.h2>
+            </Col>
+          </Row>
+          <Row className="justify-content-center">
+            {/* Step 1 */}
+            <Col lg={4} md={4} sm={12} className="mb-4 mb-lg-0">
+              <motion.div
+                className="text-center"
+                initial={{opacity: 0, y: 30}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.2, duration: 0.6}}
+              >
+                <div
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    margin: '0 auto 20px',
+                    boxShadow: '0 4px 12px rgba(242, 124, 80, 0.3)'
+                  }}
+                >
+                  1
+                </div>
+                <h3
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '600',
+                    marginBottom: '15px',
+                    color: 'var(--color-text-primary)',
+                    fontFamily: 'var(--font-family-secondary)'
+                  }}
+                >
+                  Request a Quote
+                </h3>
+                <p
+                  style={{
+                    fontSize: '1rem',
+                    lineHeight: '1.6',
+                    color: 'var(--color-text-secondary)',
+                    fontFamily: 'var(--font-family-primary)'
+                  }}
+                >
+                  Fill out our simple form or call us for a free, no-obligation
+                  demolition quote.
+                </p>
+              </motion.div>
+            </Col>
+
+            {/* Step 2 */}
+            <Col lg={4} md={4} sm={12} className="mb-4 mb-lg-0">
+              <motion.div
+                className="text-center"
+                initial={{opacity: 0, y: 30}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.4, duration: 0.6}}
+              >
+                <div
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    margin: '0 auto 20px',
+                    boxShadow: '0 4px 12px rgba(242, 124, 80, 0.3)'
+                  }}
+                >
+                  2
+                </div>
+                <h3
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '600',
+                    marginBottom: '15px',
+                    color: 'var(--color-text-primary)',
+                    fontFamily: 'var(--font-family-secondary)'
+                  }}
+                >
+                  Schedule Demo Service
+                </h3>
+                <p
+                  style={{
+                    fontSize: '1rem',
+                    lineHeight: '1.6',
+                    color: 'var(--color-text-secondary)',
+                    fontFamily: 'var(--font-family-primary)'
+                  }}
+                >
+                  We'll work with you to schedule a convenient time for your
+                  demolition project.
+                </p>
+              </motion.div>
+            </Col>
+
+            {/* Step 3 */}
+            <Col lg={4} md={4} sm={12}>
+              <motion.div
+                className="text-center"
+                initial={{opacity: 0, y: 30}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.6, duration: 0.6}}
+              >
+                <div
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    margin: '0 auto 20px',
+                    boxShadow: '0 4px 12px rgba(242, 124, 80, 0.3)'
+                  }}
+                >
+                  3
+                </div>
+                <h3
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '600',
+                    marginBottom: '15px',
+                    color: 'var(--color-text-primary)',
+                    fontFamily: 'var(--font-family-secondary)'
+                  }}
+                >
+                  We Complete the Job
+                </h3>
+                <p
+                  style={{
+                    fontSize: '1rem',
+                    lineHeight: '1.6',
+                    color: 'var(--color-text-secondary)',
+                    fontFamily: 'var(--font-family-primary)'
+                  }}
+                >
+                  Our professional team handles everything safely and efficiently,
+                  leaving your property clean and ready.
+                </p>
+              </motion.div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
       {/* Why Mr Demo Pro Section - Improved Proportions */}
       <section
         id="features"

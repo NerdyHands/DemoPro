@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const { syncBlogDataDirect } = require('../services/blogSyncService');
 const { convertContentForWeb } = require('../utils/contentFormatter');
 
 // Blog Article Schema
@@ -257,38 +256,6 @@ router.delete('/articles/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting article:', error);
     res.status(500).json({ error: 'Failed to delete article' });
-  }
-});
-
-// Sync blog data from Google Sheets
-router.post('/sync', async (req, res) => {
-  try {
-    console.log('🔄 Manual blog sync triggered via API');
-    
-    const syncResult = await syncBlogDataDirect();
-    
-    if (syncResult.success) {
-      res.json({
-        success: true,
-        message: syncResult.message,
-        articlesCount: syncResult.articlesCount,
-        syncStats: syncResult.syncStats,
-        timestamp: new Date().toISOString()
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: syncResult.message,
-        timestamp: new Date().toISOString()
-      });
-    }
-  } catch (error) {
-    console.error('❌ Blog sync API error:', error);
-    res.status(500).json({
-      success: false,
-      message: `Sync failed: ${error.message || 'Unknown error'}`,
-      timestamp: new Date().toISOString()
-    });
   }
 });
 

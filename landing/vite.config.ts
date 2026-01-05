@@ -34,6 +34,9 @@ export default defineConfig({
           }
           return 'assets/[name]-[hash][extname]';
         },
+        // Explicitly define chunk file names to ensure consistency
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
         // Manual chunking to reduce bundle size
         manualChunks: {
           vendor: ['react', 'react-dom'],

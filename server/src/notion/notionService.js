@@ -349,6 +349,37 @@ async function syncNotionPosts({ notionApiKey, databaseId, tagsDatabaseId, autho
 
   console.log(`🔄 [NOTION] Processing ${pages.length} pages...`);
 
+  // Create a set of Notion page IDs that exist in Notion
+  const notionPageIds = new Set(pages.map(page => page.id));
+
+  // Get all existing posts from database to find orphans
+  console.log('🔍 [NOTION] Checking for posts that need to be deleted...');
+  const existingPosts = await getAllPostsByNotionPageIds();
+  const existingPageIds = new Set(existingPosts.map(post => post.notionPageId).filter(Boolean));
+  
+  // Find posts that exist in DB but not in Notion (orphaned posts)
+  const orphanedPageIds = Array.from(existingPageIds).filter(id => !notionPageIds.has(id));
+  
+  // Delete orphaned posts
+  if (orphanedPageIds.length > 0) {
+    console.log(`🗑️  [NOTION] Found ${orphanedPageIds.length} orphaned post(s) to delete...`);
+    for (const notionPageId of orphanedPageIds) {
+      try {
+        const post = existingPosts.find(p => p.notionPageId === notionPageId);
+        const postTitle = post?.title || notionPageId.substring(0, 8);
+        await deletePostByNotionPageId(notionPageId);
+        metrics.deleted += 1;
+        console.log(`  🗑️  Deleted: "${postTitle}" (notionPageId: ${notionPageId.substring(0, 8)}...)`);
+      } catch (error) {
+        console.error(`❌ [NOTION] Failed to delete orphaned post "${notionPageId}":`, error.message);
+        metrics.failed += 1;
+      }
+    }
+  } else {
+    console.log('✅ [NOTION] No orphaned posts found - all database posts exist in Notion');
+  }
+
+  // Process pages from Notion (create/update)
   for (const page of pages) {
     metrics.scanned += 1;
     const title = page.properties?.['Post Title']?.title?.[0]?.plain_text || page.id.substring(0, 8);

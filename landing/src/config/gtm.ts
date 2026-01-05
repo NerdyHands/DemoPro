@@ -22,12 +22,14 @@ const CALL_CONVERSION_CONFIG = {
 
 // GTM Data Layer Events
 export const trackEvent = (eventName: string, eventData?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && window.dataLayer) {
-    window.dataLayer.push({
-      event: eventName,
-      ...eventData
-    });
-  }
+  if (typeof window === 'undefined') return;
+
+  // Ensure dataLayer exists even if GTM is blocked/delayed
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: eventName,
+    ...eventData
+  });
 };
 
 // Track form submissions

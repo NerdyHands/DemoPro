@@ -247,7 +247,6 @@ const Header = () => {
 
                     {[
                       {name: 'Prices', path: '/prices/'},
-                      {name: 'Contact Us', path: '/contact/'},
                       {name: 'FAQs', path: '/faqs/'}
                     ].map(item => (
                       <Nav.Link

@@ -1,0 +1,65 @@
+name: Landing CI
+
+on:
+  pull_request:
+    paths:
+      - 'landing/**'
+      - '.github/workflows/landing-ci.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'landing/**'
+      - '.github/workflows/landing-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./landing
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: landing/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint
+        continue-on-error: true
+      
+      - name: Type check
+        run: npx tsc --noEmit
+        continue-on-error: true
+      
+      - name: Build
+        run: npm run build:no-seo
+        env:
+          NODE_ENV: production
+          # Add required VITE_ environment variables here or use GitHub Secrets
+          VITE_S3_BLOG_DATA_BASE: ${{ secrets.VITE_S3_BLOG_DATA_BASE || 'https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-data' }}
+          VITE_USE_STATIC_BLOG_DATA: 'true'
+          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL || 'https://mrdemopro.com' }}
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.node-version == '20.x'
+        with:
+          name: landing-build
+          path: landing/dist
+          retention-days: 7
