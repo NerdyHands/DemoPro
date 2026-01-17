@@ -1,9 +1,9 @@
 // SEO configurations for different pages
 export const seoConfig = {
   home: {
-    title: "Demolition Services Hampton Roads | Mr Demo Pro – Free Estimates",
-    description: "Mr Demo Pro offers professional demolition services in Hampton Roads – shed, deck, and fence removal. Call 757-848-4559 for a free estimate today!",
-    keywords: "demolition services, demolition contractor, professional demolition, interior demo, shed removal, cleanout, deck removal, cleanout and junk removal, fence removal, Hampton Roads, Yorktown, Newport News, Hampton, free estimates, 757-848-4559",
+    title: "Demolition Company in Hampton Roads | Mr Demo Pro – Free Estimates",
+    description: "Mr Demo Pro is a professional demolition company in Hampton Roads offering demolition services, shed removal, deck removal, and more. Call 757-848-4559 for a free estimate.",
+    keywords: "demolition company, demolition companies, demolition services, demolition contractor, professional demolition, interior demo, shed removal, cleanout, deck removal, cleanout and junk removal, fence removal, Hampton Roads, Yorktown, Newport News, Hampton, free estimates, 757-848-4559",
     canonicalUrl: "https://mrdemopro.com",
     structuredData: {
       "@context": "https://schema.org",
@@ -104,6 +104,133 @@ export const seoConfig = {
           }
         ]
       }
+    }
+  },
+
+  buildingDemolition: {
+    title: "Building Demolition Services in Hampton Roads | Mr Demo Pro",
+    description: "Professional building demolition services for residential and commercial structures in Hampton Roads, VA. Safe teardown, debris removal, and site cleanup. Call 757-848-4559.",
+    keywords: "building demolition, demolition company, demolition contractor, building removal, structural demolition, Hampton Roads demolition",
+    canonicalUrl: "https://mrdemopro.com/building-demolition/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Building Demolition",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA",
+      "description": "Building demolition services for residential and commercial structures"
+    }
+  },
+
+  demolitionServices: {
+    title: "Demolition Services in Hampton Roads | Mr Demo Pro",
+    description: "Full-service demolition services in Hampton Roads, VA including building, concrete, residential, and commercial demolition. Get a free estimate today.",
+    keywords: "demolition services, demolition company, demolition contractor, Hampton Roads demolition, concrete demolition, residential demolition, commercial demolition",
+    canonicalUrl: "https://mrdemopro.com/demolition-services/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Demolition Services",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA"
+    }
+  },
+
+  concreteDemolition: {
+    title: "Concrete Demolition in Hampton Roads | Mr Demo Pro",
+    description: "Concrete demolition services for driveways, slabs, patios, and foundations in Hampton Roads, VA. Fast removal and haul-off. Call 757-848-4559.",
+    keywords: "concrete demolition, driveway demolition, slab removal, patio removal, foundation demolition, Hampton Roads concrete removal",
+    canonicalUrl: "https://mrdemopro.com/concrete-demolition/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Concrete Demolition",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA"
+    }
+  },
+
+  residentialDemolition: {
+    title: "Residential Demolition Contractors in Hampton Roads | Mr Demo Pro",
+    description: "Residential demolition contractors for home and structure removal in Hampton Roads, VA. Safe demolition with complete cleanup. Call 757-848-4559.",
+    keywords: "residential demolition contractors, residential demolition, house demolition, home demolition, Hampton Roads demolition",
+    canonicalUrl: "https://mrdemopro.com/residential-demolition/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Residential Demolition",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA"
+    }
+  },
+
+  garageDemolition: {
+    title: "Garage Demolition and Removal in Hampton Roads | Mr Demo Pro",
+    description: "Garage demolition services in Hampton Roads, VA. We handle demolition of garage structures, slabs, and full debris removal. Call 757-848-4559.",
+    keywords: "garage demolition, demolition of garage, garage removal, garage tear down, Hampton Roads demolition",
+    canonicalUrl: "https://mrdemopro.com/garage-demolition/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Garage Demolition",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA"
+    }
+  },
+
+  commercialDemolition: {
+    title: "Commercial Demolition Companies in Hampton Roads | Mr Demo Pro",
+    description: "Commercial demolition services for offices, retail, and industrial sites in Hampton Roads, VA. Safe, schedule-driven teardown. Call 757-848-4559.",
+    keywords: "commercial demolition companies, commercial demolition, commercial demolition contractors, Hampton Roads demolition",
+    canonicalUrl: "https://mrdemopro.com/commercial-demolition/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Commercial Demolition",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA"
+    }
+  },
+
+  tenantCleanOut: {
+    title: "Tenant Clean Out Services in Hampton Roads | Mr Demo Pro",
+    description: "Tenant clean out services for landlords and property managers in Hampton Roads, VA. Fast cleanouts, debris removal, and unit prep. Call 757-848-4559.",
+    keywords: "tenant clean out, tenant cleanout, eviction clean out, rental cleanout, Hampton Roads cleanout",
+    canonicalUrl: "https://mrdemopro.com/tenant-clean-out/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Tenant Clean Out",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA"
     }
   },
 
@@ -239,6 +366,22 @@ export const seoConfig = {
           "telephone": "757-848-4559",
           "contactType": "customer service"
         }
+      }
+    }
+  },
+
+  about: {
+    title: "About Mr Demo Pro | Hampton Roads Demolition Contractor",
+    description: "Learn about Mr Demo Pro, a trusted demolition contractor in Hampton Roads, VA offering safe, reliable demolition services and cleanup.",
+    keywords: "about Mr Demo Pro, demolition contractor, demolition company, Hampton Roads demolition services",
+    canonicalUrl: "https://mrdemopro.com/about/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "mainEntity": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
       }
     }
   },

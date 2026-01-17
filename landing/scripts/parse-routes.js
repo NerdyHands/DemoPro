@@ -25,12 +25,14 @@ function getPriorityForRoute(routePath, seoKey) {
   if (routePath === '/services') return '0.9';
   
   // Service pages get high priority
-  if (['shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval'].includes(seoKey)) {
+  if (['shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval', 
+       'buildingDemolition', 'demolitionServices', 'concreteDemolition', 'residentialDemolition', 
+       'garageDemolition', 'commercialDemolition', 'tenantCleanOut'].includes(seoKey)) {
     return '0.8';
   }
   
-  // Contact page gets medium-high priority
-  if (routePath === '/contact') return '0.7';
+  // Contact and About pages get medium-high priority
+  if (routePath === '/contact' || routePath === '/about') return '0.7';
   
   // FAQs get medium priority
   if (routePath === '/faqs') return '0.6';
@@ -53,7 +55,9 @@ function getChangeFreqForRoute(routePath, seoKey) {
   if (routePath === '/') return 'weekly';
   
   // Service pages change monthly
-  if (['services', 'shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval'].includes(seoKey)) {
+  if (['services', 'shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval',
+       'buildingDemolition', 'demolitionServices', 'concreteDemolition', 'residentialDemolition', 
+       'garageDemolition', 'commercialDemolition', 'tenantCleanOut', 'about'].includes(seoKey)) {
     return 'monthly';
   }
   
@@ -160,13 +164,17 @@ export function generateInternalLinks() {
       });
     }
     // Service pages link to other services and main pages
-    else if (route.seoKey && ['services', 'shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval'].includes(route.seoKey)) {
+    else if (route.seoKey && ['services', 'shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval',
+                              'buildingDemolition', 'demolitionServices', 'concreteDemolition', 'residentialDemolition', 
+                              'garageDemolition', 'commercialDemolition', 'tenantCleanOut'].includes(route.seoKey)) {
       links.push('/');
       links.push('/services');
       links.push('/contact');
       // Link to related services
       routes.forEach(r => {
-        if (r.seoKey && r.path !== route.path && ['shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval'].includes(r.seoKey)) {
+        if (r.seoKey && r.path !== route.path && ['shedRemoval', 'deckRemoval', 'fenceRemoval', 'interiorDemo', 'cabinetRemoval', 'cleanout', 'junkRemoval',
+                                                   'buildingDemolition', 'demolitionServices', 'concreteDemolition', 'residentialDemolition', 
+                                                   'garageDemolition', 'commercialDemolition', 'tenantCleanOut'].includes(r.seoKey)) {
           links.push(r.path);
         }
       });

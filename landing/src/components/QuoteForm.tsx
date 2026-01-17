@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { trackFormSubmission } from '../config/gtm';
 import { GOOGLE_APPS_SCRIPT_URL } from '../config/googleAppsScript';
+import { getRecaptchaToken } from '../config/recaptcha';
 
 interface QuoteFormProps {
   serviceType: string;
@@ -19,6 +20,7 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
     serviceType: serviceType
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,6 +35,9 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
     setIsSubmitting(true);
     
     try {
+      // Get reCAPTCHA token
+      const recaptchaToken = await getRecaptchaToken('quote_request');
+
       const scriptURL = GOOGLE_APPS_SCRIPT_URL;
 
       // Use URLSearchParams to encode form data
@@ -41,6 +46,9 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
       formDataEncoded.append('contact', formData.contact);
       formDataEncoded.append('service_type', formData.serviceType);
       formDataEncoded.append('form_type', 'quote_request');
+      formDataEncoded.append('form_load_time', formLoadTime.toString()); // For spam detection
+      formDataEncoded.append('website', ''); // Honeypot field (should be empty)
+      formDataEncoded.append('recaptcha_token', recaptchaToken); // reCAPTCHA token
 
       // Submit using fetch with proper encoding
       // Google Apps Script web apps handle CORS automatically when deployed as "Anyone"
@@ -166,6 +174,12 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
             />
           </div>
           
+          {/* Honeypot field - hidden from users but bots will fill it */}
+          <div style={{position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none'}}>
+            <label htmlFor="website-quote">Website (leave blank)</label>
+            <input type="text" id="website-quote" name="website" tabIndex={-1} autoComplete="off" />
+          </div>
+          
           <Button 
             type="submit"
             className="btn btn-primary w-100"
@@ -279,6 +293,12 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
               fontWeight: '400'
             }}
           />
+        </div>
+        
+        {/* Honeypot field - hidden from users but bots will fill it */}
+        <div style={{position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none'}}>
+          <label htmlFor="website-quote-2">Website (leave blank)</label>
+          <input type="text" id="website-quote-2" name="website" tabIndex={-1} autoComplete="off" />
         </div>
         
         <Button 

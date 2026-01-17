@@ -68,6 +68,21 @@ const Services = () => {
             >
               Our Services
             </motion.h2>
+            <motion.p
+              initial={{opacity: 0}}
+              animate={{opacity: 1}}
+              transition={{delay: 0.2, duration: 0.6}}
+              style={{
+                color: 'var(--color-text-secondary)',
+                fontSize: 'var(--font-size-lg)'
+              }}
+            >
+              Looking for a full overview? Visit our{' '}
+              <Link to="/demolition-services/" onClick={scrollTop}>
+                demolition services page
+              </Link>{' '}
+              for more options.
+            </motion.p>
           </Col>
         </Row>
 

@@ -52,12 +52,20 @@ function generateSitemapFile() {
   
   const sitemapContent = generateSitemap();
   const publicSitemapPath = path.join(PUBLIC_DIR, 'sitemap.xml');
-  const distSitemapPath = path.join(DIST_DIR, 'sitemap.xml');
   
+  // Write to public/ (will be copied to dist/ by vite build)
+  // Also write to dist/ if it exists (for immediate use)
   const publicSuccess = writeFile(sitemapContent, publicSitemapPath);
-  const distSuccess = writeFile(sitemapContent, distSitemapPath);
+  let distSuccess = true;
   
-  if (publicSuccess && distSuccess) {
+  if (fs.existsSync(DIST_DIR)) {
+    const distSitemapPath = path.join(DIST_DIR, 'sitemap.xml');
+    distSuccess = writeFile(sitemapContent, distSitemapPath);
+  } else {
+    console.log('ℹ️  Dist directory not found yet (will be created during build)');
+  }
+  
+  if (publicSuccess) {
     const routeCount = getRoutesWithMetadata().length;
     console.log(`📊 Generated sitemap with ${routeCount} URLs`);
     return true;
@@ -73,12 +81,20 @@ function generateRobotsFile() {
   
   const robotsContent = generateRobots();
   const publicRobotsPath = path.join(PUBLIC_DIR, 'robots.txt');
-  const distRobotsPath = path.join(DIST_DIR, 'robots.txt');
   
+  // Write to public/ (will be copied to dist/ by vite build)
+  // Also write to dist/ if it exists (for immediate use)
   const publicSuccess = writeFile(robotsContent, publicRobotsPath);
-  const distSuccess = writeFile(robotsContent, distRobotsPath);
+  let distSuccess = true;
   
-  if (publicSuccess && distSuccess) {
+  if (fs.existsSync(DIST_DIR)) {
+    const distRobotsPath = path.join(DIST_DIR, 'robots.txt');
+    distSuccess = writeFile(robotsContent, distRobotsPath);
+  } else {
+    console.log('ℹ️  Dist directory not found yet (will be created during build)');
+  }
+  
+  if (publicSuccess) {
     console.log('✅ Robots.txt generated successfully');
     return true;
   }
@@ -92,10 +108,10 @@ function validateFiles() {
   console.log('🔍 Validating generated files...');
   
   const filesToCheck = [
-    { path: path.join(PUBLIC_DIR, 'sitemap.xml'), name: 'public/sitemap.xml' },
-    { path: path.join(PUBLIC_DIR, 'robots.txt'), name: 'public/robots.txt' },
-    { path: path.join(DIST_DIR, 'sitemap.xml'), name: 'dist/sitemap.xml' },
-    { path: path.join(DIST_DIR, 'robots.txt'), name: 'dist/robots.txt' }
+    { path: path.join(PUBLIC_DIR, 'sitemap.xml'), name: 'public/sitemap.xml', required: true },
+    { path: path.join(PUBLIC_DIR, 'robots.txt'), name: 'public/robots.txt', required: true },
+    { path: path.join(DIST_DIR, 'sitemap.xml'), name: 'dist/sitemap.xml', required: false },
+    { path: path.join(DIST_DIR, 'robots.txt'), name: 'dist/robots.txt', required: false }
   ];
   
   let allValid = true;
@@ -107,11 +123,17 @@ function validateFiles() {
         console.log(`✅ ${file.name} - Valid (${stats.size} bytes)`);
       } else {
         console.log(`❌ ${file.name} - Empty file`);
-        allValid = false;
+        if (file.required) {
+          allValid = false;
+        }
       }
     } else {
-      console.log(`❌ ${file.name} - File not found`);
-      allValid = false;
+      if (file.required) {
+        console.log(`❌ ${file.name} - File not found (required)`);
+        allValid = false;
+      } else {
+        console.log(`ℹ️  ${file.name} - File not found (will be created during build)`);
+      }
     }
   });
   

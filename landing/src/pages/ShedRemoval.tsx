@@ -419,6 +419,78 @@ const ShedRemoval = () => {
             </Container>
           </section>
 
+          {/* Shed Removal Details */}
+          <section
+            style={{padding: '80px 0', backgroundColor: 'var(--color-surface)'}}
+          >
+            <Container>
+              <Row>
+                <Col xs={12}>
+                  <motion.h2
+                    className="title-small text-center fw-bold"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '60px',
+                      fontSize: 'var(--font-size-4xl)'
+                    }}
+                  >
+                    Shed Removal Service Details
+                  </motion.h2>
+                </Col>
+              </Row>
+              <Row>
+                {[
+                  {
+                    title: 'Shed Demolition & Disposal',
+                    desc: 'We dismantle wood, metal, or vinyl sheds and handle debris removal so your property is clean.'
+                  },
+                  {
+                    title: 'Permit & Access Guidance',
+                    desc: 'If your shed removal project needs permits or utility checks, we help you understand the requirements.'
+                  },
+                  {
+                    title: 'Site Prep for New Projects',
+                    desc: 'After shed demolition, we leave the area level and ready for new landscaping or construction.'
+                  }
+                ].map((item, idx) => (
+                  <Col key={item.title} lg={4} md={6} sm={6} xs={12} className="mb-5">
+                    <motion.div
+                      className="feature-item h-100 p-4"
+                      initial={{opacity: 0, y: 50}}
+                      whileInView={{opacity: 1, y: 0}}
+                      transition={{delay: 0.2 + idx * 0.2, duration: 0.5}}
+                      style={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '16px',
+                        boxShadow: 'var(--shadow-md)',
+                        border: '1px solid var(--color-border)'
+                      }}
+                    >
+                      <h3
+                        style={{
+                          color: '#000000',
+                          textAlign: 'center',
+                          marginBottom: '20px'
+                        }}
+                      >
+                        {item.title}
+                      </h3>
+                      <p style={{textAlign: 'center', flexGrow: 1}}>
+                        {item.desc}
+                      </p>
+                    </motion.div>
+                  </Col>
+                ))}
+              </Row>
+            </Container>
+          </section>
+
           {/* CTA Section */}
           <section
             style={{

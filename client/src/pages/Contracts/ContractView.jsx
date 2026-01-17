@@ -19,6 +19,7 @@ const ContractView = () => {
   const [error, setError] = useState(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
+  const [creatingBoldsignDraft, setCreatingBoldsignDraft] = useState(false);
   const [editingDates, setEditingDates] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -492,6 +493,26 @@ const ContractView = () => {
     }
   }, [id, contract]);
 
+  const createBoldsignDraft = useCallback(async () => {
+    try {
+      setCreatingBoldsignDraft(true);
+      const result = await contractApi.createBoldsignDraft(id);
+      
+      if (result.success && result.embedUrl) {
+        // Open the embedded URL in a new window/tab
+        window.open(result.embedUrl, '_blank', 'width=1200,height=800');
+      } else {
+        throw new Error('Failed to create draft: No embed URL returned');
+      }
+    } catch (err) {
+      console.error('Error creating BoldSign draft:', err);
+      setError('Failed to create BoldSign draft. Please try again.');
+      alert('Failed to create BoldSign draft: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setCreatingBoldsignDraft(false);
+    }
+  }, [id]);
+
 
   const updateDates = async () => {
     try {
@@ -655,6 +676,18 @@ const ContractView = () => {
               }}
             >
               {downloadingInvoice ? 'Generating Invoice...' : 'Download Final Invoice'}
+            </button>
+            <button 
+              onClick={createBoldsignDraft} 
+              className="btn btn-warning"
+              disabled={creatingBoldsignDraft}
+              style={{ 
+                backgroundColor: '#f39c12', 
+                borderColor: '#f39c12',
+                color: 'white'
+              }}
+            >
+              {creatingBoldsignDraft ? 'Creating Draft...' : 'Push to BoldSign as Draft'}
             </button>
             <Link to={`/contracts/edit/${contract._id}`} className="btn btn-primary">
               Edit Contract

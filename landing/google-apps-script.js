@@ -1,6 +1,7 @@
 /**
  * Google Apps Script for Mr Demo Pro Form Submissions
  * This script handles form submissions from the website and stores them in Google Sheets
+ * Includes spam protection: rate limiting, duplicate detection, honeypot validation
  */
 
 // Replace with your Google Sheet ID
@@ -13,23 +14,190 @@ const NOTIFICATION_EMAIL = 'info@mrdemopro.com'; // Change this to your email
 const COMPANY_NAME = 'Mr Demo Pro';
 const COMPANY_PHONE = '757-848-4559';
 
-function doPost(e) {
+// Spam protection settings
+const RATE_LIMIT_MINUTES = 15; // Time window for rate limiting
+const MAX_SUBMISSIONS_PER_WINDOW = 3; // Max submissions per IP per time window
+const MIN_SUBMISSION_TIME_SECONDS = 3; // Minimum time between form load and submission (anti-bot)
+const DUPLICATE_CHECK_MINUTES = 5; // Check for duplicate submissions within this time
+
+// reCAPTCHA v3 settings
+// IMPORTANT: Replace with your reCAPTCHA secret key (get it from https://www.google.com/recaptcha/admin)
+// The secret key is different from the site key used on the frontend
+const RECAPTCHA_SECRET_KEY = '6LcmDkssAAAAAPUATFz-CjL4pCsH228ZRBBsztuL'; // Replace with your actual secret key
+const RECAPTCHA_MIN_SCORE = 0.5; // Minimum score to accept (0.0 to 1.0)
+
+/**
+ * Verify reCAPTCHA v3 token
+ * @param {string} token - The reCAPTCHA token from the form submission
+ * @returns {boolean} - True if verification passes, false otherwise
+ */
+function verifyRecaptcha(token) {
   try {
-    // Get the active spreadsheet
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
-    
-    // Create headers if they don't exist
-    if (sheet.getLastRow() === 0) {
-      sheet.getRange(1, 1, 1, 6).setValues([
-        ['Timestamp', 'Form Type', 'Name/Address', 'Contact', 'Message', 'IP Address']
-      ]);
-      sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
+    if (!token || token.trim() === '') {
+      return false;
     }
     
+    // Skip verification if secret key is not configured
+    if (!RECAPTCHA_SECRET_KEY || RECAPTCHA_SECRET_KEY === 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
+      console.log('reCAPTCHA secret key not configured, skipping verification');
+      return true; // Allow submission if not configured (backward compatibility)
+    }
+    
+    const url = 'https://www.google.com/recaptcha/api/siteverify';
+    const payload = {
+      'secret': RECAPTCHA_SECRET_KEY,
+      'response': token
+    };
+    
+    const options = {
+      'method': 'post',
+      'payload': payload
+    };
+    
+    const response = UrlFetchApp.fetch(url, options);
+    const responseData = JSON.parse(response.getContentText());
+    
+    if (responseData.success) {
+      // For reCAPTCHA v3, also check the score
+      if (responseData.score !== undefined) {
+        if (responseData.score >= RECAPTCHA_MIN_SCORE) {
+          console.log('reCAPTCHA verification passed', { score: responseData.score });
+          return true;
+        } else {
+          console.log('reCAPTCHA verification failed: score too low', { score: responseData.score, minScore: RECAPTCHA_MIN_SCORE });
+          return false;
+        }
+      } else {
+        // For reCAPTCHA v2, just check success
+        console.log('reCAPTCHA verification passed');
+        return true;
+      }
+    } else {
+      console.log('reCAPTCHA verification failed', { errors: responseData['error-codes'] });
+      return false;
+    }
+  } catch (error) {
+    console.error('Error verifying reCAPTCHA:', error);
+    // On error, allow submission to avoid blocking legitimate users
+    return true;
+  }
+}
+
+function doPost(e) {
+  try {
     // Get form data
     const formData = e.parameter;
     const timestamp = new Date();
+    
+    // Get IP address from request
+    // Note: Google Apps Script doesn't provide IP directly, so we use a combination
+    // of contact info and timestamp for rate limiting instead
     const ipAddress = e.parameter.IP_ADDRESS || 'Unknown';
+    
+    // Use contact info for rate limiting if IP not available (more reliable in Google Apps Script)
+    const contactIdentifier = (formData.email || formData.contact || ipAddress || 'anonymous').toLowerCase().trim();
+    
+    // ========== SPAM PROTECTION CHECKS ==========
+    
+    // 0. reCAPTCHA v3 verification (if secret key is configured)
+    if (RECAPTCHA_SECRET_KEY && RECAPTCHA_SECRET_KEY !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
+      const recaptchaToken = formData.recaptcha_token;
+      if (!recaptchaToken) {
+        console.log('SPAM DETECTED: Missing reCAPTCHA token', { ipAddress, email: formData.email || formData.contact });
+        logSuspiciousSubmission(SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME), formData, timestamp, contactIdentifier, 'Missing reCAPTCHA token');
+        return ContentService
+          .createTextOutput(JSON.stringify({ success: false, error: 'reCAPTCHA verification failed' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      const recaptchaValid = verifyRecaptcha(recaptchaToken);
+      if (!recaptchaValid) {
+        console.log('SPAM DETECTED: reCAPTCHA verification failed', { ipAddress, email: formData.email || formData.contact });
+        logSuspiciousSubmission(SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME), formData, timestamp, contactIdentifier, 'reCAPTCHA verification failed');
+        return ContentService
+          .createTextOutput(JSON.stringify({ success: false, error: 'reCAPTCHA verification failed' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    
+    // 1. Honeypot check - if honeypot field is filled, reject as spam
+    if (formData.website && formData.website.trim() !== '') {
+      console.log('SPAM DETECTED: Honeypot field filled', { ipAddress, email: formData.email || formData.contact });
+      return ContentService
+        .createTextOutput(JSON.stringify({ success: false, error: 'Invalid submission' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Get the sheet early so we can log suspicious submissions
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
+    
+    // 2. Time-based validation - check if form was submitted too quickly (likely bot)
+    const formLoadTime = formData.form_load_time ? parseInt(formData.form_load_time) : 0;
+    const currentTime = Date.now();
+    const timeOnPage = (currentTime - formLoadTime) / 1000; // Convert to seconds
+    
+    if (formLoadTime > 0 && timeOnPage < MIN_SUBMISSION_TIME_SECONDS) {
+      console.log('SPAM DETECTED: Form submitted too quickly', { 
+        contactIdentifier, 
+        timeOnPage: timeOnPage.toFixed(2) + 's',
+        email: formData.email || formData.contact 
+      });
+      logSuspiciousSubmission(sheet, formData, timestamp, contactIdentifier, 'Submitted too quickly: ' + timeOnPage.toFixed(2) + 's');
+      return ContentService
+        .createTextOutput(JSON.stringify({ success: false, error: 'Please take your time filling out the form' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // 3. Rate limiting check (uses contact identifier for better tracking)
+    if (!checkRateLimit(contactIdentifier)) {
+      console.log('SPAM DETECTED: Rate limit exceeded', { contactIdentifier, email: formData.email || formData.contact });
+      logSuspiciousSubmission(sheet, formData, timestamp, contactIdentifier, 'Rate limit exceeded');
+      return ContentService
+        .createTextOutput(JSON.stringify({ success: false, error: 'Too many submissions. Please try again later.' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // 4. Duplicate submission check
+    if (isDuplicateSubmission(formData, contactIdentifier)) {
+      console.log('SPAM DETECTED: Duplicate submission', { contactIdentifier, email: formData.email || formData.contact });
+      logSuspiciousSubmission(sheet, formData, timestamp, contactIdentifier, 'Duplicate submission');
+      return ContentService
+        .createTextOutput(JSON.stringify({ success: false, error: 'Duplicate submission detected' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // 5. Basic validation
+    if (formData.form_type === 'contact_form') {
+      if (!formData.email || !formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        console.log('SPAM DETECTED: Invalid email', { ipAddress, email: formData.email });
+        return ContentService
+          .createTextOutput(JSON.stringify({ success: false, error: 'Invalid email address' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      if (!formData.name || formData.name.trim().length < 2) {
+        console.log('SPAM DETECTED: Invalid name', { ipAddress, name: formData.name });
+        return ContentService
+          .createTextOutput(JSON.stringify({ success: false, error: 'Invalid name' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    } else if (formData.form_type === 'quote_request') {
+      if (!formData.contact || (!formData.contact.includes('@') && !formData.contact.match(/^[\+]?[1-9][\d]{0,15}$/))) {
+        console.log('SPAM DETECTED: Invalid contact info', { ipAddress, contact: formData.contact });
+        return ContentService
+          .createTextOutput(JSON.stringify({ success: false, error: 'Invalid contact information' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    
+    // ========== VALIDATION PASSED - PROCESS SUBMISSION ==========
+    
+    // Create headers if they don't exist (updated to include spam flag)
+    if (sheet.getLastRow() === 0) {
+      sheet.getRange(1, 1, 1, 7).setValues([
+        ['Timestamp', 'Form Type', 'Name/Address', 'Contact', 'Message', 'IP Address', 'Status']
+      ]);
+      sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+    }
     
     // Determine form type and extract data accordingly
     let nameField, contactField, messageField;
@@ -49,18 +217,22 @@ function doPost(e) {
       messageField = formData.message || 'Form Submission';
     }
     
-    // Add data to sheet
+    // Add data to sheet (mark as valid submission)
     sheet.appendRow([
       timestamp,
       formData.form_type || 'unknown',
       nameField,
       contactField,
       messageField,
-      ipAddress
+      contactIdentifier,
+      'Valid'
     ]);
     
+    // Record submission for rate limiting
+    recordSubmission(contactIdentifier, contactField, timestamp);
+    
     // Auto-resize columns
-    sheet.autoResizeColumns(1, 6);
+    sheet.autoResizeColumns(1, 7);
     
     // Send email notification (non-blocking - won't fail form submission if email fails)
     try {
@@ -111,13 +283,13 @@ function setupSpreadsheet() {
   
   // Clear existing data and create headers
   sheet.clear();
-  sheet.getRange(1, 1, 1, 6).setValues([
-    ['Timestamp', 'Form Type', 'Name/Address', 'Contact', 'Message', 'IP Address']
+  sheet.getRange(1, 1, 1, 7).setValues([
+    ['Timestamp', 'Form Type', 'Name/Address', 'Contact', 'Message', 'IP Address', 'Status']
   ]);
-  sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
+  sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
   
   // Format the header row
-  const headerRange = sheet.getRange(1, 1, 1, 6);
+  const headerRange = sheet.getRange(1, 1, 1, 7);
   headerRange.setBackground('#4285f4');
   headerRange.setFontColor('white');
   headerRange.setFontWeight('bold');
@@ -129,6 +301,7 @@ function setupSpreadsheet() {
   sheet.setColumnWidth(4, 200); // Contact
   sheet.setColumnWidth(5, 300); // Message
   sheet.setColumnWidth(6, 120); // IP Address
+  sheet.setColumnWidth(7, 150); // Status
   
   console.log('Spreadsheet setup completed!');
 }
@@ -254,6 +427,139 @@ function sendLeadNotification(leadData) {
   }
 }
 
+/**
+ * Rate limiting: Check if identifier (contact/email/IP) has exceeded submission limit
+ * Uses PropertiesService to store submission timestamps
+ */
+function checkRateLimit(identifier) {
+  try {
+    const properties = PropertiesService.getScriptProperties();
+    const key = 'rate_limit_' + identifier;
+    const data = properties.getProperty(key);
+    
+    if (!data) {
+      // First submission from this identifier
+      properties.setProperty(key, JSON.stringify([Date.now()]));
+      return true;
+    }
+    
+    const submissions = JSON.parse(data);
+    const now = Date.now();
+    const windowMs = RATE_LIMIT_MINUTES * 60 * 1000;
+    
+    // Filter out submissions outside the time window
+    const recentSubmissions = submissions.filter(time => (now - time) < windowMs);
+    
+    if (recentSubmissions.length >= MAX_SUBMISSIONS_PER_WINDOW) {
+      return false; // Rate limit exceeded
+    }
+    
+    // Add current submission and update storage
+    recentSubmissions.push(now);
+    properties.setProperty(key, JSON.stringify(recentSubmissions));
+    
+    // Clean up old entries periodically (keep only last 10 to prevent storage bloat)
+    if (recentSubmissions.length > 10) {
+      properties.setProperty(key, JSON.stringify(recentSubmissions.slice(-10)));
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error checking rate limit:', error);
+    // On error, allow submission (fail open)
+    return true;
+  }
+}
+
+/**
+ * Record a valid submission for rate limiting and duplicate detection
+ */
+function recordSubmission(identifier, contactInfo, timestamp) {
+  try {
+    const properties = PropertiesService.getScriptProperties();
+    
+    // Store for rate limiting (already done in checkRateLimit, but keep for completeness)
+    const rateLimitKey = 'rate_limit_' + identifier;
+    const rateLimitData = properties.getProperty(rateLimitKey);
+    if (rateLimitData) {
+      const submissions = JSON.parse(rateLimitData);
+      submissions.push(timestamp.getTime());
+      properties.setProperty(rateLimitKey, JSON.stringify(submissions));
+    }
+    
+    // Store for duplicate detection
+    const duplicateKey = 'duplicate_' + identifier;
+    const duplicateWindow = DUPLICATE_CHECK_MINUTES * 60 * 1000;
+    properties.setProperty(duplicateKey, timestamp.getTime().toString(), duplicateWindow / 1000);
+  } catch (error) {
+    console.error('Error recording submission:', error);
+  }
+}
+
+/**
+ * Check if this is a duplicate submission
+ */
+function isDuplicateSubmission(formData, identifier) {
+  try {
+    const properties = PropertiesService.getScriptProperties();
+    const duplicateKey = 'duplicate_' + identifier;
+    const lastSubmission = properties.getProperty(duplicateKey);
+    
+    if (!lastSubmission) {
+      return false; // Not a duplicate
+    }
+    
+    const lastSubmissionTime = parseInt(lastSubmission);
+    const now = Date.now();
+    const windowMs = DUPLICATE_CHECK_MINUTES * 60 * 1000;
+    
+    if ((now - lastSubmissionTime) < windowMs) {
+      return true; // Duplicate detected
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error checking duplicate:', error);
+    return false; // On error, allow submission
+  }
+}
+
+/**
+ * Log suspicious submission to spreadsheet (in a separate sheet or same sheet with status)
+ */
+function logSuspiciousSubmission(sheet, formData, timestamp, identifier, reason) {
+  try {
+    // Append to same sheet with 'Spam' status
+    let nameField, contactField, messageField;
+    
+    if (formData.form_type === 'quote_request') {
+      nameField = formData.address || '';
+      contactField = formData.contact || '';
+      messageField = 'Quote Request [SPAM: ' + reason + ']';
+    } else if (formData.form_type === 'contact_form') {
+      nameField = formData.name || '';
+      contactField = formData.email || '';
+      messageField = (formData.message || '') + ' [SPAM: ' + reason + ']';
+    } else {
+      nameField = formData.name || formData.address || '';
+      contactField = formData.email || formData.contact || '';
+      messageField = formData.message || 'Form Submission [SPAM: ' + reason + ']';
+    }
+    
+    sheet.appendRow([
+      timestamp,
+      formData.form_type || 'unknown',
+      nameField,
+      contactField,
+      messageField,
+      identifier,
+      'Spam: ' + reason
+    ]);
+  } catch (error) {
+    console.error('Error logging suspicious submission:', error);
+  }
+}
+
 // Function to test the form submission
 function testFormSubmission() {
   const testData = {
@@ -262,7 +568,8 @@ function testFormSubmission() {
       address: '123 Test Street, Hampton, VA',
       contact: 'test@example.com',
       service_type: 'shed_removal',
-      IP_ADDRESS: '127.0.0.1'
+      IP_ADDRESS: '127.0.0.1',
+      form_load_time: (Date.now() - 10000).toString() // 10 seconds ago
     }
   };
   

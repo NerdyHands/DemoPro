@@ -556,6 +556,62 @@ router.post('/:id/send-for-signature', authenticateUser, async (req, res) => {
   }
 });
 
+// POST /api/contracts/:id/create-boldsign-draft
+router.post('/:id/create-boldsign-draft', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📝 Creating BoldSign draft for contract:', id);
+
+    const contract = await Contract.findById(id)
+      .populate('customer', 'firstName lastName email phone address');
+
+    if (!contract) {
+      return res.status(404).json({
+        success: false,
+        error: 'Contract not found'
+      });
+    }
+
+    // Check if BoldSign is available
+    const boldSignService = new BoldSignService();
+    if (!boldSignService.isServiceAvailable()) {
+      return res.status(400).json({
+        success: false,
+        error: 'BoldSign API not configured'
+      });
+    }
+
+    // Contractor information (you can make this configurable)
+    const contractorInfo = {
+      name: req.body.contractorName || 'Contractor',
+      email: req.body.contractorEmail || 'contractor@example.com'
+    };
+
+    // Create draft
+    const draftResult = await boldSignService.createDraft(
+      contract,
+      contract.customer,
+      contractorInfo
+    );
+
+    console.log('✅ BoldSign draft created successfully:', draftResult.documentId);
+
+    res.json({
+      success: true,
+      message: 'Draft created successfully',
+      embedUrl: draftResult.embedUrl,
+      documentId: draftResult.documentId
+    });
+
+  } catch (error) {
+    console.error('❌ Error creating BoldSign draft:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // GET /api/contracts/:id/signature-status
 router.get('/:id/signature-status', authenticateUser, async (req, res) => {
   try {

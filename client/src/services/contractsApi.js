@@ -204,6 +204,11 @@ export const contractApi = {
     return response.data;
   },
 
+  createBoldsignDraft: async (contractId, contractorInfo = {}) => {
+    const response = await api.post(`/api/contracts/${contractId}/create-boldsign-draft`, contractorInfo);
+    return response.data;
+  },
+
   getSignatureStatus: async (contractId) => {
     const response = await api.get(`/api/contracts/${contractId}/signature-status`);
     return response.data;

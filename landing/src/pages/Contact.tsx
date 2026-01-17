@@ -5,6 +5,7 @@ import {motion} from 'framer-motion';
 import {trackFormSubmission} from '../config/gtm';
 import SEOHead from '../components/SEO';
 import {GOOGLE_APPS_SCRIPT_URL} from '../config/googleAppsScript';
+import {getRecaptchaToken} from '../config/recaptcha';
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Contact = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -68,6 +70,9 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
+      // Get reCAPTCHA token
+      const recaptchaToken = await getRecaptchaToken('contact_form');
+
       const scriptURL = GOOGLE_APPS_SCRIPT_URL;
 
       // Use URLSearchParams to encode form data
@@ -76,6 +81,9 @@ const Contact = () => {
       formDataEncoded.append('email', formData.email);
       formDataEncoded.append('message', formData.message);
       formDataEncoded.append('form_type', 'contact_form');
+      formDataEncoded.append('form_load_time', formLoadTime.toString()); // For spam detection
+      formDataEncoded.append('website', ''); // Honeypot field (should be empty)
+      formDataEncoded.append('recaptcha_token', recaptchaToken); // reCAPTCHA token
 
       // Submit using fetch with proper encoding
       // Google Apps Script web apps handle CORS automatically when deployed as "Anyone"
@@ -221,6 +229,12 @@ const Contact = () => {
                       required
                     />
                   </Form.Group>
+
+                  {/* Honeypot field - hidden from users but bots will fill it */}
+                  <div style={{position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none'}}>
+                    <label htmlFor="website">Website (leave blank)</label>
+                    <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
+                  </div>
 
                   <div className="text-center">
                     <Button

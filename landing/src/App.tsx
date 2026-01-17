@@ -15,6 +15,14 @@ import FenceRemoval from './pages/FenceRemoval';
 import InteriorDemo from './pages/InteriorDemo';
 import Cleanout from './pages/Cleanout';
 import JunkRemoval from './pages/JunkRemoval';
+import BuildingDemolition from './pages/BuildingDemolition';
+import DemolitionServices from './pages/DemolitionServices';
+import ConcreteDemolition from './pages/ConcreteDemolition';
+import ResidentialDemolition from './pages/ResidentialDemolition';
+import GarageDemolition from './pages/GarageDemolition';
+import CommercialDemolition from './pages/CommercialDemolition';
+import TenantCleanOut from './pages/TenantCleanOut';
+import About from './pages/About';
 import FAQs from './pages/FAQs';
 import ThankYou from './pages/ThankYou';
 import Blog from './pages/Blog';
@@ -153,6 +161,90 @@ function AppContent() {
                 </>
               }
             />
+            <Route
+              path="/building-demolition"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.buildingDemolition}
+                    canonicalUrl="https://mrdemopro.com/building-demolition/"
+                  />
+                  <BuildingDemolition />
+                </>
+              }
+            />
+            <Route
+              path="/demolition-services"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.demolitionServices}
+                    canonicalUrl="https://mrdemopro.com/demolition-services/"
+                  />
+                  <DemolitionServices />
+                </>
+              }
+            />
+            <Route
+              path="/concrete-demolition"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.concreteDemolition}
+                    canonicalUrl="https://mrdemopro.com/concrete-demolition/"
+                  />
+                  <ConcreteDemolition />
+                </>
+              }
+            />
+            <Route
+              path="/residential-demolition"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.residentialDemolition}
+                    canonicalUrl="https://mrdemopro.com/residential-demolition/"
+                  />
+                  <ResidentialDemolition />
+                </>
+              }
+            />
+            <Route
+              path="/garage-demolition"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.garageDemolition}
+                    canonicalUrl="https://mrdemopro.com/garage-demolition/"
+                  />
+                  <GarageDemolition />
+                </>
+              }
+            />
+            <Route
+              path="/commercial-demolition"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.commercialDemolition}
+                    canonicalUrl="https://mrdemopro.com/commercial-demolition/"
+                  />
+                  <CommercialDemolition />
+                </>
+              }
+            />
+            <Route
+              path="/tenant-clean-out"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.tenantCleanOut}
+                    canonicalUrl="https://mrdemopro.com/tenant-clean-out/"
+                  />
+                  <TenantCleanOut />
+                </>
+              }
+            />
             {/* Service Pages */}
             <Route
               path="/services/shed-removal"
@@ -260,6 +352,18 @@ function AppContent() {
                     canonicalUrl="https://mrdemopro.com/contact/"
                   />
                   <Contact />
+                </>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.about}
+                    canonicalUrl="https://mrdemopro.com/about/"
+                  />
+                  <About />
                 </>
               }
             />

@@ -100,8 +100,8 @@ function validateMetaTags() {
   
   // Check for basic meta tags that should be in the HTML
   const basicTags = [
-    { name: 'title', pattern: /<title>.*?<\/title>/ },
-    { name: 'viewport', pattern: /<meta name="viewport" content=".*?"/ }
+    { name: 'title', pattern: /<title>.*?<\/title>/i },
+    { name: 'viewport', pattern: /<meta name="viewport" content=".*?"/i }
   ];
   
   basicTags.forEach(({ name, pattern }) => {

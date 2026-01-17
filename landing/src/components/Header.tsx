@@ -243,6 +243,84 @@ const Header = () => {
                       >
                         Cleanout Services
                       </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item
+                      as={Link}
+                      to="/building-demolition/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 500,
+                        padding: '0.5rem 1rem'
+                      }}
+                    >
+                      Building Demolition
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      as={Link}
+                      to="/demolition-services/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 500,
+                        padding: '0.5rem 1rem'
+                      }}
+                    >
+                      Demolition Services
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      as={Link}
+                      to="/concrete-demolition/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 500,
+                        padding: '0.5rem 1rem'
+                      }}
+                    >
+                      Concrete Demolition
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      as={Link}
+                      to="/residential-demolition/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 500,
+                        padding: '0.5rem 1rem'
+                      }}
+                    >
+                      Residential Demolition
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      as={Link}
+                      to="/garage-demolition/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 500,
+                        padding: '0.5rem 1rem'
+                      }}
+                    >
+                      Garage Demolition
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      as={Link}
+                      to="/commercial-demolition/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 500,
+                        padding: '0.5rem 1rem'
+                      }}
+                    >
+                      Commercial Demolition
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      as={Link}
+                      to="/tenant-clean-out/"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 500,
+                        padding: '0.5rem 1rem'
+                      }}
+                    >
+                      Tenant Clean Out
+                    </NavDropdown.Item>
                     </NavDropdown>
 
                     {[

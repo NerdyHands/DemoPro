@@ -4,6 +4,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import {motion} from 'framer-motion';
 import {trackFormSubmission} from '../config/gtm';
 import {GOOGLE_APPS_SCRIPT_URL} from '../config/googleAppsScript';
+import {getRecaptchaToken} from '../config/recaptcha';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Home = () => {
     contact: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
   const learnMoreRef = useRef<HTMLHRElement | null>(null);
 
   const handleScrollToLearnMore = () => {
@@ -42,6 +44,9 @@ const Home = () => {
     setIsSubmitting(true);
 
     try {
+      // Get reCAPTCHA token
+      const recaptchaToken = await getRecaptchaToken('quote_request');
+
       const scriptURL = GOOGLE_APPS_SCRIPT_URL;
 
       // Use URLSearchParams to encode form data
@@ -49,6 +54,9 @@ const Home = () => {
       formDataEncoded.append('address', formData.address);
       formDataEncoded.append('contact', formData.contact);
       formDataEncoded.append('form_type', 'quote_request');
+      formDataEncoded.append('form_load_time', formLoadTime.toString()); // For spam detection
+      formDataEncoded.append('website', ''); // Honeypot field (should be empty)
+      formDataEncoded.append('recaptcha_token', recaptchaToken); // reCAPTCHA token
 
       // Submit using fetch with proper encoding
       await fetch(scriptURL, {
@@ -166,7 +174,7 @@ const Home = () => {
                       letterSpacing: '-0.025em'
                     }}
                   >
-                    Mr Demo Pro <br /> Demolition Contractor
+                    Professional Demolition Company <br /> Serving Hampton Roads
                   </h1>
 
                   <div className="mb-3">
@@ -209,7 +217,7 @@ const Home = () => {
                       fontFamily: 'var(--font-family-primary)'
                     }}
                   >
-                    We remove old structures quickly with no stress so you can get your project done right.
+                    Mr Demo Pro is a local demolition company and trusted demolition contractor for homeowners and businesses. Among demolition companies in Hampton Roads, we focus on fast, safe demolition services that keep your project moving.
                   </p>
 
                   <div className="mb-3">
@@ -337,6 +345,12 @@ const Home = () => {
                           fontWeight: '400'
                         }}
                       />
+                    </div>
+
+                    {/* Honeypot field - hidden from users but bots will fill it */}
+                    <div style={{position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none'}}>
+                      <label htmlFor="website">Website (leave blank)</label>
+                      <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
                     </div>
 
                     <Button

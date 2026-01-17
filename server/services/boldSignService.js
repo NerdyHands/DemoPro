@@ -293,6 +293,86 @@ class BoldSignService {
       throw error;
     }
   }
+
+  // Create a draft document in BoldSign (embedded request URL)
+  async createDraft(contract, customer, contractorInfo = {}) {
+    if (!this.isServiceAvailable()) {
+      throw new Error('BoldSign API key not configured');
+    }
+
+    try {
+      // Generate contract PDF first
+      const ContractPdfService = require('./contractPdfService');
+      const pdfService = new ContractPdfService();
+      const pdfResult = await pdfService.generateContractPdf(contract, customer);
+
+      // Read the PDF file
+      const pdfBuffer = fs.readFileSync(pdfResult.filePath);
+
+      // Use FormData for multipart/form-data request
+      const FormData = require('form-data');
+      const formData = new FormData();
+      
+      formData.append('Title', `Contract: ${contract.title}`);
+      formData.append('Message', `Please review and sign the contract for ${contract.title}`);
+      formData.append('Files', pdfBuffer, {
+        filename: `contract_${contract.contractNumber}.pdf`,
+        contentType: 'application/pdf'
+      });
+      
+      // Add signers
+      formData.append('Signers[0][Name]', `${customer.firstName} ${customer.lastName}`);
+      formData.append('Signers[0][EmailAddress]', customer.email);
+      formData.append('Signers[0][SignerType]', '0'); // Signer
+      formData.append('Signers[0][SignerOrder]', '1');
+      
+      if (contractorInfo.name && contractorInfo.email) {
+        formData.append('Signers[1][Name]', contractorInfo.name);
+        formData.append('Signers[1][EmailAddress]', contractorInfo.email);
+        formData.append('Signers[1][SignerType]', '0'); // Signer
+        formData.append('Signers[1][SignerOrder]', '2');
+      }
+      
+      // Draft-specific settings
+      formData.append('ShowToolbar', 'true');
+      formData.append('ShowSaveButton', 'true');
+      formData.append('ShowSendButton', 'false');
+      formData.append('SendViewOption', 'PreparePage');
+      
+      // Optional settings
+      formData.append('RedirectUrl', `${process.env.CLIENT_URL || 'http://localhost:3001'}/contracts/${contract._id}`);
+      formData.append('CustomField', `Contract ID: ${contract.contractNumber}`);
+
+      // Create the embedded request URL
+      const response = await axios.post(
+        `${this.baseURL}/document/createEmbeddedRequestUrl`,
+        formData,
+        {
+          headers: {
+            'X-API-KEY': this.apiKey,
+            ...formData.getHeaders()
+          }
+        }
+      );
+
+      // Clean up the temporary PDF file
+      fs.unlinkSync(pdfResult.filePath);
+
+      return {
+        success: true,
+        embedUrl: response.data.EmbedUrl,
+        documentId: response.data.DocumentId
+      };
+
+    } catch (error) {
+      console.error('❌ Error creating BoldSign draft:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+      }
+      throw error;
+    }
+  }
 }
 
 module.exports = BoldSignService;

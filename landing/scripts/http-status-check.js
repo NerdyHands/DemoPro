@@ -3,10 +3,16 @@
 // - Requests each route with redirect: manual to capture status codes
 // - Marks 301/302 as intentional based on a simple allowlist
 
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { exec } from 'node:child_process'
 import http from 'node:http'
 import https from 'node:https'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+import { getRoutesWithMetadata } from './parse-routes.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const PORT = 5051
 const BASE_URL = `http://localhost:${PORT}`
@@ -14,9 +20,26 @@ const REPORT_PATH = 'dist/http-status-report.json'
 const REPORT_TXT_PATH = 'dist/http-status-report.txt'
 
 function readIncludeRoutes() {
-  const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
-  const includes = pkg.reactSnap && Array.isArray(pkg.reactSnap.include) ? pkg.reactSnap.include : ['/']
-  return includes
+  try {
+    // Try to get routes from parse-routes.js (most accurate)
+    const routes = getRoutesWithMetadata()
+    const routePaths = routes
+      .map(r => r.path)
+      .filter(path => {
+        // Skip dynamic routes and catch-all
+        if (path.includes(':') || path === '*') return false
+        // Skip blog post routes (dynamic)
+        if (path.startsWith('/blog/') && path !== '/blog') return false
+        return true
+      })
+    return routePaths.length > 0 ? routePaths : ['/']
+  } catch (error) {
+    console.warn('⚠️  Could not parse routes, falling back to package.json:', error.message)
+    // Fallback to package.json
+    const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
+    const includes = pkg.reactSnap && Array.isArray(pkg.reactSnap.include) ? pkg.reactSnap.include : ['/']
+    return includes
+  }
 }
 
 // Configure intentional redirects here (source path -> true)
@@ -55,6 +78,12 @@ async function waitForServer(url, timeoutMs = 10000) {
 }
 
 async function run() {
+  // Check if dist folder exists
+  if (!existsSync('dist')) {
+    console.error('HTTP Status Audit: dist folder does not exist. Please run the build first (npm run build)')
+    process.exit(1)
+  }
+
   const routes = readIncludeRoutes()
 
   // Start vite preview
@@ -63,7 +92,8 @@ async function run() {
   const up = await waitForServer(BASE_URL)
   if (!up) {
     try { preview.kill() } catch {}
-    console.error('HTTP Status Audit: failed to start preview server')
+    console.error('HTTP Status Audit: failed to start preview server (timeout after 10 seconds)')
+    console.error('This usually means the build failed or port 5051 is already in use')
     process.exit(1)
   }
 
