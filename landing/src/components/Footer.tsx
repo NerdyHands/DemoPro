@@ -63,6 +63,28 @@ const Footer = () => {
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
+                    to="/demolition-contractor-hampton-va/"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                    style={{
+                      color: "#fff",
+                      textDecoration: "none",
+                      transition: "color 0.3s ease",
+                      fontSize: "0.95rem",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.target as HTMLElement).style.color = "#ffd700")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.target as HTMLElement).style.color = "#fff")
+                    }
+                  >
+                    Demolition Contractor Hampton, VA
+                  </Link>
+                </li>
+                <li style={{ marginBottom: "0.5rem" }}>
+                  <Link
                     to="/contact/"
                     onClick={() =>
                       window.scrollTo({ top: 0, behavior: "smooth" })
@@ -192,6 +214,25 @@ const Footer = () => {
                   >
                     Privacy Policy
                   </Link>
+                </li>
+                <li style={{ marginBottom: "0.5rem" }}>
+                  <a
+                    href="/sitemap.xml"
+                    style={{
+                      color: "#fff",
+                      textDecoration: "none",
+                      transition: "color 0.3s ease",
+                      fontSize: "0.95rem",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.target as HTMLElement).style.color = "#ffd700")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.target as HTMLElement).style.color = "#fff")
+                    }
+                  >
+                    Sitemap
+                  </a>
                 </li>
               </ul>
             </nav>

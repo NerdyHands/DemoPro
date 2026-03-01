@@ -63,14 +63,14 @@ router.get('/', authenticateUser, async (req, res) => {
       .populate('customer', 'firstName lastName email businessName')
       .sort({ createdAt: -1 });
     
-    // Sync clientName for all contracts that have customers
+    // Only fill clientName from customer when contract has no name set (preserve user edits)
     const syncPromises = contracts.map(async (contract) => {
       if (contract.customer) {
         const customer = contract.customer;
         const currentCustomerName = customer.businessName || 
           `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
-        
-        if (currentCustomerName && contract.clientName !== currentCustomerName) {
+        const hasContractName = contract.clientName != null && String(contract.clientName).trim() !== '';
+        if (currentCustomerName && !hasContractName) {
           contract.clientName = currentCustomerName;
           return contract.save();
         }
@@ -226,18 +226,15 @@ router.get('/:id', authenticateUser, async (req, res) => {
       });
     }
     
-    // Sync clientName from customer if customer is populated and names don't match
+    // Only sync clientName from customer when contract has no client name set (preserve user edits)
     if (contract.customer) {
       const customer = contract.customer;
       const currentCustomerName = customer.businessName || 
         `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
-      
-      // Update contract's clientName if it's different from customer's current name
-      if (currentCustomerName && contract.clientName !== currentCustomerName) {
-        console.log(`🔄 Syncing contract clientName: "${contract.clientName}" -> "${currentCustomerName}"`);
+      const hasContractName = contract.clientName != null && String(contract.clientName).trim() !== '';
+      if (currentCustomerName && !hasContractName) {
         contract.clientName = currentCustomerName;
         await contract.save();
-        console.log(`✅ Contract clientName updated to match customer`);
       }
     }
     

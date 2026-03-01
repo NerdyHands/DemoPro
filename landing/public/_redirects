@@ -1,3 +1,7 @@
-# Netlify redirects file
-# Blog is now served directly on /blog (no redirect)
+# AWS Amplify / Netlify redirects file
+# SPA routing: All routes that don't match files should serve index.html
+# This ensures React Router works correctly for routes like /services/
+/*    /index.html   200
 
+# Blog is served directly from /blog route (data from S3)
+# No redirect needed - blog is part of the React app

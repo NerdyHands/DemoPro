@@ -830,10 +830,7 @@ This document represents the complete and entire agreement between the parties a
         setError('Quantity must be greater than 0');
         return false;
       }
-      if (item.unitPrice < 0) {
-        setError('Unit price cannot be negative');
-        return false;
-      }
+      // Unit price may be negative (discount line items)
     }
     
     setError(null);
@@ -1225,11 +1222,10 @@ This document represents the complete and entire agreement between the parties a
                         <input
                           type="number"
                           value={item.unitPrice}
-                          onChange={(e) => handleLineItemChange(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => handleLineItemChange(item.id, 'unitPrice', parseFloat(e.target.value) ?? 0)}
                           className="form-input line-item-input"
-                          min="0"
                           step="0.01"
-                          placeholder="0.00"
+                          placeholder="0.00 (negative = discount)"
                         />
                       </div>
                       
@@ -1557,7 +1553,7 @@ This document represents the complete and entire agreement between the parties a
                   color: '#333', 
                   marginBottom: '15px',
                   paddingBottom: '10px',
-                  borderBottom: '2px solid #08a171'
+                  borderBottom: '2px solid var(--primary-color)'
                 }}>
                   Payment Receipt
                 </h2>
@@ -1569,7 +1565,7 @@ This document represents the complete and entire agreement between the parties a
                 ) : (
                   <div style={{
                     backgroundColor: '#f8f9fa',
-                    border: '1px solid #08a171',
+                    border: '1px solid var(--primary-color)',
                     borderRadius: '8px',
                     padding: '20px',
                     marginTop: '10px'
@@ -1655,7 +1651,7 @@ This document represents the complete and entire agreement between the parties a
                               }}>
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                   <thead>
-                                    <tr style={{ backgroundColor: '#08a171', color: '#fff' }}>
+                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: '#fff' }}>
                                       <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
                                         Description
                                       </th>
@@ -1707,7 +1703,7 @@ This document represents the complete and entire agreement between the parties a
                                                     setExpandedReceipt(expandedReceipt === idx ? null : idx);
                                                   }}
                                                   style={{
-                                                    backgroundColor: '#08a171',
+                                                    backgroundColor: 'var(--primary-color)',
                                                     color: '#fff',
                                                     border: 'none',
                                                     padding: '6px 12px',
@@ -1837,7 +1833,7 @@ This document represents the complete and entire agreement between the parties a
                                         <tr>
                                           <td colSpan="5" style={{ padding: '0', backgroundColor: '#fff' }}>
                                             <div style={{
-                                              border: '2px solid #08a171',
+                                              border: '2px solid var(--primary-color)',
                                               borderRadius: '8px',
                                               margin: '10px',
                                               padding: '10px',
@@ -1996,7 +1992,7 @@ This document represents the complete and entire agreement between the parties a
                   color: '#333', 
                   marginBottom: '15px',
                   paddingBottom: '10px',
-                  borderBottom: '2px solid #08a171'
+                  borderBottom: '2px solid var(--primary-color)'
                 }}>
                   Book Payment
                 </h2>
@@ -2004,7 +2000,7 @@ This document represents the complete and entire agreement between the parties a
                 {!showPaymentForm ? (
                   <div style={{
                     backgroundColor: '#f8f9fa',
-                    border: '1px solid #08a171',
+                    border: '1px solid var(--primary-color)',
                     borderRadius: '8px',
                     padding: '20px',
                     marginTop: '10px',
@@ -2017,7 +2013,7 @@ This document represents the complete and entire agreement between the parties a
                       type="button"
                       onClick={() => setShowPaymentForm(true)}
                       style={{
-                        backgroundColor: '#08a171',
+                        backgroundColor: 'var(--primary-color)',
                         color: '#fff',
                         border: 'none',
                         padding: '12px 24px',
@@ -2033,7 +2029,7 @@ This document represents the complete and entire agreement between the parties a
                 ) : (
                   <div style={{
                     backgroundColor: '#f8f9fa',
-                    border: '1px solid #08a171',
+                    border: '1px solid var(--primary-color)',
                     borderRadius: '8px',
                     padding: '20px',
                     marginTop: '10px'
@@ -2160,7 +2156,7 @@ This document represents the complete and entire agreement between the parties a
                           type="submit"
                           disabled={submittingPayment}
                           style={{
-                            backgroundColor: '#08a171',
+                            backgroundColor: 'var(--primary-color)',
                             color: '#fff',
                             border: 'none',
                             padding: '12px 24px',

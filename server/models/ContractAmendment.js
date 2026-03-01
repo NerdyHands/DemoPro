@@ -16,15 +16,15 @@ const lineItemChangeSchema = new mongoose.Schema({
   original: {
     description: { type: String, trim: true },
     quantity: { type: Number, min: 0 },
-    unitPrice: { type: Number, min: 0 },
-    totalPrice: { type: Number, min: 0 }
+    unitPrice: { type: Number },
+    totalPrice: { type: Number }
   },
   // New/modified line item (for added/modified items)
   updated: {
     description: { type: String, trim: true },
     quantity: { type: Number, min: 0 },
-    unitPrice: { type: Number, min: 0 },
-    totalPrice: { type: Number, min: 0 }
+    unitPrice: { type: Number },
+    totalPrice: { type: Number }
   },
   // Cost impact calculation
   costImpact: {

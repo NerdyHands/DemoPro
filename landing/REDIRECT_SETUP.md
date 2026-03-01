@@ -1,87 +1,35 @@
-# 301 Redirect Setup: /blog → blog.mrdemopro.com
+# Blog Configuration
 
-This document explains how the 301 redirect from `/blog` to `blog.mrdemopro.com` is configured.
+## Current Setup
 
-## Redirect Methods
+The blog is **served directly** from the React app at `/blog`, not redirected to an external domain.
 
-Multiple redirect methods have been set up to ensure compatibility across different hosting platforms:
+### Blog Routes
 
-### 1. Netlify (_redirects file)
-**File:** `landing/public/_redirects`
+- `/blog` - Blog listing page
+- `/blog/:slug` - Individual blog post pages
+- `/blog/tag/:tag` - Blog posts filtered by tag
 
-If you're hosting on Netlify, this file will automatically handle the redirect:
-```
-/blog/*  https://blog.mrdemopro.com/:splat  301
-/blog    https://blog.mrdemopro.com/        301
-```
+### Data Source
 
-### 2. Vercel (vercel.json)
-**File:** `landing/vercel.json`
+Blog data is served from **AWS S3**:
+- Blog posts and metadata are stored in S3
+- The React app fetches data from S3 and renders it
+- No external redirects are needed
 
-If you're hosting on Vercel, this configuration file handles the redirect:
-```json
-{
-  "redirects": [
-    {
-      "source": "/blog",
-      "destination": "https://blog.mrdemopro.com/",
-      "permanent": true
-    },
-    {
-      "source": "/blog/:path*",
-      "destination": "https://blog.mrdemopro.com/:path*",
-      "permanent": true
-    }
-  ]
-}
-```
+### Configuration
 
-### 3. Apache (.htaccess)
-**File:** `landing/public/.htaccess`
+The blog is configured as a standard React Router route in `src/App.tsx`:
+- No redirects configured
+- Blog pages are part of the main SPA
+- Data fetching handled by `src/pages/Blog.tsx`, `BlogPost.tsx`, and `BlogTag.tsx`
 
-If you're using Apache web server, this file handles the redirect:
-```apache
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{REQUEST_URI} ^/blog(/.*)?$
-RewriteRule ^blog(/.*)?$ https://blog.mrdemopro.com%1 [R=301,L]
-</IfModule>
-```
+## SPA Routing
 
-### 4. React Router (Client-side fallback)
-**File:** `landing/src/App.tsx`
+Since the blog is part of the React app, it benefits from the SPA routing configuration:
+- See `AMPLIFY_SPA_ROUTING.md` for SPA routing setup
+- The `/blog` routes are handled by the same rewrite rules as other routes
 
-A client-side redirect component has been added as a fallback. This is not a true 301 redirect but will work if server-side redirects fail.
+## Historical Note
 
-## How It Works
-
-1. **Server-side redirects** (methods 1-3) are checked first and return proper 301 HTTP status codes
-2. **Client-side redirect** (method 4) is a fallback that runs if the user reaches the React app
-
-## Testing the Redirect
-
-After deployment, test the redirect:
-
-```bash
-# Test with curl (should show 301 status)
-curl -I https://mrdemopro.com/blog
-
-# Should return:
-# HTTP/1.1 301 Moved Permanently
-# Location: https://blog.mrdemopro.com/
-```
-
-## Build Process
-
-The redirect files are automatically copied to the `dist` directory during build:
-- `_redirects` (for Netlify)
-- `.htaccess` (for Apache)
-- `vercel.json` (for Vercel - stays in root)
-
-## Notes
-
-- **301 redirects** are permanent and tell search engines to update their indexes
-- The redirect preserves any path after `/blog` (e.g., `/blog/post-1` → `blog.mrdemopro.com/post-1`)
-- Only one redirect method will be active depending on your hosting platform
-- Make sure your hosting platform supports the redirect method you're using
-
+Previously, the blog was redirected to `blog.mrdemopro.com`. This is no longer the case - the blog is now integrated into the main site and served from S3.

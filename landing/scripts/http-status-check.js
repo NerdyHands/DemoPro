@@ -1,6 +1,6 @@
 // Lightweight HTTP status audit for built site
-// - Starts vite preview on a fixed port
-// - Requests each route with redirect: manual to capture status codes
+// - Reads URLs from dist/sitemap.xml (only checks URLs that are in the sitemap)
+// - Starts vite preview on a fixed port and requests each sitemap URL
 // - Marks 301/302 as intentional based on a simple allowlist
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -9,37 +9,43 @@ import http from 'node:http'
 import https from 'node:https'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
-import { getRoutesWithMetadata } from './parse-routes.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const PORT = 5051
 const BASE_URL = `http://localhost:${PORT}`
+const SITEMAP_PATH = join(__dirname, '../dist/sitemap.xml')
 const REPORT_PATH = 'dist/http-status-report.json'
 const REPORT_TXT_PATH = 'dist/http-status-report.txt'
 
-function readIncludeRoutes() {
-  try {
-    // Try to get routes from parse-routes.js (most accurate)
-    const routes = getRoutesWithMetadata()
-    const routePaths = routes
-      .map(r => r.path)
-      .filter(path => {
-        // Skip dynamic routes and catch-all
-        if (path.includes(':') || path === '*') return false
-        // Skip blog post routes (dynamic)
-        if (path.startsWith('/blog/') && path !== '/blog') return false
-        return true
-      })
-    return routePaths.length > 0 ? routePaths : ['/']
-  } catch (error) {
-    console.warn('⚠️  Could not parse routes, falling back to package.json:', error.message)
-    // Fallback to package.json
-    const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
-    const includes = pkg.reactSnap && Array.isArray(pkg.reactSnap.include) ? pkg.reactSnap.include : ['/']
-    return includes
+/**
+ * Extract URL paths from dist/sitemap.xml. Returns paths like "/", "/blog/", "/blog/slug/".
+ */
+function readPathsFromSitemap() {
+  if (!existsSync(SITEMAP_PATH)) {
+    console.error('HTTP Status Audit: dist/sitemap.xml not found. Run the build first (npm run build).')
+    process.exit(1)
   }
+  const xml = readFileSync(SITEMAP_PATH, 'utf8')
+  const locRegex = /<loc>(.*?)<\/loc>/g
+  const paths = []
+  let match
+  while ((match = locRegex.exec(xml)) !== null) {
+    const fullUrl = match[1].trim()
+    try {
+      const u = new URL(fullUrl)
+      const path = u.pathname || '/'
+      paths.push(path.endsWith('/') || path === '/' ? path : `${path}/`)
+    } catch {
+      // skip malformed URL
+    }
+  }
+  if (paths.length === 0) {
+    console.error('HTTP Status Audit: no <loc> URLs found in dist/sitemap.xml')
+    process.exit(1)
+  }
+  return paths
 }
 
 // Configure intentional redirects here (source path -> true)
@@ -78,13 +84,14 @@ async function waitForServer(url, timeoutMs = 10000) {
 }
 
 async function run() {
-  // Check if dist folder exists
+  // Require dist and sitemap (sitemap is the source of URLs to check)
   if (!existsSync('dist')) {
     console.error('HTTP Status Audit: dist folder does not exist. Please run the build first (npm run build)')
     process.exit(1)
   }
 
-  const routes = readIncludeRoutes()
+  const routes = readPathsFromSitemap()
+  console.log(`HTTP Status Audit: checking ${routes.length} URL(s) from dist/sitemap.xml\n`)
 
   // Start vite preview
   const preview = exec(`npx vite preview --port ${PORT}`)

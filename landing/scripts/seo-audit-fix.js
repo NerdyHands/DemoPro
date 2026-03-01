@@ -29,21 +29,19 @@ const INTERNAL_LINKS = generateInternalLinks();
 /**
  * Fix sitemap redirects and 4XX issues
  */
-function fixSitemapIssues() {
+async function fixSitemapIssues() {
   console.log('🔧 Fixing sitemap redirects and 4XX issues...');
-  
-  // Regenerate sitemap instead of trying to fix a broken one
-  const sitemapContent = generateSitemap();
-  
+
+  const sitemapContent = await generateSitemap();
+
   const sitemapPath = path.join(PUBLIC_DIR, 'sitemap.xml');
   const distSitemapPath = path.join(DIST_DIR, 'sitemap.xml');
-  
-  // Write regenerated sitemap
+
   fs.writeFileSync(sitemapPath, sitemapContent, 'utf8');
   if (fs.existsSync(DIST_DIR)) {
     fs.writeFileSync(distSitemapPath, sitemapContent, 'utf8');
   }
-  
+
   console.log('✅ Sitemap regenerated successfully');
   return true;
 }
@@ -326,9 +324,9 @@ Host: ${BASE_URL}`;
 /**
  * Main function to run all fixes
  */
-function main() {
+async function main() {
   console.log('🚀 Starting SEO audit and fix process...');
-  
+
   const fixes = [
     { name: 'Sitemap Issues', fn: fixSitemapIssues },
     { name: '404 Error Handling', fn: add404ErrorHandling },
@@ -337,13 +335,14 @@ function main() {
     { name: 'Internal Linking', fn: addInternalLinking },
     { name: 'Robots.txt', fn: generateRobotsTxt }
   ];
-  
+
   let successCount = 0;
-  
-  fixes.forEach(({ name, fn }, index) => {
+
+  for (const { name, fn } of fixes) {
     try {
       console.log(`\n🔧 Running ${name}...`);
-      if (fn()) {
+      const result = await Promise.resolve(fn());
+      if (result) {
         successCount++;
         console.log(`✅ ${name} completed successfully`);
       } else {
@@ -353,10 +352,10 @@ function main() {
       console.error(`❌ Error in ${name}:`, error.message);
       console.error(error.stack);
     }
-  });
-  
+  }
+
   console.log(`\n🎉 SEO fixes completed! ${successCount}/${fixes.length} fixes applied successfully.`);
-  
+
   if (successCount === fixes.length) {
     console.log('✅ All SEO issues should now be resolved!');
   } else {
@@ -366,7 +365,10 @@ function main() {
 
 // Run the script
 if (import.meta.url === `file://${process.argv[1]}` || process.argv[1].endsWith('seo-audit-fix.js')) {
-  main();
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
 
 export { main as runSeoAuditFix };

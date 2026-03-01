@@ -14,6 +14,18 @@ class ContractPdfService {
     }
   }
 
+  /** Replace newlines, path separators, and other chars invalid in filenames. */
+  sanitizeForFilename(str) {
+    if (str == null || typeof str !== 'string') return '';
+    return str
+      .replace(/[\r\n]+/g, ' ')
+      .replace(/[/\\:*?"<>|]/g, '_')
+      .replace(/\s+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '')
+      .trim() || 'Unknown';
+  }
+
   // Contract-specific condensed estimate page. Fits on a single page, no extra pages.
   // If lineItems and totalAmount are provided, use those instead of estimate
   addEstimatePageForContract(doc, contract, customer, estimate, lineItems = null, totalAmount = null) {
@@ -77,7 +89,7 @@ class ContractPdfService {
     
     doc.fontSize(14)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text(summarySubtitle, { align: 'center' });
     
     doc.moveDown(1.5);
@@ -104,8 +116,8 @@ class ContractPdfService {
     const drawHeaderRowContract = () => {
       const headerTop = doc.y;
       doc.rect(50, headerTop - 5, 490, 22)
-         .fill('#08a171')
-         .strokeColor('#08a171')
+         .fill('#f58220')
+         .strokeColor('#f58220')
          .stroke();
       doc.fontSize(9)
          .font('Helvetica-Bold')
@@ -128,44 +140,25 @@ class ContractPdfService {
       return Math.max(minRowHeight, descriptionHeight + rowPaddingY * 2);
     };
     
-    // Always prefer estimate lineItems if available (they're the source of truth)
-    // Contract lineItems might have incomplete data (N/A descriptions, $0 prices)
+    // Prefer contract lineItems when present so the summary matches the contract (including discount lines)
     let itemsToUse;
-    
-    if (estimate && estimate.lineItems && estimate.lineItems.length > 0) {
-      // Use estimate lineItems as the base
+    if (lineItems && lineItems.length > 0) {
+      itemsToUse = lineItems.map((contractItem, index) => {
+        const estimateItem = estimate?.lineItems?.[index];
+        return {
+          description: (contractItem.description && contractItem.description.trim() !== '' && contractItem.description !== 'N/A')
+            ? contractItem.description
+            : (estimateItem?.description || 'N/A'),
+          quantity: (contractItem.quantity != null && contractItem.quantity > 0) ? contractItem.quantity : (estimateItem?.quantity ?? 1),
+          unitPrice: typeof contractItem.unitPrice === 'number' ? contractItem.unitPrice : (estimateItem?.unitPrice ?? 0),
+          totalPrice: typeof contractItem.totalPrice === 'number' ? contractItem.totalPrice : (contractItem.quantity * (contractItem.unitPrice ?? estimateItem?.unitPrice ?? 0)),
+          notes: (contractItem.notes && contractItem.notes.length > 0) ? contractItem.notes : (estimateItem?.notes || [])
+        };
+      });
+    } else if (estimate && estimate.lineItems && estimate.lineItems.length > 0) {
       itemsToUse = estimate.lineItems;
-      
-      // If contract also has lineItems, try to merge any contract-specific updates
-      // (like quantity or price changes) while keeping estimate data as fallback
-      if (lineItems && lineItems.length > 0 && lineItems.length === estimate.lineItems.length) {
-        itemsToUse = estimate.lineItems.map((estimateItem, index) => {
-          const contractItem = lineItems[index];
-          if (!contractItem) return estimateItem;
-          
-          // Use contract values if they're valid, otherwise use estimate values
-          return {
-            description: (contractItem.description && contractItem.description.trim() !== '' && contractItem.description !== 'N/A') 
-              ? contractItem.description 
-              : estimateItem.description,
-            quantity: (contractItem.quantity && contractItem.quantity > 0) 
-              ? contractItem.quantity 
-              : estimateItem.quantity,
-            unitPrice: (contractItem.unitPrice && contractItem.unitPrice > 0) 
-              ? contractItem.unitPrice 
-              : estimateItem.unitPrice,
-            totalPrice: (contractItem.totalPrice && contractItem.totalPrice > 0) 
-              ? contractItem.totalPrice 
-              : (estimateItem.totalPrice || ((contractItem.quantity || estimateItem.quantity) * (contractItem.unitPrice || estimateItem.unitPrice))),
-            notes: (contractItem.notes && contractItem.notes.length > 0) 
-              ? contractItem.notes 
-              : (estimateItem.notes || [])
-          };
-        });
-      }
     } else {
-      // Fall back to contract lineItems if no estimate
-      itemsToUse = lineItems || [];
+      itemsToUse = [];
     }
     
     if (itemsToUse && itemsToUse.length > 0) {
@@ -280,7 +273,7 @@ class ContractPdfService {
     const totalsBoxX = centerX - (totalsBoxWidth / 2);
     doc.rect(totalsBoxX, totalsY - 8, totalsBoxWidth, totalsBoxHeight)
        .fill('#f3f4f6')
-       .strokeColor('#08a171')
+       .strokeColor('#f58220')
        .lineWidth(1)
        .stroke();
     // Use provided totalAmount (from contract) if available, otherwise use estimate's totalAmount
@@ -288,7 +281,7 @@ class ContractPdfService {
     
     doc.fontSize(14)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('TOTAL:', totalsBoxX + 10, totalsY + 12)
        .text(this.formatPrice(totalToUse), totalsBoxX + totalsBoxWidth - 10, totalsY + 12, { align: 'right' });
     
@@ -374,14 +367,15 @@ class ContractPdfService {
         // Initialize document position
         doc.y = 50;
 
-        // Extract partial address for filename
-        const partialAddress = this.extractPartialAddress(contract, customer);
+        // Extract partial address for filename (sanitize so path has no newlines/slashes)
+        const rawPartialAddress = this.extractPartialAddress(contract, customer);
+        const partialAddress = this.sanitizeForFilename(rawPartialAddress) || 'Address';
         const resolvedContractName = (contract.clientName || contract.customerName || '').trim();
         const resolvedCustomerName = customer ? `${customer.firstName || ''} ${customer.lastName || ''}`.trim() : '';
         const clientNameSource = resolvedContractName || resolvedCustomerName || 'Contract';
-        const clientName = clientNameSource.replace(/\s+/g, '_');
-        const dateStr = this.formatDate(contract.createdAt || new Date()).replace(/\s+/g, '_');
-        
+        const clientName = this.sanitizeForFilename(clientNameSource) || 'Contract';
+        const dateStr = this.sanitizeForFilename(this.formatDate(contract.createdAt || new Date())) || 'Date';
+
         const fileName = `Painting_Contract_${clientName}_${partialAddress}_${dateStr}.pdf`;
         const filePath = path.join(this.uploadsDir, fileName);
         const stream = fs.createWriteStream(filePath);
@@ -551,7 +545,7 @@ class ContractPdfService {
     // Company name and licensing (centered, matching estimate styling)
     doc.fontSize(16)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('Castleton Real Estate, LLC dba Mr Demo Pro', { align: 'center' });
     
     doc.fontSize(12)
@@ -574,7 +568,7 @@ class ContractPdfService {
     
     doc.fontSize(20)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('Demolition Contract', { align: 'center' });
     
     doc.fontSize(14)
@@ -585,7 +579,7 @@ class ContractPdfService {
     // Add green line separator
     doc.moveDown(1);
     const currentY = doc.y || 200; // Ensure we have a valid Y coordinate
-    doc.strokeColor('#08a171')
+    doc.strokeColor('#f58220')
        .lineWidth(3)
        .moveTo(50, currentY)
        .lineTo(545, currentY)
@@ -607,20 +601,20 @@ class ContractPdfService {
     // Background box
     doc.rect(45, boxTop - 10, 505, boxHeight)
        .fill('#f8f9fa')
-       .strokeColor('#08a171')
+       .strokeColor('#f58220')
        .lineWidth(1)
        .stroke();
     
     // Left border accent
     doc.rect(45, boxTop - 10, 4, boxHeight)
-       .fill('#08a171');
+       .fill('#f58220');
     
          let currentY = boxTop + 10;
     
     // CONTRACTOR Section
     doc.fontSize(14)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('CONTRACTOR', 60, currentY);
     
     currentY += 20;
@@ -647,7 +641,7 @@ class ContractPdfService {
     // CLIENT Section
     doc.fontSize(14)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('CLIENT', 60, currentY);
     
     currentY += 20;
@@ -730,7 +724,7 @@ class ContractPdfService {
     // Add green left border
     const headerY = doc.y - 5;
     doc.rect(45, headerY, 4, 20)
-       .fill('#08a171');
+       .fill('#f58220');
     
     doc.moveDown(1);
   }
@@ -796,20 +790,20 @@ class ContractPdfService {
      // Draw the box
      doc.rect(55, listTop - 5, 490, listHeight)
         .fill('#f8f9fa')
-        .strokeColor('#08a171')
+        .strokeColor('#f58220')
         .lineWidth(1.5)
         .stroke();
      
      // Add left border accent
      doc.rect(55, listTop - 5, 4, listHeight)
-        .fill('#08a171');
+        .fill('#f58220');
      
      let currentY = listTop + 15;
      services.forEach((service, index) => {
        // Add bullet point
        doc.fontSize(11)
           .font('Helvetica-Bold')
-          .fillColor('#08a171')
+          .fillColor('#f58220')
           .text('•', 70, currentY);
        
        // Add service text
@@ -852,7 +846,7 @@ class ContractPdfService {
     
     doc.rect(55, boxTop - 5, 490, boxHeight)
        .fill('#f3f4f6')
-       .strokeColor('#08a171')
+       .strokeColor('#f58220')
        .lineWidth(1)
        .stroke();
     
@@ -863,7 +857,7 @@ class ContractPdfService {
     
     doc.fontSize(16)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text(this.formatPrice(contract.totalAmount), 70, boxTop + 30);
     
     doc.y = boxTop + boxHeight + 20;
@@ -996,13 +990,13 @@ class ContractPdfService {
 
     doc.rect(55, scheduleTop - 5, 490, scheduleBoxHeight)
        .fill('#f8f9fa')
-       .strokeColor('#08a171')
+       .strokeColor('#f58220')
        .lineWidth(1)
        .stroke();
     
     // Left accent
     doc.rect(55, scheduleTop - 5, 4, scheduleBoxHeight)
-       .fill('#08a171');
+       .fill('#f58220');
 
     // Column positions
     const colXLabel = 70;
@@ -1116,13 +1110,13 @@ class ContractPdfService {
     
     doc.rect(55, receiptTop - 5, 490, boxHeight)
        .fill('#f8f9fa')
-       .strokeColor('#08a171')
+       .strokeColor('#f58220')
        .lineWidth(1)
        .stroke();
     
     // Left accent
     doc.rect(55, receiptTop - 5, 4, boxHeight)
-       .fill('#08a171');
+       .fill('#f58220');
     
     let cursorY = receiptTop + 15;
     
@@ -1137,7 +1131,7 @@ class ContractPdfService {
     // Total paid amount
     doc.fontSize(16)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('Total Paid: ', 70, cursorY, { continued: true })
        .text(this.formatPrice(totalPaid));
     
@@ -1187,7 +1181,7 @@ class ContractPdfService {
        .font('Helvetica-Bold')
        .fillColor('#333333')
        .text('Remaining Balance: ', 70, cursorY, { continued: true })
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text(this.formatPrice(remainingBalance));
     
     doc.y = receiptTop + boxHeight + 15;
@@ -1213,7 +1207,7 @@ class ContractPdfService {
        .fillColor('#333333')
        .text(`Work is scheduled to commence on or around: `, 60, doc.y, { continued: true })
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text(startDate);
     
     doc.moveDown(0.5);
@@ -1224,7 +1218,7 @@ class ContractPdfService {
          .fillColor('#333333')
          .text(`Projected completion date: `, 60, doc.y, { continued: true })
          .font('Helvetica-Bold')
-         .fillColor('#08a171')
+         .fillColor('#f58220')
          .text(endDate);
       
       doc.moveDown(0.5);
@@ -1269,7 +1263,7 @@ class ContractPdfService {
        .fillColor('#333333')
        .text('Contractor maintains comprehensive general liability insurance with minimum coverage of ', 60, doc.y, { continued: true, width: 485 })
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('$1,000,000', { continued: true })
        .font('Helvetica')
        .fillColor('#333333')
@@ -1339,7 +1333,7 @@ class ContractPdfService {
        .fillColor('#333333')
        .text('Either party may terminate this contract by providing ', 60, doc.y, { continued: true, width: 485 })
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor('#f58220')
        .text('three (3) days written notice', { continued: true })
        .font('Helvetica')
        .fillColor('#333333')
@@ -1524,7 +1518,7 @@ class ContractPdfService {
     // Client signature box
     doc.rect(leftBoxX, signatureBoxTop, boxWidth, signatureBoxHeight)
        .fill('#f3f4f6')
-       .strokeColor('#08a171')
+       .strokeColor('#f58220')
        .lineWidth(1)
        .stroke();
     
@@ -1574,7 +1568,7 @@ class ContractPdfService {
     // Company signature box
     doc.rect(rightBoxX, signatureBoxTop, boxWidth, signatureBoxHeight)
        .fill('#f3f4f6')
-       .strokeColor('#08a171')
+       .strokeColor('#f58220')
        .lineWidth(1)
        .stroke();
     
@@ -1668,7 +1662,7 @@ class ContractPdfService {
 
      doc.fontSize(16)
         .font('Helvetica-Bold')
-        .fillColor('#08a171')
+        .fillColor('#f58220')
         .text(detailedSubtitle, { align: 'center' });
      
      doc.moveDown(2);
@@ -1695,8 +1689,8 @@ class ContractPdfService {
     const drawHeaderRow = () => {
       const headerTop = doc.y;
       doc.rect(50, headerTop - 5, 490, 25)
-         .fill('#08a171')
-         .strokeColor('#08a171')
+         .fill('#f58220')
+         .strokeColor('#f58220')
          .stroke();
       doc.fontSize(10)
          .font('Helvetica-Bold')
@@ -1837,14 +1831,14 @@ class ContractPdfService {
      
      doc.rect(totalsBoxX, totalsY - 10, totalsBoxWidth, totalsBoxHeight)
         .fill('#f3f4f6')
-        .strokeColor('#08a171')
+        .strokeColor('#f58220')
         .lineWidth(1)
         .stroke();
      
      // Total only - in green
      doc.fontSize(16)
         .font('Helvetica-Bold')
-        .fillColor('#08a171')
+        .fillColor('#f58220')
         .text('TOTAL:', totalsBoxX + 10, totalsY + 20)
         .text(this.formatPrice(estimate.totalAmount || 0), totalsBoxX + totalsBoxWidth - 10, totalsY + 20, { align: 'right' });
      

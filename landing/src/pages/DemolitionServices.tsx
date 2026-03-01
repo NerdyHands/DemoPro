@@ -109,7 +109,13 @@ const DemolitionServices = () => (
                 {label: 'Garage Demolition', to: '/garage-demolition/'},
                 {label: 'Commercial Demolition', to: '/commercial-demolition/'},
                 {label: 'Tenant Clean Out', to: '/tenant-clean-out/'},
-                {label: 'Shed Removal', to: '/services/shed-removal/'}
+                {label: 'Kitchen Demolition', to: '/services/kitchen-demolition/'},
+                {label: 'Bathroom Demolition', to: '/services/bathroom-demolition/'},
+                {label: 'Commercial Interior Demolition', to: '/services/commercial-interior-demolition/'},
+                {label: 'Concrete Removal', to: '/services/concrete-removal/'},
+                {label: 'Garage Demolition (Service)', to: '/services/garage-demolition/'},
+                {label: 'Shed Removal', to: '/services/shed-removal/'},
+                {label: 'Demolition Contractor Hampton, VA', to: '/demolition-contractor-hampton-va/'}
               ].map(link => (
                 <li
                   key={link.to}

@@ -174,7 +174,7 @@ const Home = () => {
                       letterSpacing: '-0.025em'
                     }}
                   >
-                    Professional Demolition Company <br /> Serving Hampton Roads
+                    Hassle-Free Demolition Services for Hampton Roads Homeowners &amp; Contractors
                   </h1>
 
                   <div className="mb-3">
@@ -194,9 +194,8 @@ const Home = () => {
                   </div>
 
                   <h2
-                    className="hero-subtitle text-white mb-3"
+                    className="hero-subtitle text-white mb-4"
                     style={{
-                      // marginBottom: '30px',
                       fontSize: '1.4rem',
                       fontWeight: '600',
                       lineHeight: '1.3',
@@ -204,7 +203,7 @@ const Home = () => {
                       letterSpacing: '-0.01em'
                     }}
                   >
-                    Fast, Safe Demolition in Hampton Roads
+                    Safe, Fast, and Fully Cleaned Up
                   </h2>
 
                   <p
@@ -217,7 +216,7 @@ const Home = () => {
                       fontFamily: 'var(--font-family-primary)'
                     }}
                   >
-                    Mr Demo Pro is a local demolition company and trusted demolition contractor for homeowners and businesses. Among demolition companies in Hampton Roads, we focus on fast, safe demolition services that keep your project moving.
+                    Need an old shed, deck, fence, or whole interior removed? We handle the heavy work so you don&apos;t have to.
                   </p>
 
                   <div className="mb-3">
@@ -369,7 +368,7 @@ const Home = () => {
                         textTransform: 'none'
                       }}
                     >
-                      {isSubmitting ? 'Submitting...' : 'Get a Free Quote Today'}
+                      {isSubmitting ? 'Submitting...' : '👉 Get Your Free Quote Today'}
                     </Button>
                   </form>
                 </motion.div>
@@ -403,11 +402,54 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Services Section - Improved Spacing */}
+      {/* Problem Section */}
       <hr
         ref={learnMoreRef}
         style={{borderTop: '0px solid transparent', margin: '0'}}
       />
+
+      <section
+        id="problem"
+        style={{
+          padding: '60px 0',
+          backgroundColor: 'var(--color-surface)'
+        }}
+      >
+        <Container>
+          <Row className="justify-content-center">
+            <Col lg={10} className="text-center">
+              <motion.h2
+                className="title-small fw-bold"
+                initial={{opacity: 0}}
+                whileInView={{opacity: 1}}
+                transition={{duration: 0.6}}
+                style={{
+                  color: 'var(--color-primary)',
+                  marginBottom: '24px',
+                  fontSize: 'var(--font-size-3xl)'
+                }}
+              >
+                Outdated structures and debris create stress, safety hazards, and slow down your project.
+              </motion.h2>
+              <motion.p
+                className="subtitle-small"
+                initial={{opacity: 0, y: 20}}
+                whileInView={{opacity: 1, y: 0}}
+                transition={{delay: 0.2, duration: 0.6}}
+                style={{
+                  fontSize: '1.125rem',
+                  lineHeight: '1.7',
+                  color: 'var(--color-text-secondary)',
+                  fontFamily: 'var(--font-family-primary)',
+                  marginBottom: 0
+                }}
+              >
+                We know demolition can feel overwhelming. From permits to cleanup, the last thing you want is more frustration.
+              </motion.p>
+            </Col>
+          </Row>
+        </Container>
+      </section>
 
       <main>
         <section id="key-features" style={{padding: '80px 0 60px 0'}}>
@@ -421,12 +463,57 @@ const Home = () => {
                   transition={{duration: 0.6}}
                   style={{
                     color: 'var(--color-primary)',
-                    marginBottom: '60px',
+                    marginBottom: '24px',
                     fontSize: 'var(--font-size-4xl)'
                   }}
                 >
-                  Full-Service Demolition Contractor
+                  Solutions
                 </motion.h2>
+                <motion.p
+                  initial={{opacity: 0}}
+                  whileInView={{opacity: 1}}
+                  transition={{delay: 0.2, duration: 0.6}}
+                  style={{
+                    fontSize: '1.125rem',
+                    lineHeight: '1.7',
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: '40px',
+                    maxWidth: '800px',
+                    marginLeft: 'auto',
+                    marginRight: 'auto'
+                  }}
+                >
+                  At Mr Demo Pro, we specialize in comprehensive demolition services.
+                </motion.p>
+                <motion.ul
+                  className="list-unstyled text-start d-inline-block mb-5"
+                  initial={{opacity: 0}}
+                  whileInView={{opacity: 1}}
+                  transition={{delay: 0.3, duration: 0.6}}
+                  style={{
+                    fontSize: '1.1rem',
+                    lineHeight: '2',
+                    color: 'var(--color-text-primary)'
+                  }}
+                >
+                  <li>✔ Interior demolition</li>
+                  <li>✔ Shed &amp; deck removal</li>
+                  <li>✔ Fence removal</li>
+                  <li>✔ Junk removal &amp; cleanouts</li>
+                </motion.ul>
+                <motion.p
+                  initial={{opacity: 0}}
+                  whileInView={{opacity: 1}}
+                  transition={{delay: 0.4, duration: 0.6}}
+                  style={{
+                    fontSize: '1.125rem',
+                    lineHeight: '1.7',
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: '60px'
+                  }}
+                >
+                  All performed with safety first, clear communication, and a clean finish.
+                </motion.p>
               </Col>
 
               {/* Shed Removal Service */}
@@ -754,7 +841,7 @@ const Home = () => {
                   fontSize: 'var(--font-size-4xl)'
                 }}
               >
-                Simple 3-Step Process
+                Simple 3-Step Plan
               </motion.h2>
             </Col>
           </Row>
@@ -794,7 +881,7 @@ const Home = () => {
                     fontFamily: 'var(--font-family-secondary)'
                   }}
                 >
-                  Request a Quote
+                  Request your free quote
                 </h3>
                 <p
                   style={{
@@ -804,8 +891,7 @@ const Home = () => {
                     fontFamily: 'var(--font-family-primary)'
                   }}
                 >
-                  Fill out our simple form or call us for a free, no-obligation
-                  demolition quote.
+                  Quickly online or by phone
                 </p>
               </motion.div>
             </Col>
@@ -845,7 +931,7 @@ const Home = () => {
                     fontFamily: 'var(--font-family-secondary)'
                   }}
                 >
-                  Schedule Demo Service
+                  Schedule your demolition date
                 </h3>
                 <p
                   style={{
@@ -855,8 +941,7 @@ const Home = () => {
                     fontFamily: 'var(--font-family-primary)'
                   }}
                 >
-                  We'll work with you to schedule a convenient time for your
-                  demolition project.
+                  We handle permits &amp; prep
                 </p>
               </motion.div>
             </Col>
@@ -896,7 +981,7 @@ const Home = () => {
                     fontFamily: 'var(--font-family-secondary)'
                   }}
                 >
-                  We Complete the Job
+                  Relax while we do the work
                 </h3>
                 <p
                   style={{
@@ -906,8 +991,95 @@ const Home = () => {
                     fontFamily: 'var(--font-family-primary)'
                   }}
                 >
-                  Our professional team handles everything safely and efficiently,
-                  leaving your property clean and ready.
+                  With cleanup included
+                </p>
+              </motion.div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      {/* Failure / Risk Avoidance & Success Vision */}
+      <section
+        id="risk-success"
+        style={{
+          padding: '80px 0',
+          backgroundColor: 'var(--color-background)'
+        }}
+      >
+        <Container>
+          <Row>
+            <Col lg={6} md={12} className="mb-4 mb-lg-0">
+              <motion.div
+                initial={{opacity: 0, x: -30}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{duration: 0.6}}
+                style={{
+                  padding: '40px 30px',
+                  borderRadius: '16px',
+                  backgroundColor: 'var(--color-surface)',
+                  boxShadow: 'var(--shadow-lg)',
+                  height: '100%'
+                }}
+              >
+                <h3
+                  className="fw-bold"
+                  style={{
+                    color: 'var(--color-primary)',
+                    marginBottom: '20px',
+                    fontSize: '1.5rem',
+                    fontFamily: 'var(--font-family-secondary)'
+                  }}
+                >
+                  Don&apos;t Risk Delays or DIY Hazards
+                </h3>
+                <p
+                  style={{
+                    fontSize: '1.1rem',
+                    lineHeight: '1.7',
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: 0,
+                    fontFamily: 'var(--font-family-primary)'
+                  }}
+                >
+                  Don&apos;t risk delays, unsafe sites, or DIY hazards — professional demolition gets it done right the first time.
+                </p>
+              </motion.div>
+            </Col>
+            <Col lg={6} md={12}>
+              <motion.div
+                initial={{opacity: 0, x: 30}}
+                whileInView={{opacity: 1, x: 0}}
+                transition={{duration: 0.6, delay: 0.2}}
+                style={{
+                  padding: '40px 30px',
+                  borderRadius: '16px',
+                  backgroundColor: 'var(--color-surface)',
+                  boxShadow: 'var(--shadow-lg)',
+                  height: '100%'
+                }}
+              >
+                <h3
+                  className="fw-bold"
+                  style={{
+                    color: 'var(--color-primary)',
+                    marginBottom: '20px',
+                    fontSize: '1.5rem',
+                    fontFamily: 'var(--font-family-secondary)'
+                  }}
+                >
+                  Imagine Your Property Ready
+                </h3>
+                <p
+                  style={{
+                    fontSize: '1.1rem',
+                    lineHeight: '1.7',
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: 0,
+                    fontFamily: 'var(--font-family-primary)'
+                  }}
+                >
+                  Imagine your property cleared and ready for the next project — stress-free and on schedule.
                 </p>
               </motion.div>
             </Col>
@@ -1076,15 +1248,15 @@ const Home = () => {
                   <Button
                     size="lg"
                     className="customButton large"
-                    style={{
-                      padding: '15px 40px',
-                      fontSize: 'var(--font-size-lg)',
-                      fontWeight: 'var(--font-weight-semibold)',
-                      borderRadius: '12px'
-                    }}
-                  >
-                    Get Quote
-                  </Button>
+                  style={{
+                    padding: '15px 40px',
+                    fontSize: 'var(--font-size-lg)',
+                    fontWeight: 'var(--font-weight-semibold)',
+                    borderRadius: '12px'
+                  }}
+                >
+                  👉 Get Your Free Quote Today
+                </Button>
                 </Link>
               </motion.div>
             </Col>

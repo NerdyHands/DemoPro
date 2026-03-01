@@ -16,14 +16,14 @@ const lineItemSchema = new mongoose.Schema({
   unitPrice: {
     type: Number,
     required: true,
-    min: 0,
     default: 0
+    // No min: allow negative for discount line items
   },
   totalPrice: {
     type: Number,
     required: true,
-    min: 0,
     default: 0
+    // No min: allow negative for discount line items
   },
   notes: {
     type: [String],
@@ -117,8 +117,8 @@ const contractSchema = new mongoose.Schema({
   totalAmount: {
     type: Number,
     required: true,
-    min: 0,
     default: 0
+    // No min: can be negative when discount line items reduce total
   },
   // Line items from estimate
   lineItems: [lineItemSchema],
@@ -127,8 +127,8 @@ const contractSchema = new mongoose.Schema({
   subtotal: {
     type: Number,
     required: true,
-    min: 0,
     default: 0
+    // No min: can be negative when discount line items reduce total
   },
   // Contract specific fields
   clientName: {

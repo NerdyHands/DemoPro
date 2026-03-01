@@ -45,29 +45,27 @@ function writeFile(content, filePath) {
 }
 
 /**
- * Generate and validate sitemap
+ * Generate and validate sitemap (base URLs + blog from S3)
  */
-function generateSitemapFile() {
+async function generateSitemapFile() {
   console.log('🗺️  Generating sitemap.xml...');
-  
-  const sitemapContent = generateSitemap();
+
+  const sitemapContent = await generateSitemap();
   const publicSitemapPath = path.join(PUBLIC_DIR, 'sitemap.xml');
-  
-  // Write to public/ (will be copied to dist/ by vite build)
-  // Also write to dist/ if it exists (for immediate use)
+
   const publicSuccess = writeFile(sitemapContent, publicSitemapPath);
   let distSuccess = true;
-  
+
   if (fs.existsSync(DIST_DIR)) {
     const distSitemapPath = path.join(DIST_DIR, 'sitemap.xml');
     distSuccess = writeFile(sitemapContent, distSitemapPath);
   } else {
     console.log('ℹ️  Dist directory not found yet (will be created during build)');
   }
-  
+
   if (publicSuccess) {
-    const routeCount = getRoutesWithMetadata().length;
-    console.log(`📊 Generated sitemap with ${routeCount} URLs`);
+    const urlCount = (sitemapContent.match(/<url>/g) || []).length;
+    console.log(`📊 Generated sitemap with ${urlCount} URLs`);
     return true;
   }
   return false;
@@ -143,7 +141,7 @@ function validateFiles() {
 /**
  * Main function
  */
-function main() {
+async function main() {
   console.log('🚀 Starting SEO files generation for Mr Demo Pro...');
   console.log(`🌐 Base URL: ${BASE_URL}`);
   console.log('─'.repeat(50));
@@ -151,9 +149,9 @@ function main() {
   // Ensure directories exist
   ensureDir(PUBLIC_DIR);
   ensureDir(DIST_DIR);
-  
-  // Generate files
-  const sitemapSuccess = generateSitemapFile();
+
+  // Generate files (sitemap = base URLs + blog from S3)
+  const sitemapSuccess = await generateSitemapFile();
   const robotsSuccess = generateRobotsFile();
   
   console.log('─'.repeat(50));
@@ -181,7 +179,10 @@ function main() {
 
 // Run the script
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
 
 export { generateSitemapFile, generateRobotsFile, validateFiles };

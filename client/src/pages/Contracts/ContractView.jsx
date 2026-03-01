@@ -670,8 +670,8 @@ const ContractView = () => {
               className="btn btn-success"
               disabled={downloadingInvoice}
               style={{ 
-                backgroundColor: '#08a171', 
-                borderColor: '#08a171',
+                backgroundColor: 'var(--primary-color)', 
+                borderColor: 'var(--primary-color)',
                 color: 'white'
               }}
             >
@@ -986,7 +986,7 @@ const ContractView = () => {
             {contract.paymentSchedule && contract.paymentSchedule.length > 0 ? (
               <div style={{
                 backgroundColor: '#f8f9fa',
-                border: '1px solid #08a171',
+                border: '1px solid var(--primary-color)',
                 borderRadius: '8px',
                 padding: '20px',
                 marginTop: '10px'
@@ -999,7 +999,7 @@ const ContractView = () => {
                 }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ backgroundColor: '#08a171', color: '#fff' }}>
+                      <tr style={{ backgroundColor: 'var(--primary-color)', color: '#fff' }}>
                         <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
                           Milestone
                         </th>
@@ -1038,7 +1038,7 @@ const ContractView = () => {
                             <td style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
                               {item.description || 'N/A'}
                             </td>
-                            <td style={{ padding: '12px', fontSize: '13px', fontWeight: 'bold', color: '#08a171', textAlign: 'right' }}>
+                            <td style={{ padding: '12px', fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-color)', textAlign: 'right' }}>
                               {formatCurrency(amount)}
                             </td>
                             <td style={{ padding: '12px', fontSize: '13px', color: '#666', textAlign: 'right' }}>
@@ -1230,7 +1230,7 @@ const ContractView = () => {
             ) : (
               <div style={{
                 backgroundColor: '#f8f9fa',
-                border: '1px solid #08a171',
+                border: '1px solid var(--primary-color)',
                 borderRadius: '8px',
                 padding: '20px',
                 marginTop: '10px'
@@ -1316,7 +1316,7 @@ const ContractView = () => {
                           }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                               <thead>
-                                <tr style={{ backgroundColor: '#08a171', color: '#fff' }}>
+                                <tr style={{ backgroundColor: 'var(--primary-color)', color: '#fff' }}>
                                   <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: 'bold' }}>
                                     Description
                                   </th>
@@ -1364,7 +1364,7 @@ const ContractView = () => {
                                                 setExpandedReceipt(expandedReceipt === idx ? null : idx);
                                               }}
                                               style={{
-                                                backgroundColor: '#08a171',
+                                                backgroundColor: 'var(--primary-color)',
                                                 color: '#fff',
                                                 border: 'none',
                                                 padding: '6px 12px',
@@ -1494,7 +1494,7 @@ const ContractView = () => {
                                     <tr>
                                       <td colSpan="5" style={{ padding: '0', backgroundColor: '#fff' }}>
                                         <div style={{
-                                          border: '2px solid #08a171',
+                                          border: '2px solid var(--primary-color)',
                                           borderRadius: '8px',
                                           margin: '10px',
                                           padding: '10px',
@@ -1649,7 +1649,7 @@ const ContractView = () => {
             {!showPaymentForm ? (
               <div style={{
                 backgroundColor: '#f8f9fa',
-                border: '1px solid #08a171',
+                border: '1px solid var(--primary-color)',
                 borderRadius: '8px',
                 padding: '20px',
                 marginTop: '10px',
@@ -1662,7 +1662,7 @@ const ContractView = () => {
                   type="button"
                   onClick={() => setShowPaymentForm(true)}
                   style={{
-                    backgroundColor: '#08a171',
+                    backgroundColor: 'var(--primary-color)',
                     color: '#fff',
                     border: 'none',
                     padding: '12px 24px',
@@ -1678,7 +1678,7 @@ const ContractView = () => {
             ) : (
               <div style={{
                 backgroundColor: '#f8f9fa',
-                border: '1px solid #08a171',
+                border: '1px solid var(--primary-color)',
                 borderRadius: '8px',
                 padding: '20px',
                 marginTop: '10px'
@@ -1805,7 +1805,7 @@ const ContractView = () => {
                       type="submit"
                       disabled={submittingPayment}
                       style={{
-                        backgroundColor: '#08a171',
+                        backgroundColor: 'var(--primary-color)',
                         color: '#fff',
                         border: 'none',
                         padding: '12px 24px',

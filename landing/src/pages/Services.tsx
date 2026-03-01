@@ -35,6 +35,41 @@ const Services = () => {
       desc: 'Professional interior demolition services for renovations and remodeling. We safely remove walls, fixtures, and interior structures to prepare your space for new construction.'
     },
     {
+      title: 'Kitchen Demolition',
+      img: '/assets/Icons/hammer.webp',
+      link: '/services/kitchen-demolition/',
+      aria: 'Get a kitchen demolition quote in Hampton Roads',
+      desc: 'Kitchen demolition for remodels including cabinet removal, countertop demo, flooring removal, and debris haul-off—so your renovation can move fast.'
+    },
+    {
+      title: 'Bathroom Demolition',
+      img: '/assets/Icons/hammer.webp',
+      link: '/services/bathroom-demolition/',
+      aria: 'Get a bathroom demolition quote in Hampton Roads',
+      desc: 'Selective bathroom demolition for renovations: tub and shower removal, vanity demo, tile and flooring removal, plus cleanup and haul-off.'
+    },
+    {
+      title: 'Garage Demolition',
+      img: '/assets/Icons/fence-removal.webp',
+      link: '/services/garage-demolition/',
+      aria: 'Get a garage demolition quote in Hampton Roads',
+      desc: 'Detached or attached garage demolition with debris removal. We keep the jobsite clean and leave your property ready for what’s next.'
+    },
+    {
+      title: 'Concrete Removal',
+      img: '/assets/img/features/services-overview.webp',
+      link: '/services/concrete-removal/',
+      aria: 'Get a concrete removal quote in Hampton Roads',
+      desc: 'Concrete removal for driveways, patios, walkways, slabs, and small foundations. Breakup, load-out, haul-off, and cleanup included.'
+    },
+    {
+      title: 'Commercial Interior Demolition',
+      img: '/assets/img/features/services-overview.webp',
+      link: '/services/commercial-interior-demolition/',
+      aria: 'Get a commercial interior demolition quote in Hampton Roads',
+      desc: 'Commercial interior demo and strip-outs for offices and retail. Selective removal, debris haul-off, and a clean space ready for build-back.'
+    },
+    {
       title: 'Junk Removal',
       img: '/assets/Icons/trash.webp',
       link: '/services/junk-removal/',

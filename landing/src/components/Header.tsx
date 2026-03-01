@@ -156,6 +156,7 @@ const Header = () => {
                       Home
                     </Nav.Link>
 
+                    {/* Services dropdown: matches sitemap order (shed, deck, fence, interior-demo, cleanout, junk-removal) */}
                     <NavDropdown
                       title="Services"
                       id="services-dropdown"
@@ -223,14 +224,58 @@ const Header = () => {
                       </NavDropdown.Item>
                       <NavDropdown.Item
                         as={Link}
-                        to="/services/junk-removal/"
+                        to="/services/kitchen-demolition/"
                         onClick={handleNavClick}
                         style={{
                           fontWeight: 500,
                           padding: '0.5rem 1rem'
                         }}
                       >
-                        Junk Removal
+                        Kitchen Demolition
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/bathroom-demolition/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Bathroom Demolition
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/garage-demolition/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Garage Demolition
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/concrete-removal/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Concrete Removal
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/commercial-interior-demolition/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Commercial Interior Demolition
                       </NavDropdown.Item>
                       <NavDropdown.Item
                         as={Link}
@@ -243,89 +288,24 @@ const Header = () => {
                       >
                         Cleanout Services
                       </NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item
-                      as={Link}
-                      to="/building-demolition/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 500,
-                        padding: '0.5rem 1rem'
-                      }}
-                    >
-                      Building Demolition
-                    </NavDropdown.Item>
-                    <NavDropdown.Item
-                      as={Link}
-                      to="/demolition-services/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 500,
-                        padding: '0.5rem 1rem'
-                      }}
-                    >
-                      Demolition Services
-                    </NavDropdown.Item>
-                    <NavDropdown.Item
-                      as={Link}
-                      to="/concrete-demolition/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 500,
-                        padding: '0.5rem 1rem'
-                      }}
-                    >
-                      Concrete Demolition
-                    </NavDropdown.Item>
-                    <NavDropdown.Item
-                      as={Link}
-                      to="/residential-demolition/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 500,
-                        padding: '0.5rem 1rem'
-                      }}
-                    >
-                      Residential Demolition
-                    </NavDropdown.Item>
-                    <NavDropdown.Item
-                      as={Link}
-                      to="/garage-demolition/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 500,
-                        padding: '0.5rem 1rem'
-                      }}
-                    >
-                      Garage Demolition
-                    </NavDropdown.Item>
-                    <NavDropdown.Item
-                      as={Link}
-                      to="/commercial-demolition/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 500,
-                        padding: '0.5rem 1rem'
-                      }}
-                    >
-                      Commercial Demolition
-                    </NavDropdown.Item>
-                    <NavDropdown.Item
-                      as={Link}
-                      to="/tenant-clean-out/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 500,
-                        padding: '0.5rem 1rem'
-                      }}
-                    >
-                      Tenant Clean Out
-                    </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/services/junk-removal/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Junk Removal
+                      </NavDropdown.Item>
                     </NavDropdown>
 
+                    {/* Top-level nav: Home, Services, Prices, Blog, FAQs (sitemap order) */}
                     {[
-                      {name: 'Prices', path: '/prices/'},
-                      {name: 'FAQs', path: '/faqs/'}
+                      { name: 'Prices', path: '/prices/' },
+                      { name: 'Blog', path: '/blog/' },
+                      { name: 'FAQs', path: '/faqs/' }
                     ].map(item => (
                       <Nav.Link
                         key={item.path}
@@ -357,31 +337,6 @@ const Header = () => {
                         {item.name}
                       </Nav.Link>
                     ))}
-                    <Nav.Link
-                      as={Link}
-                      to="/blog/"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        color: '#1a202c',
-                        padding: '0.75rem 1rem',
-                        borderRadius: '0.5rem',
-                        textDecoration: 'none',
-                        transition: 'all 0.3s ease'
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.color = 'rgb(236, 65, 0)';
-                        e.currentTarget.style.backgroundColor =
-                          'rgba(236, 65, 0, 0.1)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.color = '#1a202c';
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      Blog
-                    </Nav.Link>
                   </Nav>
                 </nav>
               </div>

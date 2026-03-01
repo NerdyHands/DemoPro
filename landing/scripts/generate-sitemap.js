@@ -2,8 +2,8 @@
 
 /**
  * Sitemap Generator for Mr Demo Pro
- * This script preserves manual sitemap structure and only updates dates.
- * Falls back to auto-generation if no manual sitemap exists.
+ * Builds sitemap as: base URLs (from public/sitemap.xml or routes) + blog post URLs from S3 (posts.json).
+ * Preserves manual sitemap structure, updates dates, then appends blog pages from S3.
  */
 
 import fs from 'fs';
@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 
 // Configuration
 const BASE_URL = 'https://mrdemopro.com';
+const S3_BLOG_DATA_BASE = process.env.VITE_S3_BLOG_DATA_BASE || 'https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-data';
 const OUTPUT_FILE = path.join(__dirname, '../public/sitemap.xml');
 const DIST_OUTPUT_FILE = path.join(__dirname, '../dist/sitemap.xml');
 
@@ -42,6 +43,72 @@ function updateSitemapDates(sitemapContent) {
     `<lastmod>${today}</lastmod>`
   );
   return updatedContent;
+}
+
+/**
+ * Fetch list of published posts from S3 (posts.json). Returns [] on failure.
+ */
+async function fetchBlogPostsFromS3() {
+  const url = `${S3_BLOG_DATA_BASE}/posts.json`;
+  try {
+    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data?.posts) ? data.posts : [];
+  } catch (err) {
+    console.warn(`⚠️  Could not fetch blog posts from S3 (${url}):`, err?.message || err);
+    return [];
+  }
+}
+
+/**
+ * Format date for sitemap lastmod (YYYY-MM-DD)
+ */
+function toLastmod(dateStr) {
+  if (!dateStr) return getTodayDate();
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return getTodayDate();
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Build sitemap <url> entries for blog posts (to inject before </urlset>)
+ */
+function buildBlogUrlEntries(posts) {
+  const today = getTodayDate();
+  return posts
+    .filter((p) => p?.slug)
+    .map(
+      (p) =>
+        `  <url>
+    <loc>${BASE_URL}/blog/${encodeURIComponent(p.slug)}/</loc>
+    <lastmod>${toLastmod(p.updatedAt || p.publishedAt)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`
+    )
+    .join('\n');
+}
+
+/**
+ * Remove any existing blog post <url> blocks from sitemap content so we don't duplicate
+ * when injecting from S3. Keeps the /blog/ index entry; removes only /blog/slug/ entries.
+ */
+function stripExistingBlogPostUrls(sitemapContent) {
+  // Remove <url>...</url> blocks whose <loc> is a blog post (e.g. .../blog/slug/) not the blog index (.../blog/)
+  const blogPostUrlBlock = /  <url>\s*\n\s*<loc>https:\/\/mrdemopro\.com\/blog\/[^/]+\/<\/loc>[\s\S]*?  <\/url>\s*\n/g;
+  return sitemapContent.replace(blogPostUrlBlock, '');
+}
+
+/**
+ * Inject blog post URLs into base sitemap content (before </urlset>).
+ * If no posts, returns content unchanged.
+ */
+function injectBlogUrlsIntoSitemap(baseContent, blogUrlEntries) {
+  if (!blogUrlEntries || !blogUrlEntries.trim()) return baseContent;
+  const closingTag = '</urlset>';
+  if (!baseContent.includes(closingTag)) return baseContent;
+  return baseContent.replace(closingTag, `${blogUrlEntries}\n${closingTag}`);
 }
 
 /**
@@ -106,33 +173,49 @@ function validateSitemapCompleteness(sitemapContent) {
 }
 
 /**
- * Generate or update sitemap
- * Preserves manual sitemap structure and only updates dates
+ * Generate or update sitemap: base URLs (manual or from routes) + blog post URLs from S3
  */
-function generateSitemap() {
-  // Check if manual sitemap exists
+async function generateSitemap() {
+  let baseContent;
+
+  // 1. Base sitemap: use manual file if present, else generate from routes
   if (fs.existsSync(OUTPUT_FILE)) {
     try {
       const existingContent = fs.readFileSync(OUTPUT_FILE, 'utf8');
-      // Verify it's a valid sitemap
       if (existingContent.includes('<?xml') && existingContent.includes('<urlset')) {
-        console.log('📝 Found manual sitemap, updating dates only...');
-        const updatedContent = updateSitemapDates(existingContent);
-        // Validate completeness
-        validateSitemapCompleteness(updatedContent);
-        return updatedContent;
+        console.log('📝 Found manual sitemap, updating dates...');
+        baseContent = updateSitemapDates(existingContent);
+        validateSitemapCompleteness(baseContent);
+      } else {
+        throw new Error('Invalid sitemap structure');
       }
     } catch (error) {
       console.warn(`⚠️  Error reading manual sitemap: ${error.message}`);
-      console.log('🔄 Falling back to auto-generation...');
+      console.log('🔄 Falling back to auto-generation from routes...');
+      baseContent = generateSitemapAuto();
+      validateSitemapCompleteness(baseContent);
     }
+  } else {
+    console.log('🔄 No manual sitemap found, generating from routes...');
+    baseContent = generateSitemapAuto();
+    validateSitemapCompleteness(baseContent);
   }
-  
-  // Fall back to auto-generation if no manual sitemap exists
-  console.log('🔄 No manual sitemap found, generating from routes...');
-  const autoGenerated = generateSitemapAuto();
-  validateSitemapCompleteness(autoGenerated);
-  return autoGenerated;
+
+  // 2. Strip any existing blog post URLs from base (avoids duplicates when re-running)
+  baseContent = stripExistingBlogPostUrls(baseContent);
+
+  // 3. Fetch blog posts from S3 and append their URLs (single source of truth)
+  console.log('📡 Fetching blog posts from S3...');
+  const posts = await fetchBlogPostsFromS3();
+  const blogEntries = buildBlogUrlEntries(posts);
+  if (posts.length > 0) {
+    console.log(`   Added ${posts.length} blog post URL(s) from S3`);
+    baseContent = injectBlogUrlsIntoSitemap(baseContent, blogEntries);
+  } else {
+    console.log('   No blog posts from S3 (or fetch failed); sitemap has base URLs only.');
+  }
+
+  return baseContent;
 }
 
 /**
@@ -155,27 +238,31 @@ function writeSitemap(content, filePath) {
 /**
  * Main function
  */
-function main() {
+async function main() {
   console.log('🚀 Processing sitemap for Mr Demo Pro...');
-  
-  const sitemapContent = generateSitemap();
-  
+  console.log('   Base URLs from public/sitemap.xml, then blog pages from S3 (posts.json).');
+
+  const sitemapContent = await generateSitemap();
+
   // Write to public directory (for development)
   writeSitemap(sitemapContent, OUTPUT_FILE);
-  
+
   // Write to dist directory (for production)
   writeSitemap(sitemapContent, DIST_OUTPUT_FILE);
-  
-  // Count URLs in the sitemap
+
   const urlCount = (sitemapContent.match(/<url>/g) || []).length;
-  
   console.log('✅ Sitemap processing completed!');
-  console.log(`📊 Processed ${urlCount} URLs`);
+  console.log(`📊 Total URLs: ${urlCount}`);
 }
 
-// Run the script
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+// Run when executed directly (node scripts/generate-sitemap.js)
+const entry = fileURLToPath(import.meta.url);
+const runDirect = process.argv[1] && path.resolve(process.cwd(), process.argv[1]) === entry;
+if (runDirect) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
 
 export { generateSitemap };
