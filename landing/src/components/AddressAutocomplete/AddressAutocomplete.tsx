@@ -110,7 +110,7 @@ const AddressAutocomplete = ({
   onResolvedChange,
   onAvailabilityChange,
   onFocus,
-  placeholder = 'Property Address',
+  placeholder = 'Select property address',
   required = false,
   disabled = false,
   className = 'form-control',
@@ -185,7 +185,7 @@ const AddressAutocomplete = ({
         if (cancelled || !widgetHostRef.current) return;
 
         element = new PlaceAutocompleteElement({
-          placeholder: `${placeholder} (select from suggestions)`,
+          placeholder,
           includedRegionCodes: ['us'],
           // Residential / street jobsites (legacy types: ['address'] equivalent)
           includedPrimaryTypes: ['street_address', 'premise', 'subpremise']
@@ -320,9 +320,7 @@ const AddressAutocomplete = ({
     const el = elementRef.current;
     if (!el) return;
     el.disabled = disabled;
-    el.placeholder = showGoogleUx
-      ? `${placeholder} (select from suggestions)`
-      : placeholder;
+    el.placeholder = placeholder;
     el.className = `${className}${shownError ? ' is-invalid' : ''} gmp-place-autocomplete-field`;
     applyHostStyles(el, style, Boolean(shownError));
   }, [disabled, placeholder, className, style, shownError, showGoogleUx]);

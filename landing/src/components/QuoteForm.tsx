@@ -240,7 +240,7 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
           }}
           onAvailabilityChange={setPlacesUnavailable}
           onFocus={markFormStart}
-          placeholder="Property Address"
+          placeholder="Select property address"
           required
           requireCompleteSelection
           error={addressError || undefined}
