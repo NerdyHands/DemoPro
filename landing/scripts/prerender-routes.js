@@ -82,8 +82,15 @@ async function getAllPrerenderPaths() {
 
 async function prerenderRoute(page, routePath) {
   const url = `${BASE_URL}${routePath === '/' ? '/' : routePath}`;
-  await page.goto(url, { waitUntil: 'networkidle', timeout: RENDER_TIMEOUT_MS });
+  // Prefer load over networkidle — analytics/pixels can keep the network busy forever.
+  try {
+    await page.goto(url, { waitUntil: 'load', timeout: RENDER_TIMEOUT_MS });
+  } catch {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: RENDER_TIMEOUT_MS });
+  }
   await page.waitForSelector('#root > *', { timeout: RENDER_TIMEOUT_MS });
+  // Give Helmet a beat to flush route-specific meta after hydration.
+  await new Promise((resolve) => setTimeout(resolve, 250));
 
   const seo = await page.evaluate((expectedCanon) => {
     const descriptions = Array.from(document.querySelectorAll('meta[name="description"]'))

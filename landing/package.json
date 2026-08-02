@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "npm run sync:opinly && npm run generate:seo && npm run seo:fix && tsc -b && vite build && npm run postbuild:seo && npm run postbuild:prerender && npm run validate:prerender && npm run seo:validate && npm run audit:http",
