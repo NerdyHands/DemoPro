@@ -172,7 +172,7 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
           aria-label="Type of work"
           style={{...fieldStyle, color: formData.serviceType ? 'inherit' : '#6c757d'}}
         >
-          <option value="" disabled>
+          <option value="" hidden>
             Type of work
           </option>
           {serviceOptions.map(service => (
