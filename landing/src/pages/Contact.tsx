@@ -1,13 +1,19 @@
-import {useState} from 'react';
+import {useState, useRef, useCallback, useEffect} from 'react';
 import {Container, Row, Col, Form, Button, Alert} from 'react-bootstrap';
 import {useNavigate} from 'react-router-dom';
 import {motion} from 'framer-motion';
-import {trackFormSubmission} from '../config/gtm';
-import SEOHead from '../components/SEO';
+import {
+  trackFormAbandon,
+  trackFormStart,
+  trackGenerateLead,
+  trackPhoneClick
+} from '../config/gtm';
 import {GOOGLE_APPS_SCRIPT_URL} from '../config/googleAppsScript';
 import {getRecaptchaToken} from '../config/recaptcha';
+import {useScrollDepth} from '../hooks/useScrollDepth';
 
 const Contact = () => {
+  useScrollDepth('contact');
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -18,10 +24,46 @@ const Contact = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
+  const formId = 'contact_main';
+  const formStarted = useRef(false);
+  const formSubmitted = useRef(false);
+  const abandonReported = useRef(false);
+
+  const markFormStart = useCallback(() => {
+    if (formStarted.current) return;
+    formStarted.current = true;
+    trackFormStart({
+      form_id: formId,
+      form_type: 'contact_form'
+    });
+  }, []);
+
+  useEffect(() => {
+    const onAbandon = () => {
+      if (!formStarted.current || formSubmitted.current || abandonReported.current) {
+        return;
+      }
+      abandonReported.current = true;
+      trackFormAbandon({
+        form_id: formId,
+        form_type: 'contact_form'
+      });
+    };
+    window.addEventListener('pagehide', onAbandon);
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') onAbandon();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.removeEventListener('pagehide', onAbandon);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    markFormStart();
     const {name, value} = e.target;
     setFormData(prev => ({
       ...prev,
@@ -96,16 +138,18 @@ const Contact = () => {
         body: formDataEncoded.toString()
       });
 
-      // With no-cors mode, we can't read the response, but the submission should succeed
-      // Track successful form submission
-      trackFormSubmission('contact_form', {
+      formSubmitted.current = true;
+      trackGenerateLead({
+        form_id: 'contact_form',
+        lead_type: 'contact_form',
+        method: 'form',
         name: formData.name,
         email: formData.email,
-        message: formData.message
+        message: formData.message,
+        service_name: 'Contact'
       });
 
-      // Navigate to thank you page
-      navigate('/thank-you');
+      navigate('/thank-you/');
     } catch (error: any) {
       console.error('Error submitting form:', error);
       setAlertMessage(
@@ -119,12 +163,6 @@ const Contact = () => {
 
   return (
     <>
-      <SEOHead
-        title="Contact Mr Demo Pro - Free Demolition Estimates | Hampton Roads, VA"
-        description="Get in touch with Mr Demo Pro for demolition, junk removal, shed, deck, or fence removal services in Hampton Roads, VA. Call or send a message today."
-        canonicalUrl="https://mrdemopro.com/contact"
-      />
-
       <div style={{paddingTop: '100px', minHeight: '100vh'}}>
         <Container>
           <Row className="justify-content-center">
@@ -183,6 +221,7 @@ const Contact = () => {
                       placeholder="Your Name"
                       value={formData.name}
                       onChange={handleChange}
+                      onFocus={markFormStart}
                       required
                     />
                   </Form.Group>
@@ -204,6 +243,7 @@ const Contact = () => {
                       placeholder="Enter Your Email"
                       value={formData.email}
                       onChange={handleChange}
+                      onFocus={markFormStart}
                       required
                     />
                   </Form.Group>
@@ -226,6 +266,7 @@ const Contact = () => {
                       placeholder="Your Message"
                       value={formData.message}
                       onChange={handleChange}
+                      onFocus={markFormStart}
                       required
                     />
                   </Form.Group>
@@ -266,7 +307,15 @@ const Contact = () => {
                     Or Call Us Directly
                   </h5>
 
-                  <a href="tel:757-848-4559">
+                  <a
+                    href="tel:757-848-4559"
+                    onClick={() =>
+                      trackPhoneClick({
+                        cta_location: 'contact_page',
+                        cta_label: '757-848-4559'
+                      })
+                    }
+                  >
                     <Button
                       size="lg"
                       variant="outline-light"

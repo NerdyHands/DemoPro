@@ -1,10 +1,12 @@
 import {useState, useRef, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
-import SEOHead from '../components/SEO';
 import QuoteForm from '../components/QuoteForm';
+import PhoneLink from '../components/PhoneLink';
+import {useScrollDepth} from '../hooks/useScrollDepth';
 
 const JunkRemoval = () => {
+  useScrollDepth('service');
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
   const scrollPosRef = useRef<number>(0);
@@ -117,31 +119,6 @@ const JunkRemoval = () => {
 
   return (
     <>
-      <SEOHead
-        title="Junk Removal Services in Hampton Roads, VA"
-        description="Fast, affordable junk removal services in Hampton Roads, VA. Same-day service for homes and businesses. Call for a free quote today."
-        canonicalUrl="https://mrdemopro.com/services/junk-removal"
-        structuredData={[
-          {
-            '@context': 'https://schema.org',
-            '@type': 'Service',
-            name: 'Junk Removal Services',
-            serviceType: 'Junk Removal',
-            areaServed: [
-              'Hampton, VA',
-              'Norfolk, VA',
-              'Newport News, VA',
-              'Yorktown, VA'
-            ],
-            provider: {
-              '@type': 'LocalBusiness',
-              name: 'Mr Demo Pro',
-              telephone: '757-848-4559'
-            },
-            url: 'https://mrdemopro.com/services/junk-removal'
-          }
-        ]}
-      />
       <div itemScope itemType="https://schema.org/Service">
         {/* Hero Section */}
         <section
@@ -169,7 +146,7 @@ const JunkRemoval = () => {
                     fontSize: 'var(--font-size-4xl)'
                   }}
                 >
-                  Professional Junk Removal Services
+                  Professional Junk Removal Services in Hampton Roads, VA
                 </motion.h1>
                 <motion.p
                   itemProp="description"
@@ -202,13 +179,15 @@ const JunkRemoval = () => {
                   >
                     Get Free Quote
                   </Button>
-                  <a
-                    href="tel:757-848-4559"
-                    aria-label="Call for junk removal services"
-                    className="cta-button  hero-badge hero-cta"
+                  <PhoneLink
+                    ctaLocation="service_page_hero"
+                    clickLocation="cta"
+                    serviceName="Junk Removal"
+                    ariaLabel="Call for junk removal services"
+                    className="cta-button hero-badge hero-cta"
                   >
                     Call (757) 848 4559
-                  </a>
+                  </PhoneLink>
                 </motion.div>
               </Col>
               <Col lg={6} md={12}>
@@ -798,9 +777,11 @@ const JunkRemoval = () => {
                   >
                     Get Free Quote
                   </Button>
-                  <a
-                    href="tel:757-848-4559"
-                    aria-label="Call for junk removal services"
+                  <PhoneLink
+                    ctaLocation="service_page_bottom"
+                    clickLocation="cta"
+                    serviceName="Junk Removal"
+                    ariaLabel="Call for junk removal services"
                   >
                     <Button
                       size="lg"
@@ -817,7 +798,7 @@ const JunkRemoval = () => {
                     >
                       Call 757-848-4559
                     </Button>
-                  </a>
+                  </PhoneLink>
                 </motion.div>
               </Col>
             </Row>

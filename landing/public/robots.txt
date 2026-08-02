@@ -8,9 +8,3 @@ Sitemap: https://mrdemopro.com/sitemap.xml
 Disallow: /api/
 Disallow: /_next/
 Disallow: /static/
-
-# Allow all search engines to crawl the site
-Crawl-delay: 1
-
-# Host directive
-Host: https://mrdemopro.com

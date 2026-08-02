@@ -4,6 +4,7 @@ import Layout from '../../components/Layout/Layout.jsx';
 import { contractApi, amendmentApi, clientReportApi, estimateApi } from '../../services/contractsApi';
 import { milestoneApi } from '../../services/jobApi';
 import AmendmentsList from '../Amendments/AmendmentsList.jsx';
+import ExportMenu from '../../components/ExportMenu/ExportMenu.jsx';
 import './Contracts.css';
 
 const ContractView = () => {
@@ -436,62 +437,84 @@ const ContractView = () => {
   const downloadPdf = useCallback(async () => {
     try {
       setDownloadingPdf(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/contracts/${id}/pdf`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `contract_${contract.contractNumber}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await contractApi.downloadPdf(id);
     } catch (err) {
       console.error('Error downloading PDF:', err);
       setError('Failed to download PDF. Please try again.');
     } finally {
       setDownloadingPdf(false);
     }
-  }, [id, contract]);
+  }, [id]);
+
+  const downloadDocx = useCallback(async () => {
+    try {
+      setDownloadingPdf(true);
+      await contractApi.downloadDocx(id);
+    } catch (err) {
+      console.error('Error downloading DOCX:', err);
+      setError('Failed to download DOCX. Please try again.');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }, [id]);
+
+  const createContractGoogleDoc = useCallback(async () => {
+    try {
+      setDownloadingPdf(true);
+      const result = await contractApi.createGoogleDoc(id);
+      if (result?.url) {
+        window.open(result.url, '_blank', 'noopener,noreferrer');
+      } else {
+        setError('Google Doc created, but no URL was returned.');
+      }
+    } catch (err) {
+      console.error('Error creating Google Doc:', err);
+      setError(err.response?.data?.error || 'Failed to create Google Doc. Please try again.');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }, [id]);
 
   const downloadFinalInvoice = useCallback(async () => {
     try {
       setDownloadingInvoice(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/contracts/${id}/final-invoice`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate Final Invoice PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `final_invoice_${contract.contractNumber}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await contractApi.downloadFinalInvoicePdf(id);
     } catch (err) {
       console.error('Error downloading Final Invoice PDF:', err);
       setError('Failed to download Final Invoice PDF. Please try again.');
     } finally {
       setDownloadingInvoice(false);
     }
-  }, [id, contract]);
+  }, [id]);
+
+  const downloadFinalInvoiceDocx = useCallback(async () => {
+    try {
+      setDownloadingInvoice(true);
+      await contractApi.downloadFinalInvoiceDocx(id);
+    } catch (err) {
+      console.error('Error downloading Final Invoice DOCX:', err);
+      setError('Failed to download Final Invoice DOCX. Please try again.');
+    } finally {
+      setDownloadingInvoice(false);
+    }
+  }, [id]);
+
+  const createFinalInvoiceGoogleDoc = useCallback(async () => {
+    try {
+      setDownloadingInvoice(true);
+      const result = await contractApi.createFinalInvoiceGoogleDoc(id);
+      if (result?.url) {
+        window.open(result.url, '_blank', 'noopener,noreferrer');
+      } else {
+        setError('Google Doc created, but no URL was returned.');
+      }
+    } catch (err) {
+      console.error('Error creating Final Invoice Google Doc:', err);
+      setError(err.response?.data?.error || 'Failed to create Google Doc. Please try again.');
+    } finally {
+      setDownloadingInvoice(false);
+    }
+  }, [id]);
 
   const createBoldsignDraft = useCallback(async () => {
     try {
@@ -658,25 +681,24 @@ const ContractView = () => {
             <Link to="/contracts" className="btn btn-secondary">
               Back to Contracts
             </Link>
-            <button 
-              onClick={downloadPdf} 
-              className="btn btn-info"
+            <ExportMenu
+              label={downloadingPdf ? 'Working…' : 'Export Contract'}
               disabled={downloadingPdf}
-            >
-              {downloadingPdf ? 'Generating PDF...' : 'Download Contract PDF'}
-            </button>
-            <button 
-              onClick={downloadFinalInvoice} 
-              className="btn btn-success"
+              options={[
+                { id: 'pdf', label: 'Download PDF', onSelect: downloadPdf },
+                { id: 'docx', label: 'Download DOCX', onSelect: downloadDocx },
+                { id: 'gdoc', label: 'Create Google Doc', onSelect: createContractGoogleDoc }
+              ]}
+            />
+            <ExportMenu
+              label={downloadingInvoice ? 'Working…' : 'Export Final Invoice'}
               disabled={downloadingInvoice}
-              style={{ 
-                backgroundColor: 'var(--primary-color)', 
-                borderColor: 'var(--primary-color)',
-                color: 'white'
-              }}
-            >
-              {downloadingInvoice ? 'Generating Invoice...' : 'Download Final Invoice'}
-            </button>
+              options={[
+                { id: 'pdf', label: 'Download PDF', onSelect: downloadFinalInvoice },
+                { id: 'docx', label: 'Download DOCX', onSelect: downloadFinalInvoiceDocx },
+                { id: 'gdoc', label: 'Create Google Doc', onSelect: createFinalInvoiceGoogleDoc }
+              ]}
+            />
             <button 
               onClick={createBoldsignDraft} 
               className="btn btn-warning"
@@ -1179,8 +1201,8 @@ const ContractView = () => {
                             <td>{index + 1}</td>
                             <td>{item.description}</td>
                             <td>{item.quantity}</td>
-                            <td>{formatCurrency(item.unitPrice)}</td>
-                            <td>{formatCurrency(item.totalPrice)}</td>
+                            <td className={item.unitPrice < 0 ? 'line-item-discount' : undefined}>{formatCurrency(item.unitPrice)}</td>
+                            <td className={item.totalPrice < 0 ? 'line-item-discount' : undefined}>{formatCurrency(item.totalPrice)}</td>
                           </tr>
                           {notesToDisplay && notesToDisplay.length > 0 && notesToDisplay.some(note => note && note.trim()) && (
                             <tr>

@@ -1,0 +1,22 @@
+{
+  "name": "mr-demo-pro-deployment",
+  "version": "1.0.0",
+  "description": "Deployment scripts for Mr Demo Pro landing and client applications",
+  "private": true,
+  "scripts": {
+    "aws:sync-credentials": "node scripts/sync-aws-credentials.cjs",
+    "build:landing": "cd landing && npm run build",
+    "deploy:landing": "node scripts/sync-aws-credentials.cjs && powershell -ExecutionPolicy Bypass -File ./scripts/deploy-to-amplify.ps1 -Site landing",
+    "deploy:landing:skip-build": "node scripts/sync-aws-credentials.cjs && powershell -ExecutionPolicy Bypass -File ./scripts/deploy-to-amplify.ps1 -Site landing -SkipBuild"
+  },
+  "keywords": [
+    "deployment",
+    "aws-amplify",
+    "mr-demo-pro"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

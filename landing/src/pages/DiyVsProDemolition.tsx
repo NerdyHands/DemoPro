@@ -1,9 +1,14 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { Container, Row, Col, Button, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEOHead from '../components/SEO';
-import { trackFormSubmission } from '../config/gtm';
+import {
+  trackCalculatorInteraction,
+  trackGenerateLead
+} from '../config/gtm';
+import PhoneLink from '../components/PhoneLink';
+import { useScrollDepth } from '../hooks/useScrollDepth';
 import { GOOGLE_APPS_SCRIPT_URL } from '../config/googleAppsScript';
 
 type RiskLevel = 'Low' | 'Medium' | 'High';
@@ -99,6 +104,7 @@ function getRiskColor(risk: RiskLevel): string {
 
 const DiyVsProDemolition = () => {
   const navigate = useNavigate();
+  useScrollDepth('landing_tool');
   const [showQuizForm, setShowQuizForm] = useState(false);
   const [quizStep, setQuizStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
@@ -114,6 +120,15 @@ const DiyVsProDemolition = () => {
     setFormData({ name: '', email: '' });
     setShowQuizForm(true);
   };
+
+  useEffect(() => {
+    if (!showQuizForm) return;
+    const stepLabel =
+      quizStep >= DIY_RISK_QUIZ.length
+        ? 'lead_form'
+        : `question_${quizStep + 1}_of_${DIY_RISK_QUIZ.length}`;
+    trackCalculatorInteraction({step: stepLabel});
+  }, [showQuizForm, quizStep]);
 
   const closeQuiz = () => {
     setShowQuizForm(false);
@@ -178,11 +193,18 @@ const DiyVsProDemolition = () => {
         body: formDataEncoded.toString()
       });
 
-      trackFormSubmission('contact_form', {
+      trackCalculatorInteraction({
+        step: 'submit',
+        outcome: quizResult.riskLevel
+      });
+
+      trackGenerateLead({
+        form_id: 'diy_quiz_lead',
+        lead_type: 'quiz_submission',
+        method: 'form',
         name: formData.name,
         email: formData.email,
-        service_type: 'DIY vs Pro Demo Risk Quiz',
-        form_type: 'quiz_submission',
+        service_name: 'DIY vs Pro Demo Risk Quiz',
         quiz_score: quizResult.score,
         risk_level: quizResult.riskLevel
       });
@@ -204,7 +226,7 @@ const DiyVsProDemolition = () => {
       }
 
       closeQuiz();
-      navigate('/diy-vs-pro-demolition/thank-you', { state: payload });
+      navigate('/diy-vs-pro-demolition/thank-you/', { state: payload });
     } catch (error: any) {
       console.error('Error submitting quiz:', error);
       alert('There was an error submitting your information. Please try again or call us at 757-848-4559.');
@@ -1019,8 +1041,9 @@ const DiyVsProDemolition = () => {
                 >
                   Take the Free Risk Quiz
                 </Button>
-                <a
-                  href="tel:757-848-4559"
+                <PhoneLink
+                  ctaLocation="diy_tool_bottom"
+                  clickLocation="cta"
                   style={{
                     textDecoration: 'none',
                     color: 'white'
@@ -1040,7 +1063,7 @@ const DiyVsProDemolition = () => {
                   >
                     Call 757-848-4559
                   </Button>
-                </a>
+                </PhoneLink>
               </motion.div>
             </Col>
           </Row>

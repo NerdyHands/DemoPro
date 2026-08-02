@@ -1,8 +1,10 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { fetchPost, fetchRelated, sendBlogEvent } from '../api/blog';
 import type { PostDetail, PostSummary } from '../api/blog';
 import SEO from '../components/SEO';
+import {trackEmailClick} from '../config/gtm';
+import { blogIndexPath, blogPostCanonical, blogPostPath, blogTagPath } from '../utils/blogPaths';
 import './Blog.css';
 
 type TocItem = { id: string; text: string; level: number };
@@ -72,6 +74,14 @@ const ShareButtons: React.FC<{ url: string; title: string }> = ({ url, title }) 
   );
 };
 
+export const BlogPostTrailingRedirect: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+  if (!slug) {
+    return <Navigate to={blogIndexPath()} replace />;
+  }
+  return <Navigate to={blogPostPath(slug)} replace />;
+};
+
 const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = React.useState<PostDetail | null>(null);
@@ -134,7 +144,7 @@ const BlogPost: React.FC = () => {
     return <div className="blog-state error">{error || 'Post not found'}</div>;
   }
 
-  const canonical = post.canonicalUrl || `https://mrdemopro.com/blog/${post.slug}`;
+  const canonical = post.canonicalUrl || blogPostCanonical(post.slug);
   const shareUrl = typeof window !== 'undefined' ? window.location.href : canonical;
 
   return (
@@ -149,7 +159,7 @@ const BlogPost: React.FC = () => {
       />
 
       <article className="blog-article">
-        <Link to="/blog" className="back-to-blog">
+        <Link to={blogIndexPath()} className="back-to-blog">
           ← Back to Blog
         </Link>
         <p className="eyebrow">Blog</p>
@@ -166,7 +176,7 @@ const BlogPost: React.FC = () => {
         {post.tags && post.tags.length > 0 && (
           <div className="tags">
             {post.tags.map(t => (
-              <Link key={t} to={`/blog/tag/${encodeURIComponent(t)}`} className="pill">
+              <Link key={t} to={blogTagPath(t)} className="pill">
                 {t}
               </Link>
             ))}
@@ -200,10 +210,21 @@ const BlogPost: React.FC = () => {
             <p>Reach out for a consultation or subscribe to our updates.</p>
           </div>
           <div className="cta-actions">
-            <Link to="/contact" className="btn primary">
+            <Link to="/contact/" className="btn primary">
               Contact us
             </Link>
-            <a href="mailto:info@mrdemopro.com" className="btn ghost">
+            <a
+              href="mailto:info@mrdemopro.com"
+              className="btn ghost"
+              onClick={() =>
+                trackEmailClick({
+                  email_address: 'info@mrdemopro.com',
+                  cta_location: 'blog_post_cta',
+                  cta_label: 'Email the team',
+                  page_type: 'blog'
+                })
+              }
+            >
               Email the team
             </a>
           </div>
@@ -217,7 +238,7 @@ const BlogPost: React.FC = () => {
             {related.map(r => (
               <article key={r.slug} className="card">
                 {r.coverUrl && (
-                  <Link to={`/blog/${r.slug}`} aria-label={r.title}>
+                  <Link to={blogPostPath(r.slug)} aria-label={r.title}>
                     <img src={r.coverUrl} alt={r.title} loading="lazy" />
                   </Link>
                 )}
@@ -227,12 +248,12 @@ const BlogPost: React.FC = () => {
                     {r.readingTime ? <span>{r.readingTime} min read</span> : null}
                   </div>
                   <h3>
-                    <Link to={`/blog/${r.slug}`}>{r.title}</Link>
+                    <Link to={blogPostPath(r.slug)}>{r.title}</Link>
                   </h3>
                   <p className="excerpt">{r.excerpt}</p>
                   <div className="tags">
                     {(r.tags || []).map(t => (
-                      <Link key={t} to={`/blog/tag/${encodeURIComponent(t)}`} className="pill">
+                      <Link key={t} to={blogTagPath(t)} className="pill">
                         {t}
                       </Link>
                     ))}

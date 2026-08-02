@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../../components/Layout/Layout.jsx';
+import ExportMenu from '../../components/ExportMenu/ExportMenu.jsx';
+import { clientReportApi } from '../../services/contractsApi';
 import './ClientReportView.css';
 
 const ClientReportView = () => {
@@ -13,11 +15,7 @@ const ClientReportView = () => {
   const [downloading, setDownloading] = useState(false);
   const [creatingEstimate, setCreatingEstimate] = useState(false);
 
-  useEffect(() => {
-    loadReport();
-  }, [reportId]);
-
-  const loadReport = async () => {
+  const loadReport = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
@@ -64,32 +62,48 @@ const ClientReportView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [reportId]);
+
+  useEffect(() => {
+    loadReport();
+  }, [loadReport]);
 
   const handleDownloadPdf = async () => {
     try {
       setDownloading(true);
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/client-reports/${reportId}/pdf`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Failed to generate PDF');
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Inspection_Report_${report.reportNumber}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await clientReportApi.downloadPdf(reportId);
     } catch (err) {
       console.error('Error downloading PDF:', err);
       alert('Failed to download PDF: ' + err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    try {
+      setDownloading(true);
+      await clientReportApi.downloadDocx(reportId);
+    } catch (err) {
+      console.error('Error downloading DOCX:', err);
+      alert('Failed to download DOCX: ' + err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleCreateGoogleDoc = async () => {
+    try {
+      setDownloading(true);
+      const result = await clientReportApi.createGoogleDoc(reportId);
+      if (result?.url) {
+        window.open(result.url, '_blank', 'noopener,noreferrer');
+      } else {
+        alert('Google Doc created, but no URL was returned.');
+      }
+    } catch (err) {
+      console.error('Error creating Google Doc:', err);
+      alert(err.response?.data?.error || 'Failed to create Google Doc');
     } finally {
       setDownloading(false);
     }
@@ -288,13 +302,15 @@ const ClientReportView = () => {
                   </button>
                 </>
               )}
-              <button 
-                onClick={handleDownloadPdf} 
+              <ExportMenu
+                label={downloading ? 'Working…' : 'Export'}
                 disabled={downloading}
-                className="btn btn-primary"
-              >
-                {downloading ? 'Generating...' : '📄 Download PDF'}
-              </button>
+                options={[
+                  { id: 'pdf', label: 'Download PDF', onSelect: handleDownloadPdf },
+                  { id: 'docx', label: 'Download DOCX', onSelect: handleDownloadDocx },
+                  { id: 'gdoc', label: 'Create Google Doc', onSelect: handleCreateGoogleDoc }
+                ]}
+              />
             </div>
           </div>
 
@@ -498,7 +514,7 @@ const ClientReportView = () => {
                             {item.images.map((img, imgIndex) => (
                               <div key={imgIndex} className="item-image">
                                 <div className="image-number-badge">{imgIndex + 1}</div>
-                                <img src={img.gcsUrl} alt={`${item.description} - Photo ${imgIndex + 1}`} />
+                                <img src={img.gcsUrl} alt={`${item.description} (${imgIndex + 1})`} />
                                 {img.caption && (
                                   <p className="image-caption">{img.caption}</p>
                                 )}

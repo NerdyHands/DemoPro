@@ -1,17 +1,14 @@
 import React from 'react';
-import SEOHead from '../components/SEO';
 import {Container, Table} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
+import {useScrollDepth} from '../hooks/useScrollDepth';
+import PhoneLink from '../components/PhoneLink';
 
 const Prices: React.FC = () => {
+  useScrollDepth('pricing');
+
   return (
     <>
-      <SEOHead
-        title="Prices - Cleanout, Demolition & Junk Removal in Hampton Roads | Mr Demo Pro"
-        description="View transparent pricing for demolition, shed removal, deck removal, fence removal, interior demolition, junk removal and cleanout services in Hampton Roads, VA. No hidden fees. Free estimates available."
-        canonicalUrl="https://mrdemopro.com/prices/"
-      />
-
       <main role="main" aria-labelledby="pricing-heading">
         {/* Pricing Schema */}
         {/* <script
@@ -331,9 +328,13 @@ const Prices: React.FC = () => {
                 }}
               >
                 Need an exact quote? Call{' '}
-                <a href="tel:757-848-4559" style={{fontWeight: 'bold'}}>
+                <PhoneLink
+                  ctaLocation="pricing_page"
+                  clickLocation="cta"
+                  style={{fontWeight: 'bold'}}
+                >
                   757-848-4559
-                </a>{' '}
+                </PhoneLink>{' '}
                 for a free estimate.
               </p>
             </footer>

@@ -301,13 +301,7 @@ Sitemap: ${BASE_URL}/sitemap.xml
 # Disallow admin or private areas
 Disallow: /api/
 Disallow: /_next/
-Disallow: /static/
-
-# Allow all search engines to crawl the site
-Crawl-delay: 1
-
-# Host directive
-Host: ${BASE_URL}`;
+Disallow: /static/`;
 
   const robotsPath = path.join(PUBLIC_DIR, 'robots.txt');
   const distRobotsPath = path.join(DIST_DIR, 'robots.txt');

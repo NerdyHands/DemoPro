@@ -177,6 +177,17 @@ const Header = () => {
                       >
                         All Services
                       </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
+                        to="/service-area/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Service areas
+                      </NavDropdown.Item>
                       <NavDropdown.Divider />
                       <NavDropdown.Item
                         as={Link}
@@ -290,6 +301,17 @@ const Header = () => {
                       </NavDropdown.Item>
                       <NavDropdown.Item
                         as={Link}
+                        to="/services/hoarding-cleanout/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Hoarding Cleanout
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
                         to="/services/junk-removal/"
                         onClick={handleNavClick}
                         style={{
@@ -304,6 +326,7 @@ const Header = () => {
                     {/* Top-level nav: Home, Services, Prices, Blog, FAQs (sitemap order) */}
                     {[
                       { name: 'Prices', path: '/prices/' },
+                      { name: 'Cost Guide', path: '/demolition-cost-virginia/' },
                       { name: 'Blog', path: '/blog/' },
                       { name: 'FAQs', path: '/faqs/' }
                     ].map(item => (
@@ -337,6 +360,31 @@ const Header = () => {
                         {item.name}
                       </Nav.Link>
                     ))}
+
+                    <Nav.Link
+                      href="https://mrdemopro.softr.app"
+                      onClick={handleNavClick}
+                      style={{
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        color: '#fff',
+                        backgroundColor: 'rgb(236, 65, 0)',
+                        padding: '0.75rem 1.25rem',
+                        borderRadius: '0.5rem',
+                        textDecoration: 'none',
+                        transition: 'all 0.3s ease',
+                        marginLeft: '0.25rem'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.backgroundColor = '#d63500';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.backgroundColor =
+                          'rgb(236, 65, 0)';
+                      }}
+                    >
+                      Login
+                    </Nav.Link>
                   </Nav>
                 </nav>
               </div>

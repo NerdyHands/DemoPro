@@ -18,7 +18,7 @@ router.get('/sitemap.xml', async (req, res) => {
       .map(
         (post) => `
   <url>
-    <loc>${siteUrl}/blog/${post.slug}</loc>
+    <loc>${siteUrl}/blog/${post.slug}/</loc>
     <lastmod>${(post.updatedAt || post.publishedAt || new Date()).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -34,7 +34,7 @@ router.get('/sitemap.xml', async (req, res) => {
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${siteUrl}/blog</loc>
+    <loc>${siteUrl}/blog/</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>

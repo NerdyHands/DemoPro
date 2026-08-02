@@ -1,5 +1,6 @@
 import { Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { trackPhoneClick } from "../config/gtm";
 
 const Footer = () => {
   return (
@@ -63,6 +64,50 @@ const Footer = () => {
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
+                    to="/services/house-demolition/"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                    style={{
+                      color: "#fff",
+                      textDecoration: "none",
+                      transition: "color 0.3s ease",
+                      fontSize: "0.95rem",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.target as HTMLElement).style.color = "#ffd700")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.target as HTMLElement).style.color = "#fff")
+                    }
+                  >
+                    House Demolition
+                  </Link>
+                </li>
+                <li style={{ marginBottom: "0.5rem" }}>
+                  <Link
+                    to="/service-area/"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                    style={{
+                      color: "#fff",
+                      textDecoration: "none",
+                      transition: "color 0.3s ease",
+                      fontSize: "0.95rem",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.target as HTMLElement).style.color = "#ffd700")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.target as HTMLElement).style.color = "#fff")
+                    }
+                  >
+                    Service areas (Hampton Roads)
+                  </Link>
+                </li>
+                <li style={{ marginBottom: "0.5rem" }}>
+                  <Link
                     to="/demolition-contractor-hampton-va/"
                     onClick={() =>
                       window.scrollTo({ top: 0, behavior: "smooth" })
@@ -83,6 +128,91 @@ const Footer = () => {
                     Demolition Contractor Hampton, VA
                   </Link>
                 </li>
+                <li style={{ marginBottom: "0.5rem" }}>
+                  <Link
+                    to="/demolition-contractor-newport-news-va/"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                    style={{
+                      color: "#fff",
+                      textDecoration: "none",
+                      transition: "color 0.3s ease",
+                      fontSize: "0.95rem",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.target as HTMLElement).style.color = "#ffd700")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.target as HTMLElement).style.color = "#fff")
+                    }
+                  >
+                    Demolition Contractor Newport News, VA
+                  </Link>
+                </li>
+                <li style={{ marginBottom: "0.5rem" }}>
+                  <Link
+                    to="/demolition-contractor-norfolk-va/"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                    style={{
+                      color: "#fff",
+                      textDecoration: "none",
+                      transition: "color 0.3s ease",
+                      fontSize: "0.95rem",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.target as HTMLElement).style.color = "#ffd700")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.target as HTMLElement).style.color = "#fff")
+                    }
+                  >
+                    Demolition Contractor Norfolk, VA
+                  </Link>
+                </li>
+                {[
+                  {
+                    to: '/demolition-contractor-virginia-beach-va/',
+                    label: 'Demolition Contractor Virginia Beach, VA'
+                  },
+                  {
+                    to: '/demolition-contractor-chesapeake-va/',
+                    label: 'Demolition Contractor Chesapeake, VA'
+                  },
+                  {
+                    to: '/demolition-contractor-portsmouth-va/',
+                    label: 'Demolition Contractor Portsmouth, VA'
+                  },
+                  {
+                    to: '/demolition-contractor-suffolk-va/',
+                    label: 'Demolition Contractor Suffolk, VA'
+                  }
+                ].map(item => (
+                  <li key={item.to} style={{ marginBottom: "0.5rem" }}>
+                    <Link
+                      to={item.to}
+                      onClick={() =>
+                        window.scrollTo({ top: 0, behavior: "smooth" })
+                      }
+                      style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        transition: "color 0.3s ease",
+                        fontSize: "0.95rem",
+                      }}
+                      onMouseEnter={(e) =>
+                        ((e.target as HTMLElement).style.color = "#ffd700")
+                      }
+                      onMouseLeave={(e) =>
+                        ((e.target as HTMLElement).style.color = "#fff")
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
                     to="/contact/"
@@ -169,6 +299,28 @@ const Footer = () => {
                     }
                   >
                     Blog
+                  </Link>
+                </li>
+                <li style={{ marginBottom: "0.5rem" }}>
+                  <Link
+                    to="/demolition-cost-virginia/"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                    style={{
+                      color: "#fff",
+                      textDecoration: "none",
+                      transition: "color 0.3s ease",
+                      fontSize: "0.95rem",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.target as HTMLElement).style.color = "#ffd700")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.target as HTMLElement).style.color = "#fff")
+                    }
+                  >
+                    Demolition Cost Guide
                   </Link>
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>
@@ -269,7 +421,16 @@ const Footer = () => {
                 Professional Demolition Services
                 <br />
                
-                <a href="tel:757-848-4559" style={{ color: "#ccc" }}>
+                <a
+                  href="tel:757-848-4559"
+                  style={{ color: "#ccc" }}
+                  onClick={() =>
+                    trackPhoneClick({
+                      cta_location: "site_footer",
+                      cta_label: "Footer phone"
+                    })
+                  }
+                >
                   757-848-4559
                 </a>
               </address>
@@ -332,7 +493,7 @@ const Footer = () => {
               >
                 <a
                   className="social-link"
-                  href="https://facebook.com/"
+                  href="https://www.facebook.com/mrdemopro"
                   aria-label="Follow Mr Demo Pro on Facebook"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -367,7 +528,7 @@ const Footer = () => {
                 </a>
                 <a
                   className="social-link"
-                  href="https://instagram.com/"
+                  href="https://www.instagram.com/mrdemopro"
                   aria-label="Follow Mr Demo Pro on Instagram"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -399,41 +560,6 @@ const Footer = () => {
                   }}
                 >
                   <i className="fab fa-instagram"></i>
-                </a>
-                <a
-                  className="social-link"
-                  href="https://www.linkedin.com/company/linkedin/"
-                 aria-label="Follow Mr Demo Pro on LinkedIn"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: "#ffffff",
-                    backgroundColor: "transparent",
-                    border: "2px solid #ffffff",
-                    borderRadius: "50%",
-                    width: "50px",
-                    height: "50px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textDecoration: "none",
-                    transition: "all 0.3s ease",
-                    fontSize: "1.2rem",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.target as HTMLElement).style.backgroundColor = "#0077b5";
-                    (e.target as HTMLElement).style.borderColor = "#0077b5";
-                    (e.target as HTMLElement).style.transform =
-                      "translateY(-3px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.target as HTMLElement).style.backgroundColor =
-                      "transparent";
-                    (e.target as HTMLElement).style.borderColor = "#ffffff";
-                    (e.target as HTMLElement).style.transform = "translateY(0)";
-                  }}
-                >
-                  <i className="fab fa-linkedin-in"></i>
                 </a>
               </div>
             </div>

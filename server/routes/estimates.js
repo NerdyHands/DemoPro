@@ -6,7 +6,13 @@ const Counter = require('../models/Counter');
 const fs = require('fs');
 const ContractPdfService = require('../services/contractPdfService');
 const EstimatePdfService = require('../services/estimatePdfService');
+const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
+const { sendDocxBuffer, sanitizeFilename } = require('../services/documentOutputs/sendDocxResponse');
+const { renderEstimateDocx } = require('../services/documentOutputs/renderers/estimateRenderer');
+const { GoogleDocsPublisher } = require('../services/documentOutputs/googleDocsPublisher');
 const router = express.Router();
+
+const googleDocsPublisher = new GoogleDocsPublisher();
 
 // JWT Secret (should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -235,10 +241,38 @@ router.put('/:id', authenticateUser, [
       });
     }
 
+    const updateData = { ...req.body };
+
+    const addressFieldsInUpdate = updateData.propertyAddress != null || updateData.clientAddress != null;
+    if (addressFieldsInUpdate) {
+      const initialProp = (existingEstimate.propertyAddress || '').trim();
+      const initialClient = (existingEstimate.clientAddress || '').trim();
+      const newProp = updateData.propertyAddress != null ? String(updateData.propertyAddress).trim() : initialProp;
+      const newClient = updateData.clientAddress != null ? String(updateData.clientAddress).trim() : initialClient;
+      const clientWasEdited = updateData.clientAddress != null && newClient !== initialClient;
+
+      if (newProp && !clientWasEdited) {
+        updateData.clientAddress = newProp;
+      } else if (newClient && updateData.propertyAddress == null && !initialProp) {
+        updateData.propertyAddress = newClient;
+      }
+
+      const initialCanonical = initialProp || initialClient;
+      const newCanonical = (updateData.propertyAddress || newProp || updateData.clientAddress || newClient || '').trim();
+      if (
+        initialCanonical &&
+        updateData.title &&
+        String(updateData.title).trim() === initialCanonical &&
+        newCanonical
+      ) {
+        updateData.title = newCanonical;
+      }
+    }
+
     // Update the estimate
     const updatedEstimate = await Estimate.findByIdAndUpdate(
       id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     ).populate('customer', 'firstName lastName email');
     
@@ -315,6 +349,64 @@ router.get('/:id/pdf', authenticateUser, async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error generating estimate PDF:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET /api/estimates/:id/docx - Generate and download estimate DOCX
+router.get('/:id/docx', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📝 Generating Estimate DOCX for:', id);
+
+    const estimate = await Estimate.findById(id).populate('customer', 'firstName lastName email address');
+    if (!estimate) {
+      return res.status(404).json({ success: false, error: 'Estimate not found' });
+    }
+
+    const model = renderEstimateDocx(estimate);
+    const buffer = await buildDocxBuffer(model);
+    const filenameBase = sanitizeFilename(`Estimate_${estimate.estimateNumber || estimate._id}`);
+    sendDocxBuffer(res, buffer, filenameBase);
+  } catch (error) {
+    console.error('❌ Error generating estimate DOCX:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/estimates/:id/google-doc - Create Google Doc and return link
+router.post('/:id/google-doc', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📄 Creating Google Doc for estimate:', id);
+
+    if (!googleDocsPublisher.isAvailable()) {
+      return res.status(400).json({ success: false, error: 'Google Docs is not configured on the server' });
+    }
+
+    const estimate = await Estimate.findById(id).populate('customer', 'firstName lastName email address');
+    if (!estimate) {
+      return res.status(404).json({ success: false, error: 'Estimate not found' });
+    }
+
+    const model = renderEstimateDocx(estimate);
+    const buffer = await buildDocxBuffer(model);
+    const title = `Estimate ${estimate.estimateNumber || estimate._id}`;
+
+    const docInfo = await googleDocsPublisher.publishDocxAsGoogleDoc({ buffer, title });
+
+    // Optional sharing: { shareWith: [{ email, role }] }
+    const shareWith = Array.isArray(req.body?.shareWith) ? req.body.shareWith : [];
+    if (docInfo.documentId && shareWith.length > 0) {
+      for (const entry of shareWith) {
+        if (!entry?.email) continue;
+        await googleDocsPublisher.shareDocument(docInfo.documentId, entry.email, entry.role || 'reader');
+      }
+    }
+
+    res.json({ success: true, documentId: docInfo.documentId, url: docInfo.url, title: docInfo.title });
+  } catch (error) {
+    console.error('❌ Error creating Google Doc for estimate:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

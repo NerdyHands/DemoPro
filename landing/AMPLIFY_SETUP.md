@@ -1,12 +1,16 @@
 # AWS Amplify Auto-Deployment Setup
 
-This guide will help you set up automatic deployments to AWS Amplify from GitHub.
+This guide helps you set up automatic deployments to AWS Amplify from GitHub for the Vite + React landing app.
+
+**Current app:** `d28gzr68fr7a30`  
+**Default domain:** `https://main.d28gzr68fr7a30.amplifyapp.com`  
+**Production canonicals:** `https://mrdemopro.com` (attach as custom domain when ready)
 
 ## Prerequisites
 
 1. AWS Account with Amplify access
 2. GitHub repository with your code pushed
-3. AWS S3 bucket configured (already done)
+3. Opinly API key + CDN namespace (see [BLOG_UPDATE_GUIDE.md](./BLOG_UPDATE_GUIDE.md))
 4. Environment variables ready
 
 ## Step 1: Connect GitHub Repository
@@ -39,11 +43,10 @@ Amplify should auto-detect the configuration from `amplify.yml`, but verify thes
    - **Root directory**: `/landing`
    - **Build command**: `npm run build`
    - **Output directory**: `dist`
-   - **Build image**: `Amazon Linux 2` (default)
+   - **Build image**: `Amazon Linux 2023` (or Amazon Linux 2)
 
 3. **Advanced settings** → **Build image settings**:
-   - Version: `Amazon Linux 2`
-   - Node.js version: `18.x` or `20.x` (recommended)
+   - Node.js version: **`20.x`** (required — `@opinly/*` needs Node ≥ 20.19)
 
 ## Step 3: Configure Environment Variables
 
@@ -52,31 +55,47 @@ In Amplify Console, go to **App settings** → **Environment variables** and add
 ### Required Variables
 
 ```env
-# Blog Data Configuration
-VITE_S3_BLOG_DATA_BASE=https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-data
-VITE_USE_STATIC_BLOG_DATA=true
+# Opinly blog sync (build-time only — do NOT use VITE_ prefix for the API key)
+OPINLY_API_KEY=sk-your-opinly-api-key
+OPINLY_CDN_NAMESPACE=your-21-char-cdn-namespace
+# Optional override:
+# OPINLY_IMAGES_PREFIX=https://cdn.opinly.ai/your-21-char-cdn-namespace
 
-# API Configuration (if using API calls as fallback)
-VITE_API_BASE_URL=https://your-api-url.com/api
-
-# Site Configuration
+# Site Configuration (public canonical origin)
 VITE_SITE_URL=https://mrdemopro.com
+
+# Google Places — property address autocomplete on quote forms
+VITE_GOOGLE_PLACES_API_KEY=your-google-places-api-key
 ```
 
 ### Optional Variables
 
 ```env
+# Prefer static /blog-data written during sync:opinly (default true)
+VITE_USE_STATIC_BLOG_DATA=true
+
+# Legacy API fallback only
+VITE_API_BASE_URL=https://your-api-url.com/api
+
 # Analytics (if using)
 VITE_GA_ID=your-google-analytics-id
 VITE_PLAUSIBLE_DOMAIN=your-domain.com
 ```
 
-**Note**: 
-- For each environment (main, develop, etc.), you can set different values
-- Variables starting with `VITE_` are exposed to the frontend build
-- Never commit sensitive values - use Amplify's environment variables UI
+**Note**:
+- `OPINLY_API_KEY` is used only by Node during `npm run sync:opinly` / `npm run build`
+- Variables starting with `VITE_` are exposed to the frontend bundle
+- Never commit sensitive values — use Amplify's environment variables UI
 
-## Step 4: Review and Deploy
+## Step 4: Rewrites and redirects (required for prerender)
+
+See [AMPLIFY_SPA_ROUTING.md](./AMPLIFY_SPA_ROUTING.md) and [AMPLIFY_REDIRECT_QUICK_SETUP.md](./AMPLIFY_REDIRECT_QUICK_SETUP.md).
+
+Use a **404-200** SPA fallback (`/<*>` → `/index.html`) so prerendered `dist/<path>/index.html` files are served when present. Do **not** use a catch-all `200` rewrite that always forces the root `index.html` (that breaks per-route canonicals).
+
+Keep trailing-slash **301** rules ordered **before** the fallback.
+
+## Step 5: Review and Deploy
 
 1. **Review settings**
    - Double-check all configuration
@@ -87,15 +106,15 @@ VITE_PLAUSIBLE_DOMAIN=your-domain.com
    - Amplify will:
      - Clone your repository
      - Install dependencies (`npm ci`)
-     - Run the build process
+     - Run the build process (includes Opinly sync)
      - Deploy to a unique URL
 
 3. **First deployment**
    - First build may take 5-10 minutes
-   - Watch the build logs in real-time
-   - If build fails, check logs and fix issues
+   - Watch the build logs for `Syncing blog posts from Opinly...`
+   - If you still see Amplify's "Welcome" placeholder, the first deploy has not succeeded yet
 
-## Step 5: Custom Domain (Optional)
+## Step 6: Custom Domain
 
 1. **Add custom domain**
    - Go to **App settings** → **Domain management**
@@ -107,7 +126,9 @@ VITE_PLAUSIBLE_DOMAIN=your-domain.com
    - Amplify automatically provisions SSL certificates
    - Usually takes a few minutes to provision
 
-## Step 6: Branch-Based Deployments (Optional)
+Canonical tags in the app already point at `https://mrdemopro.com`, so attaching the custom domain does not require a code change.
+
+## Step 7: Branch-Based Deployments (Optional)
 
 Amplify can automatically create preview deployments for pull requests:
 
@@ -125,18 +146,18 @@ Amplify can automatically create preview deployments for pull requests:
 Your `amplify.yml` runs this build process:
 
 1. **preBuild phase**:
-   - Navigate to `landing/` directory
-   - Run `npm ci` (clean install)
+   - Run `npm ci --legacy-peer-deps`
+   - Install Playwright Chromium
 
-2. **build phase**:
-   - `npm run build` - This runs the full build pipeline:
-     - `generate:seo` - Generate sitemap, robots.txt
-     - `seo:fix` - Fix SEO issues  
-     - `tsc -b` - TypeScript compilation
-     - `vite build` - Vite build
-     - `postbuild:snap` - React snap pre-rendering
-     - `seo:validate` - Validate SEO
-     - `audit:http` - HTTP status checks
+2. **build phase** (`npm run build`):
+   - `sync:opinly` — fetch Opinly posts → `public/blog-data/`
+   - `generate:seo` — sitemap, robots.txt
+   - `seo:fix` — SEO fixes
+   - `tsc -b` — TypeScript compilation
+   - `vite build` — production bundle
+   - `postbuild:prerender` — Playwright static HTML per route
+   - `validate:prerender` — verify meta tags / body content
+   - `seo:validate` / `audit:http`
 
 3. **Artifacts**:
    - Output directory: `dist`
@@ -149,73 +170,40 @@ Your `amplify.yml` runs this build process:
 **Common issues:**
 
 1. **Node.js version mismatch**
-   - Solution: Update build image to Node 18.x or 20.x in build settings
+   - Solution: Set build image Node to **20.x**
 
-2. **Missing dependencies**
-   - Solution: Ensure `package.json` has all required dependencies
-   - Check that `npm ci` completes successfully
+2. **Missing `OPINLY_API_KEY`**
+   - Amplify sets `AWS_BRANCH`, so sync fails hard without the key
+   - Add `OPINLY_API_KEY` (and CDN namespace) in Environment variables, then redeploy
 
-3. **Build command errors**
-   - Solution: Check build logs in Amplify Console
-   - Test build locally: `cd landing && npm ci && npm run build`
-   - If root directory is `/landing`, Amplify will automatically cd into it
+3. **Missing dependencies**
+   - Ensure `npm ci --legacy-peer-deps` completes (see `amplify.yml`)
 
-4. **Memory/timeout issues**
-   - Solution: Increase build timeout in build settings
-   - Optimize build process if needed
+4. **Build command errors**
+   - Check Amplify build logs
+   - Test locally: `cd landing && npm ci --legacy-peer-deps && npm run build`
+
+5. **Memory/timeout issues**
+   - Increase build timeout; Playwright prerender needs Chromium
 
 ### Environment Variables Not Working
 
-- Ensure variables start with `VITE_` to be exposed to frontend
-- Restart build after adding new variables
-- Check browser console for undefined values
+- `OPINLY_*` vars do **not** need a `VITE_` prefix
+- Frontend vars must start with `VITE_`
+- Redeploy after adding new variables
 
-### S3 CORS Errors
+### Welcome page still showing
 
-- Verify S3 bucket CORS configuration (see `server/S3_CORS_SETUP.md`)
-- Check that `VITE_S3_BLOG_DATA_BASE` is correct
-- Ensure bucket policy allows public read
+- Confirm a successful build completed and artifacts include `dist/index.html`
+- Confirm Amplify **Root directory** is `landing`
 
-## Automatic Deployments
+## Manual zip deploy (optional)
 
-Once set up, deployments happen automatically:
-
-- **Main branch**: Deploys to production URL
-- **Other branches**: Creates preview deployments (if enabled)
-- **Pull requests**: Creates unique preview URL for testing
-
-## Monitoring
-
-- **Build logs**: View in Amplify Console → Build history
-- **Access logs**: Monitor requests and errors
-- **Performance**: View Core Web Vitals and performance metrics
-
-## Updating Build Configuration
-
-To update build settings:
-
-1. Edit `amplify.yml` in your repository
-2. Commit and push changes
-3. Amplify automatically detects changes and redeploys
-
-## Cost
-
-AWS Amplify hosting:
-- **Free tier**: 5 GB storage, 15 GB served per month
-- **After free tier**: Pay per GB served
-- Very affordable for most static sites
-
-## Next Steps
-
-1. ✅ Set up Amplify app and connect GitHub
-2. ✅ Configure environment variables
-3. ✅ Deploy first build
-4. ✅ Test the deployed site
-5. ✅ Set up custom domain (optional)
-6. ✅ Configure branch deployments (optional)
+See root [`amplify-deploy.config.example.json`](../amplify-deploy.config.example.json) (`appId: d28gzr68fr7a30`) and `scripts/deploy-to-amplify.ps1`.
 
 ## Resources
 
 - [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
 - [Amplify Documentation](https://docs.aws.amazon.com/amplify/)
 - [Build Settings Reference](https://docs.aws.amazon.com/amplify/latest/userguide/build-settings.html)
+- [BLOG_UPDATE_GUIDE.md](./BLOG_UPDATE_GUIDE.md)

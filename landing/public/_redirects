@@ -1,7 +1,61 @@
-# AWS Amplify / Netlify redirects file
-# SPA routing: All routes that don't match files should serve index.html
-# This ensures React Router works correctly for routes like /services/
-/*    /index.html   200
+# 301: non–trailing-slash → trailing-slash (canonical). List before SPA fallback.
+/sitemap.xml /sitemap.xml 200
+/robots.txt /robots.txt 200
+/services /services/ 301
+/building-demolition /building-demolition/ 301
+/demolition-services /demolition-services/ 301
+/demolition-contractor-hampton-va /demolition-contractor-hampton-va/ 301
+/service-area /service-area/ 301
+/demolition-contractor-newport-news-va /demolition-contractor-newport-news-va/ 301
+/demolition-contractor-norfolk-va /demolition-contractor-norfolk-va/ 301
+/demolition-contractor-virginia-beach-va /demolition-contractor-virginia-beach-va/ 301
+/demolition-contractor-chesapeake-va /demolition-contractor-chesapeake-va/ 301
+/demolition-contractor-portsmouth-va /demolition-contractor-portsmouth-va/ 301
+/demolition-contractor-suffolk-va /demolition-contractor-suffolk-va/ 301
+/concrete-demolition /concrete-demolition/ 301
+/residential-demolition /residential-demolition/ 301
+/garage-demolition /services/garage-demolition/ 301
+/garage-demolition/ /services/garage-demolition/ 301
+/deck-removal /services/deck-removal/ 301
+/deck-removal/ /services/deck-removal/ 301
+/shed-removal /services/shed-removal/ 301
+/shed-removal/ /services/shed-removal/ 301
+/fence-removal /services/fence-removal/ 301
+/fence-removal/ /services/fence-removal/ 301
+/interior-demo /services/interior-demo/ 301
+/interior-demo/ /services/interior-demo/ 301
+/junk-removal /services/junk-removal/ 301
+/junk-removal/ /services/junk-removal/ 301
+/cleanout /services/cleanout/ 301
+/cleanout/ /services/cleanout/ 301
+/commercial-demolition /commercial-demolition/ 301
+/tenant-clean-out /tenant-clean-out/ 301
+/services/shed-removal /services/shed-removal/ 301
+/services/deck-removal /services/deck-removal/ 301
+/services/fence-removal /services/fence-removal/ 301
+/services/interior-demo /services/interior-demo/ 301
+/services/kitchen-demolition /services/kitchen-demolition/ 301
+/services/bathroom-demolition /services/bathroom-demolition/ 301
+/services/garage-demolition /services/garage-demolition/ 301
+/services/concrete-removal /services/concrete-removal/ 301
+/services/commercial-interior-demolition /services/commercial-interior-demolition/ 301
+/services/cleanout /services/cleanout/ 301
+/services/cleanout-services /services/cleanout/ 301
+/services/cleanout-services/ /services/cleanout/ 301
+/services/hoarding-cleanout /services/hoarding-cleanout/ 301
+/services/junk-removal /services/junk-removal/ 301
+/services/house-demolition /services/house-demolition/ 301
+/prices /prices/ 301
+/contact /contact/ 301
+/about /about/ 301
+/faqs /faqs/ 301
+/thank-you /thank-you/ 301
+/blog /blog/ 301
+/demolition-cost-virginia /demolition-cost-virginia/ 301
+/diy-vs-pro-demolition/thank-you /diy-vs-pro-demolition/thank-you/ 301
+/diy-vs-pro-demolition /diy-vs-pro-demolition/ 301
+/terms /terms/ 301
+/privacy /privacy/ 301
 
-# Blog is served directly from /blog route (data from S3)
-# No redirect needed - blog is part of the React app
+# SPA fallback (Amplify / Netlify)
+/*    /index.html   200

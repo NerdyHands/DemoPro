@@ -1,9 +1,13 @@
 import React from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPosts } from '../api/blog';
 import type { PostSummary } from '../api/blog';
-import SEO from '../components/SEO';
+import { blogIndexPath, blogPostPath, blogTagPath } from '../utils/blogPaths';
 import './Blog.css';
+
+type BlogProps = {
+  activeTag?: string;
+};
 
 const formatDate = (value?: string) => {
   if (!value) return '';
@@ -17,12 +21,21 @@ const getUniqueTags = (posts: PostSummary[]) => {
   return Array.from(tags).sort((a, b) => a.localeCompare(b));
 };
 
-const Blog: React.FC = () => {
+const Blog: React.FC<BlogProps> = ({ activeTag }) => {
   const [posts, setPosts] = React.useState<PostSummary[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tag = searchParams.get('tag') || '';
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const tag = activeTag ?? '';
+
+  React.useEffect(() => {
+    if (activeTag) return;
+    const legacyTag = searchParams.get('tag');
+    if (legacyTag) {
+      navigate(blogTagPath(legacyTag), { replace: true });
+    }
+  }, [activeTag, navigate, searchParams]);
 
   React.useEffect(() => {
     let active = true;
@@ -47,44 +60,30 @@ const Blog: React.FC = () => {
   const featured = posts.filter(p => p.featured);
   const regular = posts.filter(p => !p.featured);
 
-  const handleTagClick = (next?: string) => {
-    if (next) {
-      setSearchParams({ tag: next });
-    } else {
-      setSearchParams({});
-    }
-  };
-
   return (
     <div className="blog-layout">
-      <SEO
-        title="Blog | Mr Demo Pro"
-        description="Guides, tips, and updates from Mr Demo Pro."
-        canonicalUrl="https://mrdemopro.com/blog"
-        ogType="article"
-      />
       <section className="blog-hero">
         <div>
           <p className="eyebrow">Insights & Updates</p>
           <h1>Mr Demo Pro Blog</h1>
           <p>Best practices, project stories, and how-tos for cleanouts and demolition.</p>
           <div className="tag-row">
-            <button
+            <Link
+              to={blogIndexPath()}
               className={!tag ? 'tag active' : 'tag'}
-              onClick={() => handleTagClick(undefined)}
-              aria-pressed={!tag}
+              aria-current={!tag ? 'page' : undefined}
             >
               All
-            </button>
+            </Link>
             {tags.map(t => (
-              <button
+              <Link
                 key={t}
+                to={blogTagPath(t)}
                 className={tag === t ? 'tag active' : 'tag'}
-                onClick={() => handleTagClick(t)}
-                aria-pressed={tag === t}
+                aria-current={tag === t ? 'page' : undefined}
               >
                 {t}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -100,7 +99,7 @@ const Blog: React.FC = () => {
               {featured.map(post => (
                 <article key={post.slug} className="card featured-card">
                   {post.coverUrl && (
-                    <Link to={`/blog/${post.slug}`} aria-label={post.title}>
+                    <Link to={blogPostPath(post.slug)} aria-label={post.title}>
                       <img src={post.coverUrl} alt={post.title} loading="lazy" />
                     </Link>
                   )}
@@ -110,14 +109,14 @@ const Blog: React.FC = () => {
                       {post.readingTime ? <span>{post.readingTime} min read</span> : null}
                     </div>
                     <h2>
-                      <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                      <Link to={blogPostPath(post.slug)}>{post.title}</Link>
                     </h2>
                     <p className="excerpt">{post.excerpt}</p>
                     <div className="tags">
                       {(post.tags || []).map(t => (
-                        <button key={t} className="pill" onClick={() => handleTagClick(t)}>
+                        <Link key={t} to={blogTagPath(t)} className="pill">
                           {t}
-                        </button>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -130,7 +129,7 @@ const Blog: React.FC = () => {
             {regular.map(post => (
               <article key={post.slug} className="card">
                 {post.coverUrl && (
-                  <Link to={`/blog/${post.slug}`} aria-label={post.title}>
+                  <Link to={blogPostPath(post.slug)} aria-label={post.title}>
                     <img src={post.coverUrl} alt={post.title} loading="lazy" />
                   </Link>
                 )}
@@ -140,14 +139,14 @@ const Blog: React.FC = () => {
                     {post.readingTime ? <span>{post.readingTime} min read</span> : null}
                   </div>
                   <h3>
-                    <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                    <Link to={blogPostPath(post.slug)}>{post.title}</Link>
                   </h3>
                   <p className="excerpt">{post.excerpt}</p>
                   <div className="tags">
                     {(post.tags || []).map(t => (
-                      <button key={t} className="pill" onClick={() => handleTagClick(t)}>
+                      <Link key={t} to={blogTagPath(t)} className="pill">
                         {t}
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 </div>

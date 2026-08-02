@@ -14,6 +14,18 @@ const __dirname = path.dirname(__filename);
 
 const APP_TSX_PATH = path.join(__dirname, '../src/App.tsx');
 
+/** SEO keys for city / service-area landing pages (local intent cluster). */
+const LOCATION_SEO_KEYS = new Set([
+  'demolitionContractorHamptonVa',
+  'demolitionContractorNewportNewsVa',
+  'demolitionContractorNorfolkVa',
+  'demolitionContractorVirginiaBeachVa',
+  'demolitionContractorChesapeakeVa',
+  'demolitionContractorPortsmouthVa',
+  'demolitionContractorSuffolkVa',
+  'serviceAreas'
+]);
+
 /**
  * Priority mapping based on route type
  */
@@ -24,8 +36,8 @@ function getPriorityForRoute(routePath, seoKey) {
   // Services page gets high priority
   if (routePath === '/services') return '0.9';
 
-  // Location/service-area pages
-  if (seoKey === 'demolitionContractorHamptonVa') return '0.7';
+  // Location/service-area hub pages
+  if (seoKey && LOCATION_SEO_KEYS.has(seoKey)) return '0.7';
   
   // Service pages get high priority
   if ([
@@ -40,6 +52,7 @@ function getPriorityForRoute(routePath, seoKey) {
     'commercialInteriorDemolition',
     'cabinetRemoval',
     'cleanout',
+    'hoardingCleanout',
     'junkRemoval',
     'buildingDemolition',
     'demolitionServices',
@@ -75,8 +88,8 @@ function getChangeFreqForRoute(routePath, seoKey) {
   // Homepage changes more frequently
   if (routePath === '/') return 'weekly';
 
-  // Location/service-area pages
-  if (seoKey === 'demolitionContractorHamptonVa') return 'monthly';
+  // Location/service-area hub pages
+  if (seoKey && LOCATION_SEO_KEYS.has(seoKey)) return 'monthly';
   
   // Service pages change monthly
   if ([
@@ -92,6 +105,7 @@ function getChangeFreqForRoute(routePath, seoKey) {
     'commercialInteriorDemolition',
     'cabinetRemoval',
     'cleanout',
+    'hoardingCleanout',
     'junkRemoval',
     'buildingDemolition',
     'demolitionServices',
@@ -159,6 +173,7 @@ export function parseRoutesFromApp() {
     routes.push({
       path: routePath,
       seoKey: seoKey,
+      routeElement,
       priority: getPriorityForRoute(routePath, seoKey),
       changefreq: getChangeFreqForRoute(routePath, seoKey),
       lastmod: new Date().toISOString().split('T')[0]
@@ -187,6 +202,37 @@ export function getRoutePaths() {
  */
 export function getRoutesWithMetadata() {
   return parseRoutesFromApp();
+}
+
+/** Paths excluded from prerender/sitemap because they are noindex or redirect-only. */
+const NO_INDEX_PATHS = new Set([
+  '/terms/',
+  '/privacy/',
+  '/thank-you/',
+  '/diy-vs-pro-demolition/thank-you/'
+]);
+
+/**
+ * Canonical trailing-slash routes suitable for prerender and sitemap.
+ * Excludes redirect-only paths, dynamic patterns, and noindex pages.
+ */
+export function getCanonicalRoutes() {
+  return parseRoutesFromApp().filter((route) => {
+    const { path } = route;
+    if (path.includes(':') || path === '*') return false;
+    if (path !== '/' && !path.endsWith('/')) return false;
+    if (route.routeElement?.includes('<Navigate')) return false;
+    const normalized = path === '/' ? '/' : path;
+    if (NO_INDEX_PATHS.has(normalized)) return false;
+    return true;
+  });
+}
+
+/**
+ * Canonical route paths only (e.g. "/", "/services/").
+ */
+export function getCanonicalRoutePaths() {
+  return getCanonicalRoutes().map((route) => route.path);
 }
 
 /**
@@ -223,9 +269,18 @@ export function generateInternalLinks() {
         'commercialInteriorDemolition',
         'cabinetRemoval',
         'cleanout',
+        'hoardingCleanout',
         'junkRemoval',
         'buildingDemolition',
         'demolitionServices',
+        'serviceAreas',
+        'demolitionContractorHamptonVa',
+        'demolitionContractorNewportNewsVa',
+        'demolitionContractorNorfolkVa',
+        'demolitionContractorVirginiaBeachVa',
+        'demolitionContractorChesapeakeVa',
+        'demolitionContractorPortsmouthVa',
+        'demolitionContractorSuffolkVa',
         'concreteDemolition',
         'residentialDemolition',
         'garageDemolition',
@@ -253,9 +308,18 @@ export function generateInternalLinks() {
             'commercialInteriorDemolition',
             'cabinetRemoval',
             'cleanout',
+            'hoardingCleanout',
             'junkRemoval',
             'buildingDemolition',
             'demolitionServices',
+            'serviceAreas',
+            'demolitionContractorHamptonVa',
+            'demolitionContractorNewportNewsVa',
+            'demolitionContractorNorfolkVa',
+            'demolitionContractorVirginiaBeachVa',
+            'demolitionContractorChesapeakeVa',
+            'demolitionContractorPortsmouthVa',
+            'demolitionContractorSuffolkVa',
             'concreteDemolition',
             'residentialDemolition',
             'garageDemolition',

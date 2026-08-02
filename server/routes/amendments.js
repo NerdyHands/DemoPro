@@ -6,6 +6,12 @@ const Contract = require('../models/Contract');
 const Customer = require('../models/Customer');
 const AmendmentPdfService = require('../services/amendmentPdfService');
 const fs = require('fs');
+const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
+const { sendDocxBuffer, sanitizeFilename } = require('../services/documentOutputs/sendDocxResponse');
+const { renderAmendmentDocx } = require('../services/documentOutputs/renderers/amendmentRenderer');
+const { GoogleDocsPublisher } = require('../services/documentOutputs/googleDocsPublisher');
+
+const googleDocsPublisher = new GoogleDocsPublisher();
 
 // JWT Secret (should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -475,6 +481,79 @@ router.get('/:id/pdf', authenticateUser, async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+});
+
+// GET /api/amendments/:id/docx - Generate and download amendment DOCX
+router.get('/:id/docx', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📝 Generating DOCX for amendment:', id);
+
+    const amendment = await ContractAmendment.findById(id)
+      .populate('customer', 'firstName lastName email phone address')
+      .populate('contractId');
+
+    if (!amendment) {
+      return res.status(404).json({ success: false, error: 'Amendment not found' });
+    }
+
+    const contract = amendment.contractId;
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    const model = renderAmendmentDocx(amendment, contract, amendment.customer);
+    const buffer = await buildDocxBuffer(model);
+    const filenameBase = sanitizeFilename(`Amendment_${amendment.amendmentNumber || amendment._id}`);
+    sendDocxBuffer(res, buffer, filenameBase);
+  } catch (error) {
+    console.error('❌ Error generating amendment DOCX:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/amendments/:id/google-doc - Create Google Doc and return link
+router.post('/:id/google-doc', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📄 Creating Google Doc for amendment:', id);
+
+    if (!googleDocsPublisher.isAvailable()) {
+      return res.status(400).json({ success: false, error: 'Google Docs is not configured on the server' });
+    }
+
+    const amendment = await ContractAmendment.findById(id)
+      .populate('customer', 'firstName lastName email phone address')
+      .populate('contractId');
+
+    if (!amendment) {
+      return res.status(404).json({ success: false, error: 'Amendment not found' });
+    }
+
+    const contract = amendment.contractId;
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    const model = renderAmendmentDocx(amendment, contract, amendment.customer);
+    const buffer = await buildDocxBuffer(model);
+    const title = `Amendment ${amendment.amendmentNumber || amendment._id}`;
+
+    const docInfo = await googleDocsPublisher.publishDocxAsGoogleDoc({ buffer, title });
+
+    const shareWith = Array.isArray(req.body?.shareWith) ? req.body.shareWith : [];
+    if (docInfo.documentId && shareWith.length > 0) {
+      for (const entry of shareWith) {
+        if (!entry?.email) continue;
+        await googleDocsPublisher.shareDocument(docInfo.documentId, entry.email, entry.role || 'reader');
+      }
+    }
+
+    res.json({ success: true, documentId: docInfo.documentId, url: docInfo.url, title: docInfo.title });
+  } catch (error) {
+    console.error('❌ Error creating Google Doc for amendment:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

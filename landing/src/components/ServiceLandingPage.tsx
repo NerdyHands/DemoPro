@@ -1,12 +1,35 @@
 import {useState, useRef, useEffect, type ReactNode} from 'react';
-import {Container, Row, Col, Button} from 'react-bootstrap';
+import {Link, useLocation} from 'react-router-dom';
+import {Accordion, Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
 import QuoteForm from './QuoteForm';
+import {getPageTypeFromPath, trackCtaClick, trackFaqExpand, trackPhoneClick} from '../config/gtm';
+import type {PageType} from '../config/analyticsTypes';
+import {useScrollDepth} from '../hooks/useScrollDepth';
+
+export interface ServiceLandingFAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface NearbyAreaLink {
+  label: string;
+  to: string;
+}
+
+export interface BeforeAfterExample {
+  title?: string;
+  description?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+}
 
 interface ServiceLandingPageProps {
   title: string;
   description: string;
   serviceType: string;
+  /** Used in schema microdata and CTA aria-labels. Defaults to Hampton Roads regional wording. */
+  areaServed?: string;
   heroImage: {
     src: string;
     alt: string;
@@ -24,15 +47,35 @@ interface ServiceLandingPageProps {
   }>;
   serviceIncludesTitle?: string;
   serviceIncludes?: string[];
+  /** Optional section: primary list of demolition scope (SEO depth). */
+  whatWeDemolishTitle?: string;
+  whatWeDemolishItems?: string[];
+  pricingExpectationsTitle?: string;
+  pricingExpectationsItems?: string[];
+  permitsSafetyTitle?: string;
+  permitsSafetyParagraphs?: string[];
+  beforeAfterTitle?: string;
+  beforeAfterExamples?: BeforeAfterExample[];
+  faqs?: ServiceLandingFAQItem[];
+  nearbyAreasTitle?: string;
+  nearbyAreasIntro?: string;
+  nearbyAreasLinks?: NearbyAreaLink[];
   ctaTitle?: string;
   ctaDescription?: string;
   children?: ReactNode;
 }
 
+const surfaceSectionStyle = {padding: '80px 0'} as const;
+const surfaceBgStyle = {
+  ...surfaceSectionStyle,
+  backgroundColor: 'var(--color-surface)'
+} as const;
+
 const ServiceLandingPage = ({
   title,
   description,
   serviceType,
+  areaServed = 'Hampton Roads, VA',
   heroImage,
   benefitsTitle,
   benefits,
@@ -40,6 +83,18 @@ const ServiceLandingPage = ({
   processSteps,
   serviceIncludesTitle,
   serviceIncludes,
+  whatWeDemolishTitle,
+  whatWeDemolishItems,
+  pricingExpectationsTitle,
+  pricingExpectationsItems,
+  permitsSafetyTitle,
+  permitsSafetyParagraphs,
+  beforeAfterTitle,
+  beforeAfterExamples,
+  faqs,
+  nearbyAreasTitle,
+  nearbyAreasIntro,
+  nearbyAreasLinks,
   ctaTitle,
   ctaDescription,
   children
@@ -47,6 +102,19 @@ const ServiceLandingPage = ({
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
   const scrollPosRef = useRef<number>(0);
+
+  const geoPhrase = areaServed.includes(',')
+    ? areaServed.split(',')[0]?.trim() || areaServed
+    : areaServed;
+
+  const h1Title =
+    /Hampton Roads|, VA|Norfolk|Newport News|Chesapeake|Virginia Beach/i.test(title)
+      ? title
+      : `${title} in ${areaServed}`;
+
+  const location = useLocation();
+  const pageType = getPageTypeFromPath(location.pathname) as PageType;
+  useScrollDepth(pageType);
 
   useEffect(() => {
     if (showForm && formRef.current) {
@@ -57,9 +125,33 @@ const ServiceLandingPage = ({
     }
   }, [showForm]);
 
+  const faqJsonLd =
+    faqs && faqs.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faqs.map(f => ({
+            '@type': 'Question',
+            name: f.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: f.answer
+            }
+          }))
+        }
+      : null;
+
   return (
     <main>
       <div itemScope itemType="https://schema.org/Service">
+        {faqJsonLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(faqJsonLd)
+            }}
+          />
+        )}
         {/* Hero Section */}
         <section
           aria-labelledby="service-hero-title"
@@ -69,7 +161,7 @@ const ServiceLandingPage = ({
               'linear-gradient(135deg, var(--color-surface) 0%, #ffffff 100%)'
           }}
         >
-          <meta itemProp="areaServed" content="Hampton Roads, VA" />
+          <meta itemProp="areaServed" content={areaServed} />
           <meta itemProp="provider" content="Mr Demo Pro" />
           <meta itemProp="serviceType" content={serviceType} />
           <Container>
@@ -88,7 +180,7 @@ const ServiceLandingPage = ({
                     fontSize: 'var(--font-size-4xl)'
                   }}
                 >
-                  {title}
+                  {h1Title}
                 </motion.h1>
                 <motion.p
                   itemProp="description"
@@ -114,15 +206,32 @@ const ServiceLandingPage = ({
                   <Button
                     size="lg"
                     className="customButton large hero-cta"
-                    onClick={() => setShowForm(!showForm)}
-                    aria-label={`Get a free ${serviceType} quote in Hampton Roads`}
+                    onClick={() => {
+                      trackCtaClick({
+                        cta_label: 'Get Free Quote',
+                        cta_location: 'service_page_hero',
+                        cta_type: 'quote',
+                        service_name: serviceType,
+                        page_type: pageType
+                      });
+                      setShowForm(!showForm);
+                    }}
+                    aria-label={`Get a free ${serviceType} quote in ${geoPhrase}`}
                   >
                     Get Free Quote
                   </Button>
                   <a
                     href="tel:757-848-4559"
-                    aria-label={`Call for ${serviceType} services in Hampton Roads`}
+                    aria-label={`Call for ${serviceType} services in ${geoPhrase}`}
                     className="cta-button hero-badge hero-cta"
+                    onClick={() =>
+                      trackPhoneClick({
+                        cta_location: 'service_page_hero',
+                        cta_label: 'Call (757) 848 4559',
+                        service_name: serviceType,
+                        page_type: pageType
+                      })
+                    }
                   >
                     Call (757) 848 4559
                   </a>
@@ -153,9 +262,7 @@ const ServiceLandingPage = ({
         </section>
 
         {/* Benefits Section */}
-        <section
-          style={{padding: '80px 0', backgroundColor: 'var(--color-surface)'}}
-        >
+        <section style={surfaceBgStyle}>
           <Container>
             <Row>
               <Col xs={12}>
@@ -213,9 +320,50 @@ const ServiceLandingPage = ({
 
         {children}
 
+        {/* What we demolish */}
+        {whatWeDemolishItems && whatWeDemolishItems.length > 0 && (
+          <section style={surfaceSectionStyle}>
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    className="title-small text-center fw-bold"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '40px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    {whatWeDemolishTitle || 'What we demolish'}
+                  </motion.h2>
+                  <Row>
+                    {whatWeDemolishItems.map(item => (
+                      <Col key={item} md={6} className="mb-3">
+                        <div
+                          style={{
+                            padding: '16px 18px',
+                            backgroundColor: 'var(--color-surface)',
+                            borderRadius: '12px',
+                            border: '1px solid var(--color-border)'
+                          }}
+                        >
+                          {item}
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
+                </Col>
+              </Row>
+            </Container>
+          </section>
+        )}
+
         {/* Service Includes */}
         {serviceIncludes && serviceIncludes.length > 0 && (
-          <section style={{padding: '80px 0'}}>
+          <section style={{...surfaceSectionStyle, backgroundColor: 'var(--color-surface)'}}>
             <Container>
               <Row className="justify-content-center">
                 <Col lg={10}>
@@ -238,7 +386,7 @@ const ServiceLandingPage = ({
                         <div
                           style={{
                             padding: '16px 18px',
-                            backgroundColor: 'var(--color-surface)',
+                            backgroundColor: '#ffffff',
                             borderRadius: '12px',
                             border: '1px solid var(--color-border)'
                           }}
@@ -255,7 +403,7 @@ const ServiceLandingPage = ({
         )}
 
         {/* Process Section */}
-        <section style={{padding: '80px 0'}}>
+        <section style={surfaceSectionStyle}>
           <Container>
             <Row>
               <Col xs={12}>
@@ -318,6 +466,293 @@ const ServiceLandingPage = ({
           </Container>
         </section>
 
+        {/* Pricing expectations */}
+        {pricingExpectationsItems && pricingExpectationsItems.length > 0 && (
+          <section style={surfaceBgStyle}>
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    className="title-small fw-bold text-center"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '28px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    {pricingExpectationsTitle || 'Pricing expectations'}
+                  </motion.h2>
+                  <ul
+                    style={{
+                      paddingLeft: '1.25rem',
+                      color: 'var(--color-text-secondary)',
+                      fontSize: 'var(--font-size-md)',
+                      lineHeight: 1.65
+                    }}
+                  >
+                    {pricingExpectationsItems.map(line => (
+                      <li key={line} style={{marginBottom: '12px'}}>
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </Col>
+              </Row>
+            </Container>
+          </section>
+        )}
+
+        {/* Permits & safety */}
+        {permitsSafetyParagraphs && permitsSafetyParagraphs.length > 0 && (
+          <section style={surfaceSectionStyle}>
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    className="title-small fw-bold text-center"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '28px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    {permitsSafetyTitle || 'Permits & safety'}
+                  </motion.h2>
+                  {permitsSafetyParagraphs.map((p, pi) => (
+                    <p
+                      key={`permit-${pi}`}
+                      style={{
+                        color: 'var(--color-text-secondary)',
+                        fontSize: 'var(--font-size-md)',
+                        lineHeight: 1.65,
+                        marginBottom: '16px'
+                      }}
+                    >
+                      {p}
+                    </p>
+                  ))}
+                </Col>
+              </Row>
+            </Container>
+          </section>
+        )}
+
+        {/* Before / after */}
+        {beforeAfterExamples && beforeAfterExamples.length > 0 && (
+          <section style={surfaceBgStyle}>
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    className="title-small fw-bold text-center"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '36px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    {beforeAfterTitle || 'Before & after results'}
+                  </motion.h2>
+                  <Row>
+                    {beforeAfterExamples.map((ex, i) => (
+                      <Col key={ex.title ?? i} md={6} className="mb-4">
+                        <div
+                          style={{
+                            height: '100%',
+                            padding: '20px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '12px',
+                            border: '1px solid var(--color-border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px'
+                          }}
+                        >
+                          {ex.imageSrc && (
+                            <img
+                              src={ex.imageSrc}
+                              alt={ex.imageAlt || ex.title || 'Project example'}
+                              className="img-fluid rounded"
+                              loading="lazy"
+                              style={{maxHeight: '220px', objectFit: 'cover'}}
+                            />
+                          )}
+                          {ex.title && (
+                            <h3
+                              style={{
+                                color: 'var(--color-text-primary)',
+                                fontSize: 'var(--font-size-lg)',
+                                marginBottom: 0
+                              }}
+                            >
+                              {ex.title}
+                            </h3>
+                          )}
+                          {ex.description && (
+                            <p
+                              style={{
+                                color: 'var(--color-text-secondary)',
+                                marginBottom: 0,
+                                flexGrow: 1
+                              }}
+                            >
+                              {ex.description}
+                            </p>
+                          )}
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
+                </Col>
+              </Row>
+            </Container>
+          </section>
+        )}
+
+        {/* FAQs */}
+        {faqs && faqs.length > 0 && (
+          <section style={surfaceSectionStyle} aria-labelledby="service-faq-heading">
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    id="service-faq-heading"
+                    className="title-small fw-bold text-center"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '32px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    Frequently asked questions
+                  </motion.h2>
+                  <Accordion
+                    alwaysOpen
+                    onSelect={(eventKey) => {
+                      const key = Array.isArray(eventKey)
+                        ? eventKey[eventKey.length - 1]
+                        : eventKey;
+                      if (key == null || !faqs) return;
+                      const item = faqs[Number(key)];
+                      if (item) {
+                        trackFaqExpand({question_text: item.question});
+                      }
+                    }}
+                  >
+                    {faqs.map((item, idx) => (
+                      <Accordion.Item
+                        eventKey={String(idx)}
+                        key={`faq-${idx}-${item.question}`}
+                        style={{
+                          marginBottom: '16px',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: '12px',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        <Accordion.Header>{item.question}</Accordion.Header>
+                        <Accordion.Body
+                          style={{
+                            color: 'var(--color-text-secondary)',
+                            fontSize: 'var(--font-size-md)',
+                            lineHeight: 1.65
+                          }}
+                        >
+                          {item.answer}
+                        </Accordion.Body>
+                      </Accordion.Item>
+                    ))}
+                  </Accordion>
+                </Col>
+              </Row>
+            </Container>
+          </section>
+        )}
+
+        {/* Nearby areas */}
+        {nearbyAreasLinks && nearbyAreasLinks.length > 0 && (
+          <section style={{...surfaceBgStyle}}>
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    className="title-small fw-bold text-center"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '16px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    {nearbyAreasTitle || 'Areas we serve nearby'}
+                  </motion.h2>
+                  {nearbyAreasIntro && (
+                    <p
+                      style={{
+                        textAlign: 'center',
+                        color: 'var(--color-text-secondary)',
+                        marginBottom: '28px',
+                        fontSize: 'var(--font-size-lg)'
+                      }}
+                    >
+                      {nearbyAreasIntro}
+                    </p>
+                  )}
+                  <ul
+                    style={{
+                      listStyle: 'none',
+                      padding: 0,
+                      margin: 0,
+                      display: 'grid',
+                      gap: '12px'
+                    }}
+                  >
+                    {nearbyAreasLinks.map(link => (
+                      <li
+                        key={link.to}
+                        style={{
+                          padding: '14px 16px',
+                          borderRadius: '12px',
+                          border: '1px solid var(--color-border)',
+                          backgroundColor: '#ffffff'
+                        }}
+                      >
+                        <Link
+                          to={link.to}
+                          onClick={() =>
+                            window.scrollTo({top: 0, behavior: 'smooth'})
+                          }
+                          style={{
+                            color: 'var(--color-text-primary)',
+                            textDecoration: 'none',
+                            fontWeight: 700
+                          }}
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </Col>
+              </Row>
+            </Container>
+          </section>
+        )}
+
         {/* CTA Section */}
         <section
           style={{
@@ -373,8 +808,17 @@ const ServiceLandingPage = ({
                   <Button
                     size="lg"
                     variant="light"
-                    onClick={() => setShowForm(!showForm)}
-                    aria-label={`Get free ${serviceType} quote in Hampton Roads`}
+                    onClick={() => {
+                      trackCtaClick({
+                        cta_label: 'Get Free Quote',
+                        cta_location: 'service_page_bottom',
+                        cta_type: 'quote',
+                        service_name: serviceType,
+                        page_type: pageType
+                      });
+                      setShowForm(!showForm);
+                    }}
+                    aria-label={`Get free ${serviceType} quote in ${geoPhrase}`}
                     style={{
                       padding: '15px 40px',
                       fontSize: 'var(--font-size-lg)',
@@ -388,6 +832,14 @@ const ServiceLandingPage = ({
                   <a
                     href="tel:757-848-4559"
                     aria-label={`Call for ${serviceType} services`}
+                    onClick={() =>
+                      trackPhoneClick({
+                        cta_location: 'service_page_bottom',
+                        cta_label: 'Call 757-848-4559',
+                        service_name: serviceType,
+                        page_type: pageType
+                      })
+                    }
                   >
                     <Button
                       size="lg"

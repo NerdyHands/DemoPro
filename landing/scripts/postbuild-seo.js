@@ -58,7 +58,7 @@ function main() {
     process.exit(1);
   }
   
-  const filesToCopy = ['sitemap.xml', 'robots.txt'];
+  const filesToCopy = ['sitemap.xml', 'robots.txt', 'site.webmanifest'];
   let allSuccess = true;
   
   filesToCopy.forEach(fileName => {

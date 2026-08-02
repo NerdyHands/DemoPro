@@ -1,20 +1,36 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
+import SEO from '../components/SEO';
 import Blog from './Blog';
+import { blogIndexPath, blogTagCanonical, blogTagPath } from '../utils/blogPaths';
 
-// Thin wrapper so /blog/tag/:tag can reuse Blog with query param
-const BlogTag: React.FC = () => {
+export const BlogTagTrailingRedirect: React.FC = () => {
   const { tag } = useParams<{ tag: string }>();
-  const navigate = useNavigate();
+  if (!tag) {
+    return <Navigate to={blogIndexPath()} replace />;
+  }
+  return <Navigate to={blogTagPath(tag)} replace />;
+};
 
-  // Convert route parameter to query parameter by redirecting
-  React.useEffect(() => {
-    if (tag) {
-      navigate(`/blog?tag=${encodeURIComponent(tag)}`, { replace: true });
-    }
-  }, [tag, navigate]);
+const BlogTag: React.FC = () => {
+  const { tag: rawTag } = useParams<{ tag: string }>();
+  const tag = rawTag ? decodeURIComponent(rawTag) : '';
 
-  return <Blog />;
+  return (
+    <>
+      <SEO
+        title={tag ? `${tag} | Blog | Mr Demo Pro` : 'Blog Tag | Mr Demo Pro'}
+        description={
+          tag
+            ? `Browse demolition and cleanout posts tagged "${tag}" on the Mr Demo Pro blog.`
+            : 'Browse posts by tag on the Mr Demo Pro blog.'
+        }
+        canonicalUrl={tag ? blogTagCanonical(tag) : 'https://mrdemopro.com/blog/'}
+        noIndex={true}
+      />
+      <Blog activeTag={tag} />
+    </>
+  );
 };
 
 export default BlogTag;

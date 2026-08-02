@@ -1,5 +1,5 @@
 import React from 'react';
-import {Routes, Route, Link, useLocation} from 'react-router-dom';
+import {Routes, Route, Link, useLocation, Navigate} from 'react-router-dom';
 import {HelmetProvider} from 'react-helmet-async';
 import {Container} from 'react-bootstrap';
 import Header from './components/Header';
@@ -14,39 +14,69 @@ import DeckRemoval from './pages/DeckRemoval';
 import FenceRemoval from './pages/FenceRemoval';
 import InteriorDemo from './pages/InteriorDemo';
 import Cleanout from './pages/Cleanout';
+import HoardingCleanout from './pages/HoardingCleanout';
 import JunkRemoval from './pages/JunkRemoval';
 import BuildingDemolition from './pages/BuildingDemolition';
 import DemolitionServices from './pages/DemolitionServices';
 import ConcreteDemolition from './pages/ConcreteDemolition';
 import ResidentialDemolition from './pages/ResidentialDemolition';
-import GarageDemolition from './pages/GarageDemolition';
 import CommercialDemolition from './pages/CommercialDemolition';
 import TenantCleanOut from './pages/TenantCleanOut';
 import KitchenDemolition from './pages/KitchenDemolition';
 import BathroomDemolition from './pages/BathroomDemolition';
 import ServiceGarageDemolition from './pages/ServiceGarageDemolition';
 import ConcreteRemoval from './pages/ConcreteRemoval';
+import HouseDemolition from './pages/HouseDemolition';
 import CommercialInteriorDemolition from './pages/CommercialInteriorDemolition';
 import DemolitionContractorHamptonVa from './pages/DemolitionContractorHamptonVa';
+import DemolitionContractorNewportNewsVa from './pages/DemolitionContractorNewportNewsVa';
+import DemolitionContractorNorfolkVa from './pages/DemolitionContractorNorfolkVa';
+import DemolitionContractorVirginiaBeachVa from './pages/DemolitionContractorVirginiaBeachVa';
+import DemolitionContractorChesapeakeVa from './pages/DemolitionContractorChesapeakeVa';
+import DemolitionContractorPortsmouthVa from './pages/DemolitionContractorPortsmouthVa';
+import DemolitionContractorSuffolkVa from './pages/DemolitionContractorSuffolkVa';
+import ServiceArea from './pages/ServiceArea';
 import About from './pages/About';
 import FAQs from './pages/FAQs';
 import ThankYou from './pages/ThankYou';
 import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import BlogTag from './pages/BlogTag';
+import BlogPost, { BlogPostTrailingRedirect } from './pages/BlogPost';
+import BlogTag, { BlogTagTrailingRedirect } from './pages/BlogTag';
 import DiyVsProDemolition from './pages/DiyVsProDemolition';
+import DiyQuizThankYou from './pages/DiyQuizThankYou';
+import DemolitionCostVirginia from './pages/DemolitionCostVirginia';
 import seoConfig from './config/seoConfig';
-import {trackPageView} from './config/gtm';
+import {
+  getServiceNameFromPath,
+  isServicePath,
+  trackPageMetadata,
+  trackPageView,
+  trackServiceView
+} from './config/gtm';
 import './App.css';
 
 function AppContent() {
   const location = useLocation();
-  const isLandingPage = location.pathname === '/diy-vs-pro-demolition' || location.pathname === '/diy-vs-pro-demolition/';
+  const isLandingPage = /^\/diy-vs-pro-demolition\/?$/.test(
+    location.pathname
+  );
+
+  const lastServiceViewPath = React.useRef<string | null>(null);
 
   // Track SPA route changes (GTM doesn't automatically fire page views on client-side navigation)
   React.useEffect(() => {
-    // Use full URL so GTM tags can populate page_location / page_path consistently
     trackPageView(document.title, window.location.href);
+    trackPageMetadata(location.pathname, location.search);
+
+    if (isServicePath(location.pathname)) {
+      const serviceName = getServiceNameFromPath(location.pathname);
+      if (serviceName && lastServiceViewPath.current !== location.pathname) {
+        lastServiceViewPath.current = location.pathname;
+        trackServiceView(serviceName, location.pathname);
+      }
+    } else {
+      lastServiceViewPath.current = null;
+    }
   }, [location.pathname, location.search, location.hash]);
 
   // Global error handler to prevent external script errors from affecting the app
@@ -157,15 +187,7 @@ function AppContent() {
             />
             <Route
               path="/services"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.services}
-                    canonicalUrl="https://mrdemopro.com/services/"
-                  />
-                  <Services />
-                </>
-              }
+              element={<Navigate to="/services/" replace />}
             />
             <Route
               path="/services/"
@@ -181,22 +203,17 @@ function AppContent() {
             />
             <Route
               path="/building-demolition"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.buildingDemolition}
-                    canonicalUrl="https://mrdemopro.com/building-demolition/"
-                  />
-                  <BuildingDemolition />
-                </>
-              }
+              element={<Navigate to="/building-demolition/" replace />}
             />
             <Route
               path="/building-demolition/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.buildingDemolition}
+                    title="Building Demolition Services in Hampton Roads | Mr Demo Pro"
+                    description="Professional building demolition services for residential and commercial structures in Hampton Roads, VA. Safe teardown, debris removal, and site cleanup. Call 757-848-4559."
+                    keywords="building demolition, demolition company, demolition contractor, building removal, structural demolition, Hampton Roads demolition"
+                    structuredData={seoConfig.buildingDemolition.structuredData}
                     canonicalUrl="https://mrdemopro.com/building-demolition/"
                   />
                   <BuildingDemolition />
@@ -205,22 +222,17 @@ function AppContent() {
             />
             <Route
               path="/demolition-services"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.demolitionServices}
-                    canonicalUrl="https://mrdemopro.com/demolition-services/"
-                  />
-                  <DemolitionServices />
-                </>
-              }
+              element={<Navigate to="/demolition-services/" replace />}
             />
             <Route
               path="/demolition-services/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.demolitionServices}
+                    title="Demolition Services in Hampton Roads | Mr Demo Pro"
+                    description="Full-service demolition services in Hampton Roads, VA including building, concrete, residential, and commercial demolition. Get a free estimate today."
+                    keywords="demolition services, demolition company, demolition contractor, Hampton Roads demolition, concrete demolition, residential demolition, commercial demolition"
+                    structuredData={seoConfig.demolitionServices.structuredData}
                     canonicalUrl="https://mrdemopro.com/demolition-services/"
                   />
                   <DemolitionServices />
@@ -230,13 +242,7 @@ function AppContent() {
             <Route
               path="/demolition-contractor-hampton-va"
               element={
-                <>
-                  <SEO
-                    {...seoConfig.demolitionContractorHamptonVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-hampton-va/"
-                  />
-                  <DemolitionContractorHamptonVa />
-                </>
+                <Navigate to="/demolition-contractor-hampton-va/" replace />
               }
             />
             <Route
@@ -252,23 +258,142 @@ function AppContent() {
               }
             />
             <Route
-              path="/concrete-demolition"
+              path="/service-area"
+              element={<Navigate to="/service-area/" replace />}
+            />
+            <Route
+              path="/service-area/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.concreteDemolition}
-                    canonicalUrl="https://mrdemopro.com/concrete-demolition/"
+                    {...seoConfig.serviceAreas}
+                    canonicalUrl="https://mrdemopro.com/service-area/"
                   />
-                  <ConcreteDemolition />
+                  <ServiceArea />
                 </>
               }
+            />
+            <Route
+              path="/demolition-contractor-newport-news-va"
+              element={
+                <Navigate to="/demolition-contractor-newport-news-va/" replace />
+              }
+            />
+            <Route
+              path="/demolition-contractor-newport-news-va/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.demolitionContractorNewportNewsVa}
+                    canonicalUrl="https://mrdemopro.com/demolition-contractor-newport-news-va/"
+                  />
+                  <DemolitionContractorNewportNewsVa />
+                </>
+              }
+            />
+            <Route
+              path="/demolition-contractor-norfolk-va"
+              element={
+                <Navigate to="/demolition-contractor-norfolk-va/" replace />
+              }
+            />
+            <Route
+              path="/demolition-contractor-norfolk-va/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.demolitionContractorNorfolkVa}
+                    canonicalUrl="https://mrdemopro.com/demolition-contractor-norfolk-va/"
+                  />
+                  <DemolitionContractorNorfolkVa />
+                </>
+              }
+            />
+            <Route
+              path="/demolition-contractor-virginia-beach-va"
+              element={
+                <Navigate to="/demolition-contractor-virginia-beach-va/" replace />
+              }
+            />
+            <Route
+              path="/demolition-contractor-virginia-beach-va/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.demolitionContractorVirginiaBeachVa}
+                    canonicalUrl="https://mrdemopro.com/demolition-contractor-virginia-beach-va/"
+                  />
+                  <DemolitionContractorVirginiaBeachVa />
+                </>
+              }
+            />
+            <Route
+              path="/demolition-contractor-chesapeake-va"
+              element={
+                <Navigate to="/demolition-contractor-chesapeake-va/" replace />
+              }
+            />
+            <Route
+              path="/demolition-contractor-chesapeake-va/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.demolitionContractorChesapeakeVa}
+                    canonicalUrl="https://mrdemopro.com/demolition-contractor-chesapeake-va/"
+                  />
+                  <DemolitionContractorChesapeakeVa />
+                </>
+              }
+            />
+            <Route
+              path="/demolition-contractor-portsmouth-va"
+              element={
+                <Navigate to="/demolition-contractor-portsmouth-va/" replace />
+              }
+            />
+            <Route
+              path="/demolition-contractor-portsmouth-va/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.demolitionContractorPortsmouthVa}
+                    canonicalUrl="https://mrdemopro.com/demolition-contractor-portsmouth-va/"
+                  />
+                  <DemolitionContractorPortsmouthVa />
+                </>
+              }
+            />
+            <Route
+              path="/demolition-contractor-suffolk-va"
+              element={
+                <Navigate to="/demolition-contractor-suffolk-va/" replace />
+              }
+            />
+            <Route
+              path="/demolition-contractor-suffolk-va/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.demolitionContractorSuffolkVa}
+                    canonicalUrl="https://mrdemopro.com/demolition-contractor-suffolk-va/"
+                  />
+                  <DemolitionContractorSuffolkVa />
+                </>
+              }
+            />
+            <Route
+              path="/concrete-demolition"
+              element={<Navigate to="/concrete-demolition/" replace />}
             />
             <Route
               path="/concrete-demolition/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.concreteDemolition}
+                    title="Concrete Demolition in Hampton Roads | Mr Demo Pro"
+                    description="Concrete demolition services for driveways, slabs, patios, and foundations in Hampton Roads, VA. Fast removal and haul-off. Call 757-848-4559."
+                    keywords="concrete demolition, driveway demolition, slab removal, patio removal, foundation demolition, Hampton Roads concrete removal"
+                    structuredData={seoConfig.concreteDemolition.structuredData}
                     canonicalUrl="https://mrdemopro.com/concrete-demolition/"
                   />
                   <ConcreteDemolition />
@@ -277,22 +402,17 @@ function AppContent() {
             />
             <Route
               path="/residential-demolition"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.residentialDemolition}
-                    canonicalUrl="https://mrdemopro.com/residential-demolition/"
-                  />
-                  <ResidentialDemolition />
-                </>
-              }
+              element={<Navigate to="/residential-demolition/" replace />}
             />
             <Route
               path="/residential-demolition/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.residentialDemolition}
+                    title="Residential Demolition Contractors in Hampton Roads | Mr Demo Pro"
+                    description="Residential demolition contractors for home and structure removal in Hampton Roads, VA. Safe demolition with complete cleanup. Call 757-848-4559."
+                    keywords="residential demolition contractors, residential demolition, house demolition, home demolition, Hampton Roads demolition"
+                    structuredData={seoConfig.residentialDemolition.structuredData}
                     canonicalUrl="https://mrdemopro.com/residential-demolition/"
                   />
                   <ResidentialDemolition />
@@ -301,46 +421,73 @@ function AppContent() {
             />
             <Route
               path="/garage-demolition"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.garageDemolition}
-                    canonicalUrl="https://mrdemopro.com/garage-demolition/"
-                  />
-                  <GarageDemolition />
-                </>
-              }
+              element={<Navigate to="/services/garage-demolition/" replace />}
             />
             <Route
               path="/garage-demolition/"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.garageDemolition}
-                    canonicalUrl="https://mrdemopro.com/garage-demolition/"
-                  />
-                  <GarageDemolition />
-                </>
-              }
+              element={<Navigate to="/services/garage-demolition/" replace />}
+            />
+            <Route
+              path="/deck-removal"
+              element={<Navigate to="/services/deck-removal/" replace />}
+            />
+            <Route
+              path="/deck-removal/"
+              element={<Navigate to="/services/deck-removal/" replace />}
+            />
+            <Route
+              path="/shed-removal"
+              element={<Navigate to="/services/shed-removal/" replace />}
+            />
+            <Route
+              path="/shed-removal/"
+              element={<Navigate to="/services/shed-removal/" replace />}
+            />
+            <Route
+              path="/fence-removal"
+              element={<Navigate to="/services/fence-removal/" replace />}
+            />
+            <Route
+              path="/fence-removal/"
+              element={<Navigate to="/services/fence-removal/" replace />}
+            />
+            <Route
+              path="/interior-demo"
+              element={<Navigate to="/services/interior-demo/" replace />}
+            />
+            <Route
+              path="/interior-demo/"
+              element={<Navigate to="/services/interior-demo/" replace />}
+            />
+            <Route
+              path="/junk-removal"
+              element={<Navigate to="/services/junk-removal/" replace />}
+            />
+            <Route
+              path="/junk-removal/"
+              element={<Navigate to="/services/junk-removal/" replace />}
+            />
+            <Route
+              path="/cleanout"
+              element={<Navigate to="/services/cleanout/" replace />}
+            />
+            <Route
+              path="/cleanout/"
+              element={<Navigate to="/services/cleanout/" replace />}
             />
             <Route
               path="/commercial-demolition"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.commercialDemolition}
-                    canonicalUrl="https://mrdemopro.com/commercial-demolition/"
-                  />
-                  <CommercialDemolition />
-                </>
-              }
+              element={<Navigate to="/commercial-demolition/" replace />}
             />
             <Route
               path="/commercial-demolition/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.commercialDemolition}
+                    title="Commercial Demolition Companies in Hampton Roads | Mr Demo Pro"
+                    description="Commercial demolition services for offices, retail, and industrial sites in Hampton Roads, VA. Safe, schedule-driven teardown. Call 757-848-4559."
+                    keywords="commercial demolition companies, commercial demolition, commercial demolition contractors, Hampton Roads demolition"
+                    structuredData={seoConfig.commercialDemolition.structuredData}
                     canonicalUrl="https://mrdemopro.com/commercial-demolition/"
                   />
                   <CommercialDemolition />
@@ -349,15 +496,7 @@ function AppContent() {
             />
             <Route
               path="/tenant-clean-out"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.tenantCleanOut}
-                    canonicalUrl="https://mrdemopro.com/tenant-clean-out/"
-                  />
-                  <TenantCleanOut />
-                </>
-              }
+              element={<Navigate to="/tenant-clean-out/" replace />}
             />
             <Route
               path="/tenant-clean-out/"
@@ -374,15 +513,7 @@ function AppContent() {
             {/* Service Pages */}
             <Route
               path="/services/shed-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.shedRemoval}
-                    canonicalUrl="https://mrdemopro.com/services/shed-removal/"
-                  />
-                  <ShedRemoval />
-                </>
-              }
+              element={<Navigate to="/services/shed-removal/" replace />}
             />
             <Route
               path="/services/shed-removal/"
@@ -398,15 +529,7 @@ function AppContent() {
             />
             <Route
               path="/services/deck-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.deckRemoval}
-                    canonicalUrl="https://mrdemopro.com/services/deck-removal/"
-                  />
-                  <DeckRemoval />
-                </>
-              }
+              element={<Navigate to="/services/deck-removal/" replace />}
             />
             <Route
               path="/services/deck-removal/"
@@ -422,15 +545,7 @@ function AppContent() {
             />
             <Route
               path="/services/fence-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.fenceRemoval}
-                    canonicalUrl="https://mrdemopro.com/services/fence-removal/"
-                  />
-                  <FenceRemoval />
-                </>
-              }
+              element={<Navigate to="/services/fence-removal/" replace />}
             />
             <Route
               path="/services/fence-removal/"
@@ -446,15 +561,7 @@ function AppContent() {
             />
             <Route
               path="/services/interior-demo"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.interiorDemo}
-                    canonicalUrl="https://mrdemopro.com/services/interior-demo/"
-                  />
-                  <InteriorDemo />
-                </>
-              }
+              element={<Navigate to="/services/interior-demo/" replace />}
             />
             <Route
               path="/services/interior-demo/"
@@ -471,13 +578,7 @@ function AppContent() {
             <Route
               path="/services/kitchen-demolition"
               element={
-                <>
-                  <SEO
-                    {...seoConfig.kitchenDemolition}
-                    canonicalUrl="https://mrdemopro.com/services/kitchen-demolition/"
-                  />
-                  <KitchenDemolition />
-                </>
+                <Navigate to="/services/kitchen-demolition/" replace />
               }
             />
             <Route
@@ -495,13 +596,7 @@ function AppContent() {
             <Route
               path="/services/bathroom-demolition"
               element={
-                <>
-                  <SEO
-                    {...seoConfig.bathroomDemolition}
-                    canonicalUrl="https://mrdemopro.com/services/bathroom-demolition/"
-                  />
-                  <BathroomDemolition />
-                </>
+                <Navigate to="/services/bathroom-demolition/" replace />
               }
             />
             <Route
@@ -519,13 +614,7 @@ function AppContent() {
             <Route
               path="/services/garage-demolition"
               element={
-                <>
-                  <SEO
-                    {...seoConfig.serviceGarageDemolition}
-                    canonicalUrl="https://mrdemopro.com/services/garage-demolition/"
-                  />
-                  <ServiceGarageDemolition />
-                </>
+                <Navigate to="/services/garage-demolition/" replace />
               }
             />
             <Route
@@ -542,15 +631,7 @@ function AppContent() {
             />
             <Route
               path="/services/concrete-removal"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.concreteRemoval}
-                    canonicalUrl="https://mrdemopro.com/services/concrete-removal/"
-                  />
-                  <ConcreteRemoval />
-                </>
-              }
+              element={<Navigate to="/services/concrete-removal/" replace />}
             />
             <Route
               path="/services/concrete-removal/"
@@ -567,13 +648,7 @@ function AppContent() {
             <Route
               path="/services/commercial-interior-demolition"
               element={
-                <>
-                  <SEO
-                    {...seoConfig.commercialInteriorDemolition}
-                    canonicalUrl="https://mrdemopro.com/services/commercial-interior-demolition/"
-                  />
-                  <CommercialInteriorDemolition />
-                </>
+                <Navigate to="/services/commercial-interior-demolition/" replace />
               }
             />
             <Route
@@ -590,15 +665,7 @@ function AppContent() {
             />
             <Route
               path="/services/cleanout"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.cleanout}
-                    canonicalUrl="https://mrdemopro.com/services/cleanout/"
-                  />
-                  <Cleanout />
-                </>
-              }
+              element={<Navigate to="/services/cleanout/" replace />}
             />
             <Route
               path="/services/cleanout/"
@@ -613,16 +680,24 @@ function AppContent() {
               }
             />
             <Route
-              path="/services/junk-removal"
+              path="/services/hoarding-cleanout"
+              element={<Navigate to="/services/hoarding-cleanout/" replace />}
+            />
+            <Route
+              path="/services/hoarding-cleanout/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.junkRemoval}
-                    canonicalUrl="https://mrdemopro.com/services/junk-removal/"
+                    {...seoConfig.hoardingCleanout}
+                    canonicalUrl="https://mrdemopro.com/services/hoarding-cleanout/"
                   />
-                  <JunkRemoval />
+                  <HoardingCleanout />
                 </>
               }
+            />
+            <Route
+              path="/services/junk-removal"
+              element={<Navigate to="/services/junk-removal/" replace />}
             />
             <Route
               path="/services/junk-removal/"
@@ -637,29 +712,24 @@ function AppContent() {
               }
             />
             <Route
-              path="/prices"
+              path="/services/house-demolition"
+              element={<Navigate to="/services/house-demolition/" replace />}
+            />
+            <Route
+              path="/services/house-demolition/"
               element={
                 <>
                   <SEO
-                    title="Prices - Transparent Pricing for Cleanouts | Mr Demo Pro"
-                    description="Transparent pricing for cleanouts and related services in Hampton Roads, VA. Call 757-848-4559 for an exact quote."
-                    keywords="demolition prices, cleanout prices, junk removal prices, Hampton Roads pricing"
-                    canonicalUrl="https://mrdemopro.com/prices/"
-                    structuredData={{
-                      '@context': 'https://schema.org',
-                      '@type': 'Service',
-                      serviceType: 'Pricing',
-                      provider: {
-                        '@type': 'LocalBusiness',
-                        name: 'Mr Demo Pro',
-                        telephone: '757-848-4559'
-                      },
-                      areaServed: 'Hampton Roads, VA'
-                    }}
+                    {...seoConfig.houseDemolition}
+                    canonicalUrl="https://mrdemopro.com/services/house-demolition/"
                   />
-                  <Prices />
+                  <HouseDemolition />
                 </>
               }
+            />
+            <Route
+              path="/prices"
+              element={<Navigate to="/prices/" replace />}
             />
             <Route
               path="/prices/"
@@ -688,15 +758,7 @@ function AppContent() {
             />
             <Route
               path="/contact"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.contact}
-                    canonicalUrl="https://mrdemopro.com/contact/"
-                  />
-                  <Contact />
-                </>
-              }
+              element={<Navigate to="/contact/" replace />}
             />
             <Route
               path="/contact/"
@@ -712,15 +774,7 @@ function AppContent() {
             />
             <Route
               path="/about"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.about}
-                    canonicalUrl="https://mrdemopro.com/about/"
-                  />
-                  <About />
-                </>
-              }
+              element={<Navigate to="/about/" replace />}
             />
             <Route
               path="/about/"
@@ -736,15 +790,7 @@ function AppContent() {
             />
             <Route
               path="/faqs"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.faqs}
-                    canonicalUrl="https://mrdemopro.com/faqs/"
-                  />
-                  <FAQs />
-                </>
-              }
+              element={<Navigate to="/faqs/" replace />}
             />
             <Route
               path="/faqs/"
@@ -760,17 +806,7 @@ function AppContent() {
             />
             <Route
               path="/thank-you"
-              element={
-                <>
-                  <SEO
-                    title="Thank You - Mr Demo Pro"
-                    description="Thank you for your demolition service request. We'll contact you within 24 hours with a free quote."
-                    keywords="thank you, demolition quote, Mr Demo Pro"
-                    canonicalUrl="https://mrdemopro.com/thank-you/"
-                  />
-                  <ThankYou />
-                </>
-              }
+              element={<Navigate to="/thank-you/" replace />}
             />
             <Route
               path="/thank-you/"
@@ -781,40 +817,60 @@ function AppContent() {
                     description="Thank you for your demolition service request. We'll contact you within 24 hours with a free quote."
                     keywords="thank you, demolition quote, Mr Demo Pro"
                     canonicalUrl="https://mrdemopro.com/thank-you/"
+                    noIndex={true}
                   />
                   <ThankYou />
                 </>
               }
             />
+            <Route path="/blog" element={<Navigate to="/blog/" replace />} />
             <Route
-              path="/blog"
+              path="/blog/"
               element={
                 <>
                   <SEO
                     title="Blog | Mr Demo Pro"
-                    description="Guides, tips, and updates from Mr Demo Pro."
-                    canonicalUrl="https://mrdemopro.com/blog"
+                    description="Guides, tips, and updates on demolition, cleanouts, and Hampton Roads projects from Mr Demo Pro."
+                    canonicalUrl="https://mrdemopro.com/blog/"
                   />
                   <Blog />
                 </>
               }
             />
+            <Route path="/blog/tag" element={<Navigate to="/blog/" replace />} />
             <Route
               path="/blog/tag/:tag"
+              element={<BlogTagTrailingRedirect />}
+            />
+            <Route path="/blog/tag/:tag/" element={<BlogTag />} />
+            <Route path="/blog/:slug" element={<BlogPostTrailingRedirect />} />
+            <Route path="/blog/:slug/" element={<BlogPost />} />
+            <Route
+              path="/diy-vs-pro-demolition/thank-you"
+              element={
+                <Navigate to="/diy-vs-pro-demolition/thank-you/" replace />
+              }
+            />
+            <Route
+              path="/diy-vs-pro-demolition/thank-you/"
               element={
                 <>
                   <SEO
-                    title="Blog Tag | Mr Demo Pro"
-                    description="Browse posts by tag."
-                    canonicalUrl="https://mrdemopro.com/blog"
+                    title="Thank You | DIY vs Pro Quiz | Mr Demo Pro"
+                    description="Thanks for completing the DIY vs Pro demolition risk quiz. Our team may follow up with next steps."
+                    canonicalUrl="https://mrdemopro.com/diy-vs-pro-demolition/thank-you/"
+                    noIndex={true}
                   />
-                  <BlogTag />
+                  <DiyQuizThankYou />
                 </>
               }
             />
-            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route
               path="/diy-vs-pro-demolition"
+              element={<Navigate to="/diy-vs-pro-demolition/" replace />}
+            />
+            <Route
+              path="/diy-vs-pro-demolition/"
               element={
                 <>
                   <DiyVsProDemolition />
@@ -822,21 +878,22 @@ function AppContent() {
               }
             />
             <Route
-              path="/terms"
+              path="/demolition-cost-virginia"
+              element={<Navigate to="/demolition-cost-virginia/" replace />}
+            />
+            <Route
+              path="/demolition-cost-virginia/"
               element={
                 <>
                   <SEO
-                    {...seoConfig.terms}
-                    canonicalUrl="https://mrdemopro.com/terms/"
+                    {...seoConfig.demolitionCostVirginia}
+                    canonicalUrl="https://mrdemopro.com/demolition-cost-virginia/"
                   />
-                  <div style={{paddingTop: '100px', minHeight: '50vh'}}>
-                    <h1 className="text-center">
-                      Terms and Conditions - Coming Soon
-                    </h1>
-                  </div>
+                  <DemolitionCostVirginia />
                 </>
               }
             />
+            <Route path="/terms" element={<Navigate to="/terms/" replace />} />
             <Route
               path="/terms/"
               element={
@@ -855,19 +912,7 @@ function AppContent() {
             />
             <Route
               path="/privacy"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.privacy}
-                    canonicalUrl="https://mrdemopro.com/privacy/"
-                  />
-                  <div style={{paddingTop: '100px', minHeight: '50vh'}}>
-                    <h1 className="text-center">
-                      Privacy Policy - Coming Soon
-                    </h1>
-                  </div>
-                </>
-              }
+              element={<Navigate to="/privacy/" replace />}
             />
             <Route
               path="/privacy/"
@@ -893,9 +938,7 @@ function AppContent() {
                     title="404 - Page Not Found | Mr Demo Pro"
                     description="The page you're looking for doesn't exist. Explore our demolition services or contact us for assistance."
                     keywords="404, page not found, demolition services, Mr Demo Pro"
-                    // canonicalUrl="https://mrdemopro.com/404.html"
                     noIndex={true}
-                    canonicalUrl="https://mrdemopro.com/404"
                   />
                   <div
                     style={{

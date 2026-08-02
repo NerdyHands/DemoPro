@@ -17,7 +17,6 @@ interface SEOProps {
 const SEO: React.FC<SEOProps> = ({
   title = "Mr Demo Pro - Professional Demolition Services in Hampton Roads, VA",
   description = "Professional demolition services in Hampton Roads, VA. Expert shed removal, deck removal, and fence removal. Free estimates. Call 757-848-4559 for quality demolition work.",
-  keywords = "demolition services, shed removal, deck removal, fence removal, Hampton Roads, Virginia Beach, Norfolk, Chesapeake, Newport News, Hampton, demolition contractor, professional demolition, free estimates, 757-848-4559",
   canonicalUrl,
   ogImage = "/main-logo.png",
   ogType = "website",
@@ -27,7 +26,10 @@ const SEO: React.FC<SEOProps> = ({
 }) => {
   const fullTitle = title.includes("Mr Demo Pro") ? title : `${title} | Mr Demo Pro`;
   const fullDescription = description;
-  const fullKeywords = keywords;
+  const normalizedCanonicalUrl =
+    canonicalUrl && !canonicalUrl.includes('?') && !canonicalUrl.endsWith('/')
+      ? `${canonicalUrl}/`
+      : canonicalUrl;
 
   // Default structured data for local business
   const defaultStructuredData = {
@@ -41,26 +43,36 @@ const SEO: React.FC<SEOProps> = ({
     "telephone": "757-848-4559",
     "address": {
       "@type": "PostalAddress",
+      "addressLocality": "Hampton",
       "addressRegion": "VA",
+      "postalCode": "23664",
       "addressCountry": "US"
     },
     "areaServed": [
-      "Hampton Roads",
+      "Hampton",
       "Norfolk",
-      "Virginia Beach", 
-      "Chesapeake",
+      "Virginia Beach",
       "Newport News",
-      "Hampton"
+      "Chesapeake",
+      "Yorktown",
+      "Hampton Roads"
     ],
     "serviceType": [
-      "Demolition Services",
+      "Demolition",
       "Shed Removal",
-      "Deck Removal", 
-      "Fence Removal"
+      "Deck Removal",
+      "Interior Demolition",
+      "Garage Demolition",
+      "Mobile Home Demolition",
+      "Pool Removal"
     ],
     "priceRange": "$$",
     "image": "https://mrdemopro.com/main-logo.png",
-    "logo": "https://mrdemopro.com/main-logo.png"
+    "logo": "https://mrdemopro.com/main-logo.png",
+    "sameAs": [
+      "https://www.facebook.com/mrdemopro",
+      "https://www.instagram.com/mrdemopro"
+    ]
   };
 
   // const finalStructuredData = structuredData || defaultStructuredData;
@@ -73,16 +85,16 @@ const finalStructuredData = structuredData
       {/* Basic Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={fullDescription} />
-      <meta name="keywords" content={fullKeywords} />
       <meta name="author" content="Mr Demo Pro" />
-      <meta name="robots" content={noIndex ? "noindex,nofollow" : "index,follow"} />
+      <meta name="robots" content={noIndex ? "noindex,follow" : "index,follow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
       <meta name="language" content="English" />
-      <meta name="revisit-after" content="7 days" />
       
       {/* Canonical URL */}
-      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+      {!noIndex && normalizedCanonicalUrl && (
+        <link rel="canonical" href={normalizedCanonicalUrl} />
+      )}
       
       {/* Open Graph Meta Tags */}
       <meta property="og:type" content={ogType} />
@@ -92,7 +104,7 @@ const finalStructuredData = structuredData
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={fullTitle} />
-      <meta property="og:url" content={canonicalUrl || "https://mrdemopro.com"} />
+      <meta property="og:url" content={normalizedCanonicalUrl || "https://mrdemopro.com/"} />
       <meta property="og:site_name" content="Mr Demo Pro" />
       <meta property="og:locale" content="en_US" />
       {/* <meta property="og:updated_time" content={new Date().toISOString()} /> */}
@@ -102,12 +114,6 @@ const finalStructuredData = structuredData
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={fullDescription} />
       <meta name="twitter:image" content={ogImage.startsWith('http') ? ogImage : `https://mrdemopro.com${ogImage}`} />
-      
-      {/* Additional SEO Meta Tags */}
-      <meta name="geo.region" content="US-VA" />
-      <meta name="geo.placename" content="Hampton Roads" />
-      <meta name="geo.position" content="36.8468;-76.2852" />
-      <meta name="ICBM" content="36.8468, -76.2852" />
       
       {/* Business-specific meta tags */}
       <meta name="business:contact_data:phone_number" content="757-848-4559" />

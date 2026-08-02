@@ -6,7 +6,22 @@ const Estimate = require('../models/Estimate');
 const Customer = require('../models/Customer');
 const ContractPdfService = require('../services/contractPdfService');
 const BoldSignService = require('../services/boldSignService');
+const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
+const { sendDocxBuffer, sanitizeFilename } = require('../services/documentOutputs/sendDocxResponse');
+const { renderContractDocx } = require('../services/documentOutputs/renderers/contractRenderer');
+const { renderFinalInvoiceDocx } = require('../services/documentOutputs/renderers/finalInvoiceRenderer');
+const { GoogleDocsPublisher } = require('../services/documentOutputs/googleDocsPublisher');
 const router = express.Router();
+
+const googleDocsPublisher = new GoogleDocsPublisher();
+
+function buildGoogleDocShareList(req) {
+  const shareWith = Array.isArray(req.body?.shareWith) ? [...req.body.shareWith] : [];
+  if (req.user?.email && !shareWith.some((e) => e?.email === req.user.email)) {
+    shareWith.push({ email: req.user.email, role: 'writer' });
+  }
+  return shareWith;
+}
 
 // JWT Secret (should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -124,7 +139,7 @@ router.post('/', authenticateUser, [
   body('propertyAddress').optional().trim().isLength({ max: 500 }).withMessage('Property address must be 500 characters or less'),
   body('startDate').isISO8601().withMessage('Start date is required and must be a valid date'),
   body('endDate').optional().isISO8601().withMessage('End date must be a valid date'),
-  body('totalAmount').optional().isFloat({ min: 0 }).withMessage('Total amount must be a positive number'),
+  body('totalAmount').optional().isFloat().withMessage('Total amount must be a valid number'),
   body('depositAmount').optional().isFloat({ min: 0 }).withMessage('Deposit amount must be a positive number'),
   body('lineItems').optional().isArray().withMessage('Line items must be an array'),
   body('terms').optional().isString(),
@@ -263,7 +278,7 @@ router.put('/:id', authenticateUser, [
   body('startDate').optional().isISO8601().withMessage('Start date must be a valid date'),
   body('endDate').optional().isISO8601().withMessage('End date must be a valid date'),
   body('status').optional().isIn(['Draft', 'Sent', 'Signed', 'Active', 'Completed', 'Cancelled']).withMessage('Invalid status'),
-  body('totalAmount').optional().isFloat({ min: 0 }).withMessage('Total amount must be a positive number'),
+  body('totalAmount').optional().isFloat().withMessage('Total amount must be a valid number'),
   body('clientName').optional().trim().isLength({ min: 1, max: 200 }).withMessage('Client name must be 1-200 characters'),
   body('clientAddress').optional().trim().isLength({ min: 1, max: 500 }).withMessage('Client address must be 1-500 characters'),
   body('depositAmount').optional().isFloat({ min: 0 }).withMessage('Deposit amount must be a positive number'),
@@ -426,6 +441,85 @@ router.get('/:id/pdf', authenticateUser, async (req, res) => {
   }
 });
 
+// GET /api/contracts/:id/docx
+router.get('/:id/docx', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📝 Generating DOCX for contract:', id);
+
+    const contract = await Contract.findById(id)
+      .populate('customer', 'firstName lastName email phone address');
+
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    // Get the related estimate for line items (optional)
+    let estimate = null;
+    if (contract.estimateId) {
+      estimate = await Estimate.findById(contract.estimateId);
+    }
+
+    // Get milestones for payment tracking (optional)
+    const Milestone = require('../models/Milestone');
+    const milestones = await Milestone.find({ contractId: contract._id, type: 'Payment' });
+
+    const model = renderContractDocx(contract, contract.customer, estimate, milestones);
+    const buffer = await buildDocxBuffer(model);
+    const filenameBase = sanitizeFilename(`Contract_${contract.contractNumber || contract._id}`);
+    sendDocxBuffer(res, buffer, filenameBase);
+  } catch (error) {
+    console.error('❌ Error generating contract DOCX:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/contracts/:id/google-doc - Create Google Doc and return link
+router.post('/:id/google-doc', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📄 Creating Google Doc for contract:', id);
+
+    if (!googleDocsPublisher.isAvailable()) {
+      return res.status(400).json({ success: false, error: 'Google Docs is not configured on the server' });
+    }
+
+    const contract = await Contract.findById(id)
+      .populate('customer', 'firstName lastName email phone address');
+
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    let estimate = null;
+    if (contract.estimateId) {
+      estimate = await Estimate.findById(contract.estimateId);
+    }
+
+    const Milestone = require('../models/Milestone');
+    const milestones = await Milestone.find({ contractId: contract._id, type: 'Payment' });
+
+    const model = renderContractDocx(contract, contract.customer, estimate, milestones);
+    const buffer = await buildDocxBuffer(model);
+    const title = `Contract ${contract.contractNumber || contract._id}`;
+
+    const docInfo = await googleDocsPublisher.publishDocxAsGoogleDoc({ buffer, title });
+
+    const shareWith = buildGoogleDocShareList(req);
+    if (docInfo.documentId && shareWith.length > 0) {
+      for (const entry of shareWith) {
+        if (!entry?.email) continue;
+        await googleDocsPublisher.shareDocument(docInfo.documentId, entry.email, entry.role || 'reader');
+      }
+    }
+
+    res.json({ success: true, documentId: docInfo.documentId, url: docInfo.url, title: docInfo.title });
+  } catch (error) {
+    console.error('❌ Error creating Google Doc for contract:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // GET /api/contracts/:id/final-invoice
 router.get('/:id/final-invoice', authenticateUser, async (req, res) => {
   try {
@@ -481,6 +575,81 @@ router.get('/:id/final-invoice', authenticateUser, async (req, res) => {
       success: false,
       error: error.message 
     });
+  }
+});
+
+// GET /api/contracts/:id/final-invoice/docx
+router.get('/:id/final-invoice/docx', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📝 Generating Final Invoice DOCX for contract:', id);
+
+    const ContractAmendment = require('../models/ContractAmendment');
+
+    const contract = await Contract.findById(id)
+      .populate('customer', 'firstName lastName email phone address');
+
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    const amendments = await ContractAmendment.find({
+      contractId: id,
+      status: 'Approved'
+    }).sort({ createdAt: 1 });
+
+    const model = renderFinalInvoiceDocx(contract, contract.customer, amendments);
+    const buffer = await buildDocxBuffer(model);
+    const filenameBase = sanitizeFilename(`Final_Invoice_${contract.contractNumber || contract._id}`);
+    sendDocxBuffer(res, buffer, filenameBase);
+  } catch (error) {
+    console.error('❌ Error generating Final Invoice DOCX:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/contracts/:id/final-invoice/google-doc
+router.post('/:id/final-invoice/google-doc', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📄 Creating Google Doc for final invoice:', id);
+
+    if (!googleDocsPublisher.isAvailable()) {
+      return res.status(400).json({ success: false, error: 'Google Docs is not configured on the server' });
+    }
+
+    const ContractAmendment = require('../models/ContractAmendment');
+
+    const contract = await Contract.findById(id)
+      .populate('customer', 'firstName lastName email phone address');
+
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    const amendments = await ContractAmendment.find({
+      contractId: id,
+      status: 'Approved'
+    }).sort({ createdAt: 1 });
+
+    const model = renderFinalInvoiceDocx(contract, contract.customer, amendments);
+    const buffer = await buildDocxBuffer(model);
+    const title = `Final Invoice ${contract.contractNumber || contract._id}`;
+
+    const docInfo = await googleDocsPublisher.publishDocxAsGoogleDoc({ buffer, title });
+
+    const shareWith = buildGoogleDocShareList(req);
+    if (docInfo.documentId && shareWith.length > 0) {
+      for (const entry of shareWith) {
+        if (!entry?.email) continue;
+        await googleDocsPublisher.shareDocument(docInfo.documentId, entry.email, entry.role || 'reader');
+      }
+    }
+
+    res.json({ success: true, documentId: docInfo.documentId, url: docInfo.url, title: docInfo.title });
+  } catch (error) {
+    console.error('❌ Error creating Google Doc for final invoice:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

@@ -120,9 +120,9 @@ curl -I https://mrdemopro.com/services/
 1. **Cache Invalidation:** After deploying new builds, invalidate CloudFront cache to ensure fresh content
 2. **TTL Settings:** Keep error caching TTL low (10 seconds) to avoid serving stale error pages
 3. **S3 Bucket Configuration:** Ensure your S3 bucket is configured for static website hosting (optional, but helpful for testing)
-4. **react-snap:** The build process uses `react-snap` to pre-render static HTML files, which helps with SEO and initial load times
+4. **Playwright prerender:** The build uses Playwright to pre-render static HTML files per route (e.g., `dist/services/index.html`), which ensures crawlers receive full page content and meta tags
 5. **Trailing Slashes:** The React Router now handles both `/services` and `/services/` routes, ensuring compatibility with how Googlebot and other crawlers request URLs
-6. **react-snap File Structure:** `react-snap` generates flat HTML files (e.g., `services.html`) rather than directory structures (e.g., `services/index.html`). This is fine because CloudFront error pages will serve `index.html` for 404s, and React Router handles the routing client-side
+6. **Prerender File Structure:** Each canonical route gets `dist/{path}/index.html` with full HTML content. Amplify/CloudFront serve these static files before the SPA fallback rule
 
 ## Troubleshooting
 
@@ -132,15 +132,15 @@ curl -I https://mrdemopro.com/services/
 2. **Verify Error Page Configuration:** Double-check that 404 → `/index.html` → 200 is configured
 3. **Clear Browser Cache:** Test in incognito mode or clear cache
 4. **Check S3 Bucket:** Ensure `index.html` exists in the root of your S3 bucket
-5. **Verify react-snap Output:** Check that `dist/services/index.html` exists after build
+5. **Verify prerender output:** Check that `dist/services/index.html` exists after build and contains meta description plus populated `#root`
 
-### react-snap Not Generating Directory Structure?
+### Prerender Not Generating HTML?
 
-If `react-snap` is not generating proper directory structures (e.g., `services/index.html`), you may need to:
+If prerendered files are missing or empty:
 
-1. Check `package.json` - ensure routes are in the `reactSnap.include` array
-2. Verify `react-snap` completes successfully during build
-3. Manually create directory structures if needed (though CloudFront error pages should handle this)
+1. Run `npm run build` locally and check for Playwright errors
+2. Ensure `npx playwright install chromium` runs in CI (see `amplify.yml`)
+3. Run `npm run validate:prerender` to see which routes failed
 
 ## Cost Considerations
 

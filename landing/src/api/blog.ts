@@ -8,6 +8,7 @@ export type PostSummary = {
   authors?: string[];
   featured?: boolean;
   readingTime?: number;
+  updatedAt?: string;
 };
 
 export type PostDetail = PostSummary & {
@@ -16,91 +17,55 @@ export type PostDetail = PostSummary & {
   canonicalUrl?: string;
   contentHtml?: string;
   contentJson?: unknown;
-  updatedAt?: string;
   syncedAt?: string;
-  lastNotionEditedTime?: string;
   structuredData?: object;
+  related?: { posts: PostSummary[] };
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-const USE_STATIC_DATA = import.meta.env.VITE_USE_STATIC_BLOG_DATA !== 'false'; // Default to true
-const S3_BLOG_DATA_BASE = import.meta.env.VITE_S3_BLOG_DATA_BASE || 'https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-data';
+const USE_STATIC_DATA = import.meta.env.VITE_USE_STATIC_BLOG_DATA !== 'false';
 
 /**
- * Fetch data from S3 JSON files (generated during sync)
- * Falls back to API if static files are not available
+ * Fetch blog JSON written at build time by scripts/sync-opinly-blog.js.
  */
 async function fetchStaticJson<T>(file: string): Promise<T | null> {
   try {
-    // Try S3 first
-    const s3Url = `${S3_BLOG_DATA_BASE}/${file}`;
-    const res = await fetch(s3Url, {
+    const localUrl = `/blog-data/${file}`;
+    const res = await fetch(localUrl, {
       method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      },
-      mode: 'cors' // Explicitly request CORS
+      headers: { Accept: 'application/json' },
     });
-    
     if (res.ok) {
       return res.json() as Promise<T>;
     }
-    
-    // Log specific error details
-    if (res.status === 403) {
-      console.warn(`⚠️  S3 access denied (403) for ${file} - check bucket policy and CORS configuration`);
-    } else if (res.status === 404) {
-      console.warn(`⚠️  S3 file not found (404) for ${file}`);
+    if (res.status === 404) {
+      console.warn(`⚠️  Blog data not found (404) for ${file}`);
     }
-    
-    // Fallback to local if S3 fails (for development)
-    try {
-      const localUrl = `/blog-data/${file}`;
-      const localRes = await fetch(localUrl);
-      if (localRes.ok) {
-        console.warn(`⚠️  Using local fallback for ${file} (S3 status: ${res.status})`);
-        return localRes.json() as Promise<T>;
-      }
-    } catch {
-      // Ignore fallback errors
-    }
-    
     return null;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    
-    // Check if it's a CORS error
-    if (errorMessage.includes('CORS') || errorMessage.includes('Access-Control-Allow-Origin')) {
-      console.warn(`⚠️  CORS error accessing S3 for ${file}. Please configure CORS on your S3 bucket.`);
-      console.warn(`   See server/S3_SETUP.md for CORS configuration instructions.`);
-    }
-    
-    // Try local fallback on network errors
-    try {
-      const localUrl = `/blog-data/${file}`;
-      const localRes = await fetch(localUrl);
-      if (localRes.ok) {
-        console.warn(`⚠️  Using local fallback for ${file} (S3 error: ${errorMessage})`);
-        return localRes.json() as Promise<T>;
-      }
-    } catch {
-      // Ignore fallback errors
-    }
+    console.warn(`⚠️  Failed to load blog data ${file}: ${errorMessage}`);
     return null;
   }
 }
 
 /**
- * Fallback to API if static files are not available
+ * Legacy API fallback (Mongo/Notion pipeline) if static files are unavailable.
  */
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
   if (!res.ok) {
     throw new Error(`Request failed: ${res.status} ${res.statusText}`);
   }
   return res.json() as Promise<T>;
+}
+
+function matchesTag(post: PostSummary, tag: string) {
+  if (!tag) return true;
+  const needle = tag.toLowerCase();
+  return (post.tags || []).some((t) => t.toLowerCase() === needle);
 }
 
 export async function fetchPosts(tag?: string) {
@@ -109,46 +74,42 @@ export async function fetchPosts(tag?: string) {
     if (staticData) {
       if (tag) {
         return {
-          posts: staticData.posts.filter(post => 
-            post.tags && post.tags.includes(tag)
-          )
+          posts: staticData.posts.filter((post) => matchesTag(post, tag)),
         };
       }
       return staticData;
     }
-    // Fall back to API if static file not found
     console.warn('⚠️  Static blog data not found, falling back to API');
   }
-  
+
   const qs = tag ? `?tag=${encodeURIComponent(tag)}` : '';
   return fetchJson<{ posts: PostSummary[] }>(`/blog${qs}`);
 }
 
 export async function fetchPost(slug: string) {
   if (USE_STATIC_DATA) {
-    const staticData = await fetchStaticJson<PostDetail & { related?: { posts: PostSummary[] } }>(`${slug}.json`);
+    const staticData = await fetchStaticJson<PostDetail>(`${slug}.json`);
     if (staticData) {
-      // Extract related posts from the static file
-      const { related, ...postData } = staticData;
+      const { related: _related, ...postData } = staticData;
       return postData as PostDetail;
     }
-    // Fall back to API if static file not found
     console.warn(`⚠️  Static blog post "${slug}" not found, falling back to API`);
   }
-  
+
   return fetchJson<PostDetail>(`/blog/${encodeURIComponent(slug)}`);
 }
 
 export async function fetchRelated(slug: string) {
   if (USE_STATIC_DATA) {
-    const staticData = await fetchStaticJson<{ related?: { posts: PostSummary[] } }>(`${slug}.json`);
-    if (staticData && staticData.related) {
+    const staticData = await fetchStaticJson<{ related?: { posts: PostSummary[] } }>(
+      `${slug}.json`
+    );
+    if (staticData?.related) {
       return staticData.related;
     }
-    // Fall back to API if static file not found
     console.warn(`⚠️  Static related posts for "${slug}" not found, falling back to API`);
   }
-  
+
   return fetchJson<{ posts: PostSummary[] }>(
     `/blog/${encodeURIComponent(slug)}/related`
   );
@@ -164,7 +125,7 @@ export async function sendBlogEvent(
     await fetch(`${API_BASE}/blog/events`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, slug, value, meta })
+      body: JSON.stringify({ type, slug, value, meta }),
     });
   } catch {
     // best-effort, swallow errors

@@ -9,6 +9,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { validateEnv } = require('./src/config/validateEnv');
+const { configureMongoDns, getMongoConnectOptions } = require('./src/config/mongoConnection');
 const cron = require('node-cron');
 const { syncNotionPosts } = require('./src/notion/notionService');
 const projectRoutes = require('./routes/projects');
@@ -253,21 +254,15 @@ if (process.env.NODE_ENV === 'development') {
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://wayne:1234%40wayne%235410337%40@35.243.189.22:27017/mr-demo-pro?authSource=admin';
 
-mongoose.connect(MONGODB_URI, {
-  serverSelectionTimeoutMS: 30000,
-  socketTimeoutMS: 30000,
-  connectTimeoutMS: 30000,
-  maxPoolSize: 10,
-  retryWrites: true,
-  w: 'majority'
-})
+configureMongoDns();
+mongoose.connect(MONGODB_URI, getMongoConnectOptions())
 .then(() => {
   console.log('✅ Connected to MongoDB successfully');
   console.log(`📊 Connected to: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`);
   
-  // Set up Notion blog sync cron job (every 15 minutes)
-  // Can be disabled by setting ENABLE_NOTION_SYNC_CRON=false
-  if (process.env.ENABLE_NOTION_SYNC_CRON !== 'false') {
+  // Legacy Notion blog sync cron (off by default — landing uses Opinly at build time).
+  // Enable only with ENABLE_NOTION_SYNC_CRON=true
+  if (process.env.ENABLE_NOTION_SYNC_CRON === 'true') {
     console.log('📅 [CRON] Setting up Notion blog sync cron job (every 15 minutes)...');
     
     let isRunning = false; // Prevent overlapping syncs
@@ -321,9 +316,9 @@ mongoose.connect(MONGODB_URI, {
     });
     
     console.log('✅ [CRON] Notion blog sync cron job scheduled (runs every 15 minutes)');
-    console.log('   To disable: Set ENABLE_NOTION_SYNC_CRON=false in environment variables');
+    console.log('   To disable: unset ENABLE_NOTION_SYNC_CRON or set it to anything other than true');
   } else {
-    console.log('ℹ️  [CRON] Notion sync cron job disabled (ENABLE_NOTION_SYNC_CRON=false)');
+    console.log('ℹ️  [CRON] Notion sync cron job disabled (legacy; landing uses Opinly). Set ENABLE_NOTION_SYNC_CRON=true to enable.');
   }
 })
 .catch((error) => {

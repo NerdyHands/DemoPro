@@ -2,21 +2,21 @@
 
 /**
  * Sitemap Generator for Mr Demo Pro
- * Builds sitemap as: base URLs (from public/sitemap.xml or routes) + blog post URLs from S3 (posts.json).
- * Preserves manual sitemap structure, updates dates, then appends blog pages from S3.
+ * Builds sitemap as: canonical routes from App.tsx + blog post URLs from
+ * public/blog-data/posts.json (written by sync-opinly-blog.js).
  */
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getRoutesWithMetadata } from './parse-routes.js';
+import { getCanonicalRoutes } from './parse-routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
 const BASE_URL = 'https://mrdemopro.com';
-const S3_BLOG_DATA_BASE = process.env.VITE_S3_BLOG_DATA_BASE || 'https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-data';
+const LOCAL_POSTS_FILE = path.join(__dirname, '../public/blog-data/posts.json');
 const OUTPUT_FILE = path.join(__dirname, '../public/sitemap.xml');
 const DIST_OUTPUT_FILE = path.join(__dirname, '../dist/sitemap.xml');
 
@@ -46,19 +46,24 @@ function updateSitemapDates(sitemapContent) {
 }
 
 /**
- * Fetch list of published posts from S3 (posts.json). Returns [] on failure.
+ * Read published posts from local public/blog-data/posts.json. Returns [] if missing/invalid.
  */
-async function fetchBlogPostsFromS3() {
-  const url = `${S3_BLOG_DATA_BASE}/posts.json`;
+function readLocalBlogPosts() {
   try {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!res.ok) return [];
-    const data = await res.json();
+    if (!fs.existsSync(LOCAL_POSTS_FILE)) return [];
+    const data = JSON.parse(fs.readFileSync(LOCAL_POSTS_FILE, 'utf8'));
     return Array.isArray(data?.posts) ? data.posts : [];
   } catch (err) {
-    console.warn(`⚠️  Could not fetch blog posts from S3 (${url}):`, err?.message || err);
+    console.warn(`⚠️  Could not read local blog posts (${LOCAL_POSTS_FILE}):`, err?.message || err);
     return [];
   }
+}
+
+/**
+ * Read published posts from local public/blog-data/posts.json (Opinly sync output).
+ */
+async function fetchBlogPosts() {
+  return readLocalBlogPosts();
 }
 
 /**
@@ -92,7 +97,7 @@ function buildBlogUrlEntries(posts) {
 
 /**
  * Remove any existing blog post <url> blocks from sitemap content so we don't duplicate
- * when injecting from S3. Keeps the /blog/ index entry; removes only /blog/slug/ entries.
+ * when injecting from blog-data. Keeps the /blog/ index entry; removes only /blog/slug/ entries.
  */
 function stripExistingBlogPostUrls(sitemapContent) {
   // Remove <url>...</url> blocks whose <loc> is a blog post (e.g. .../blog/slug/) not the blog index (.../blog/)
@@ -115,8 +120,8 @@ function injectBlogUrlsIntoSitemap(baseContent, blogUrlEntries) {
  * Generate XML sitemap content (auto-generation fallback)
  */
 function generateSitemapAuto() {
-  // Get routes from App.tsx automatically (fresh each time)
-  const routes = getRoutesWithMetadata();
+  // Canonical indexable routes from App.tsx (trailing-slash, no dynamic/noindex)
+  const routes = getCanonicalRoutes();
   
   let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
   sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
@@ -141,7 +146,7 @@ function generateSitemapAuto() {
  */
 function validateSitemapCompleteness(sitemapContent) {
   try {
-    const routes = getRoutesWithMetadata();
+    const routes = getCanonicalRoutes();
     const sitemapUrls = (sitemapContent.match(/<loc>(.*?)<\/loc>/g) || [])
       .map(match => match.replace(/<\/?loc>/g, ''))
       .map(url => url.replace(BASE_URL, ''))
@@ -173,46 +178,26 @@ function validateSitemapCompleteness(sitemapContent) {
 }
 
 /**
- * Generate or update sitemap: base URLs (manual or from routes) + blog post URLs from S3
+ * Generate or update sitemap: base URLs from routes + blog post URLs from Opinly sync output
  */
 async function generateSitemap() {
-  let baseContent;
-
-  // 1. Base sitemap: use manual file if present, else generate from routes
-  if (fs.existsSync(OUTPUT_FILE)) {
-    try {
-      const existingContent = fs.readFileSync(OUTPUT_FILE, 'utf8');
-      if (existingContent.includes('<?xml') && existingContent.includes('<urlset')) {
-        console.log('📝 Found manual sitemap, updating dates...');
-        baseContent = updateSitemapDates(existingContent);
-        validateSitemapCompleteness(baseContent);
-      } else {
-        throw new Error('Invalid sitemap structure');
-      }
-    } catch (error) {
-      console.warn(`⚠️  Error reading manual sitemap: ${error.message}`);
-      console.log('🔄 Falling back to auto-generation from routes...');
-      baseContent = generateSitemapAuto();
-      validateSitemapCompleteness(baseContent);
-    }
-  } else {
-    console.log('🔄 No manual sitemap found, generating from routes...');
-    baseContent = generateSitemapAuto();
-    validateSitemapCompleteness(baseContent);
-  }
+  // Always generate base sitemap from canonical routes in App.tsx
+  console.log('🔄 Generating sitemap from canonical routes...');
+  let baseContent = generateSitemapAuto();
+  validateSitemapCompleteness(baseContent);
 
   // 2. Strip any existing blog post URLs from base (avoids duplicates when re-running)
   baseContent = stripExistingBlogPostUrls(baseContent);
 
-  // 3. Fetch blog posts from S3 and append their URLs (single source of truth)
-  console.log('📡 Fetching blog posts from S3...');
-  const posts = await fetchBlogPostsFromS3();
+  // 3. Append blog posts from public/blog-data/posts.json
+  console.log('📡 Loading blog posts from public/blog-data/posts.json...');
+  const posts = await fetchBlogPosts();
   const blogEntries = buildBlogUrlEntries(posts);
   if (posts.length > 0) {
-    console.log(`   Added ${posts.length} blog post URL(s) from S3`);
+    console.log(`   Added ${posts.length} blog post URL(s)`);
     baseContent = injectBlogUrlsIntoSitemap(baseContent, blogEntries);
   } else {
-    console.log('   No blog posts from S3 (or fetch failed); sitemap has base URLs only.');
+    console.log('   No blog posts found; sitemap has base URLs only.');
   }
 
   return baseContent;
@@ -240,7 +225,7 @@ function writeSitemap(content, filePath) {
  */
 async function main() {
   console.log('🚀 Processing sitemap for Mr Demo Pro...');
-  console.log('   Base URLs from public/sitemap.xml, then blog pages from S3 (posts.json).');
+  console.log('   Base URLs from App.tsx routes, then blog pages from public/blog-data/posts.json.');
 
   const sitemapContent = await generateSitemap();
 
@@ -265,5 +250,5 @@ if (runDirect) {
   });
 }
 
-export { generateSitemap };
+export { generateSitemap, fetchBlogPosts, fetchBlogPosts as fetchBlogPostsFromS3 };
 export default main;

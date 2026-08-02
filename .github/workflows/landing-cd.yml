@@ -32,15 +32,18 @@ jobs:
           cache-dependency-path: landing/package-lock.json
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
       - name: Build
         run: npm run build
         env:
           NODE_ENV: production
-          VITE_S3_BLOG_DATA_BASE: ${{ secrets.VITE_S3_BLOG_DATA_BASE }}
+          OPINLY_API_KEY: ${{ secrets.OPINLY_API_KEY }}
+          OPINLY_CDN_NAMESPACE: ${{ secrets.OPINLY_CDN_NAMESPACE }}
+          OPINLY_IMAGES_PREFIX: ${{ secrets.OPINLY_IMAGES_PREFIX }}
+          REQUIRE_OPINLY_SYNC: 'true'
           VITE_USE_STATIC_BLOG_DATA: ${{ secrets.VITE_USE_STATIC_BLOG_DATA || 'true' }}
-          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
+          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL || 'https://mrdemopro.com' }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || '' }}
           VITE_GA_ID: ${{ secrets.VITE_GA_ID || '' }}
       

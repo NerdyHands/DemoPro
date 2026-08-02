@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '../../components/Layout/Layout.jsx';
 import { estimateApi } from '../../services/contractsApi';
+import ExportMenu from '../../components/ExportMenu/ExportMenu.jsx';
 import './Estimates.css';
 
 const getCustomerDisplayName = (customer) => {
@@ -52,6 +53,35 @@ const EstimateView = () => {
     } catch (err) {
       console.error('Error downloading estimate PDF:', err);
       alert('Failed to download estimate PDF.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    try {
+      setDownloading(true);
+      await estimateApi.downloadDocx(id);
+    } catch (err) {
+      console.error('Error downloading estimate DOCX:', err);
+      alert('Failed to download estimate DOCX.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleCreateGoogleDoc = async () => {
+    try {
+      setDownloading(true);
+      const result = await estimateApi.createGoogleDoc(id);
+      if (result?.url) {
+        window.open(result.url, '_blank', 'noopener,noreferrer');
+      } else {
+        alert('Google Doc created, but no URL was returned.');
+      }
+    } catch (err) {
+      console.error('Error creating Google Doc:', err);
+      alert(err.response?.data?.error || 'Failed to create Google Doc.');
     } finally {
       setDownloading(false);
     }
@@ -177,9 +207,15 @@ const EstimateView = () => {
             <Link to={`/estimates/edit/${estimate._id}`} className="btn btn-secondary">
               Edit Estimate
             </Link>
-            <button onClick={handleDownloadPdf} className="btn btn-secondary" disabled={downloading}>
-              {downloading ? 'Generating...' : 'Download PDF'}
-            </button>
+            <ExportMenu
+              label={downloading ? 'Generating…' : 'Export'}
+              disabled={downloading}
+              options={[
+                { id: 'pdf', label: 'Download PDF', onSelect: handleDownloadPdf },
+                { id: 'docx', label: 'Download DOCX', onSelect: handleDownloadDocx },
+                { id: 'gdoc', label: 'Create Google Doc', onSelect: handleCreateGoogleDoc }
+              ]}
+            />
             <Link to={`/contracts/new?estimateId=${estimate._id}`} className="btn btn-primary">
               Create Contract
             </Link>
@@ -217,6 +253,22 @@ const EstimateView = () => {
                 <span>{estimate.validUntil ? formatDate(estimate.validUntil) : 'N/A'}</span>
               </div>
             </div>
+            {(estimate.propertyAddress || estimate.clientAddress) && (
+              <div className="estimate-header-row">
+                {estimate.propertyAddress && (
+                  <div className="estimate-info-item">
+                    <label>Property Address:</label>
+                    <span>{estimate.propertyAddress}</span>
+                  </div>
+                )}
+                {estimate.clientAddress && estimate.clientAddress !== estimate.propertyAddress && (
+                  <div className="estimate-info-item">
+                    <label>Client Address:</label>
+                    <span>{estimate.clientAddress}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Description */}

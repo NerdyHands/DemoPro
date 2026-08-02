@@ -66,6 +66,7 @@ const EstimateEdit = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [initialSnapshot, setInitialSnapshot] = useState(null);
   const resolvedCustomerId = formData.customerId || customerIdFromUrl || '';
 
   const fetchCustomers = useCallback(async () => {
@@ -98,6 +99,12 @@ const EstimateEdit = () => {
         totalAmount: estimate.totalAmount || '',
         status: estimate.status || 'Draft',
         notes: estimate.notes || ''
+      });
+
+      setInitialSnapshot({
+        propertyAddress: estimate.propertyAddress || '',
+        clientAddress: estimate.clientAddress || '',
+        title: estimate.title || ''
       });
       
       // Load line items if they exist
@@ -324,6 +331,32 @@ const EstimateEdit = () => {
     return true;
   };
 
+  const syncAddressFieldsForSave = () => {
+    let propertyAddress = (formData.propertyAddress || '').trim();
+    let clientAddress = (formData.clientAddress || '').trim();
+    let title = (formData.title || '').trim();
+
+    const initialProp = (initialSnapshot?.propertyAddress || '').trim();
+    const initialClient = (initialSnapshot?.clientAddress || '').trim();
+    const propertyWasEdited = propertyAddress !== initialProp;
+    const clientWasEdited = clientAddress !== initialClient;
+
+    // Property address is canonical for job-site estimates; keep client in sync unless user edited it
+    if (propertyAddress && !clientWasEdited) {
+      clientAddress = propertyAddress;
+    } else if (clientAddress && !propertyWasEdited && !propertyAddress) {
+      propertyAddress = clientAddress;
+    }
+
+    const initialCanonical = initialProp || initialClient;
+    const newCanonical = propertyAddress || clientAddress;
+    if (initialCanonical && title === initialCanonical && newCanonical) {
+      title = newCanonical;
+    }
+
+    return { propertyAddress, clientAddress, title };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -348,12 +381,14 @@ const EstimateEdit = () => {
         return `${dateStr}T12:00:00.000Z`;
       };
 
+      const { propertyAddress, clientAddress, title } = syncAddressFieldsForSave();
+
       // Prepare estimate data with line items and calculated total
       const estimateData = {
-        title: formData.title,
+        title,
         description: formData.description,
-        propertyAddress: formData.propertyAddress || undefined,
-        clientAddress: formData.clientAddress || undefined,
+        propertyAddress: propertyAddress || undefined,
+        clientAddress: clientAddress || undefined,
         customer: activeCustomerId,
         projectId: formData.projectId || undefined,
         validUntil: dateToISO(formData.validUntil),

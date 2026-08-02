@@ -1,8 +1,18 @@
+import { useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { trackPhoneClick, trackThankYou } from '../config/gtm';
 
 const ThankYou = () => {
+  useEffect(() => {
+    trackThankYou({
+      thank_you_variant: 'standard',
+      lead_source: 'form',
+      page_path: '/thank-you/'
+    });
+  }, []);
+
   return (
     <div style={{ paddingTop: '100px', minHeight: '80vh' }}>
       <Container>
@@ -83,7 +93,13 @@ const ThankYou = () => {
                   Need immediate assistance?
                 </h5>
                 <a 
-                  href="tel:757-848-4559" 
+                  href="tel:757-848-4559"
+                  onClick={() =>
+                    trackPhoneClick({
+                      cta_location: 'thank_you_page',
+                      cta_label: 'Call us at 757-848-4559'
+                    })
+                  }
                   style={{ 
                     color: 'var(--color-primary)', 
                     textDecoration: 'none', 

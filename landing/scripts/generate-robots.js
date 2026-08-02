@@ -30,22 +30,9 @@ function generateRobots() {
   
   // Disallow admin or private areas (if any)
   robots += '# Disallow admin or private areas (if any)\n';
-  robots += '# Disallow: /admin/\n';
-  robots += '# Disallow: /private/\n\n';
-  
-  // Allow all search engines to crawl the site
-  robots += '# Allow all search engines to crawl the site\n';
-  robots += 'Crawl-delay: 1\n\n';
-  
-  // Additional SEO directives
-  robots += '# Additional SEO directives\n';
   robots += 'Disallow: /api/\n';
   robots += 'Disallow: /_next/\n';
-  robots += 'Disallow: /static/\n\n';
-  
-  // Host directive (helps with duplicate content issues)
-  robots += `# Host directive\n`;
-  robots += `Host: ${BASE_URL}\n`;
+  robots += 'Disallow: /static/\n';
   
   return robots;
 }

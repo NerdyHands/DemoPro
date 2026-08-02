@@ -7,6 +7,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Env (secrets). Keep .env.example as the template only.
+.env
+.env.*
+!.env.example
+
 node_modules
 dist
 dist-ssr

@@ -10,6 +10,12 @@ const Customer = require('../models/Customer');
 const ClientReportPdfService = require('../services/clientReportPdfService');
 const StorageManager = require('../services/storageManager');
 const fs = require('fs');
+const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
+const { sendDocxBuffer, sanitizeFilename } = require('../services/documentOutputs/sendDocxResponse');
+const { renderClientReportDocx } = require('../services/documentOutputs/renderers/clientReportRenderer');
+const { GoogleDocsPublisher } = require('../services/documentOutputs/googleDocsPublisher');
+
+const googleDocsPublisher = new GoogleDocsPublisher();
 
 // JWT Secret (should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -585,6 +591,75 @@ router.get('/:id/pdf', authenticateUser, async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+});
+
+// GET /api/client-reports/:id/docx - Generate and download report DOCX
+router.get('/:id/docx', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📝 Generating DOCX for report:', id);
+
+    const report = await ClientReport.findById(id)
+      .populate('customer', 'firstName lastName email phone address')
+      .populate('jobId', 'title jobId');
+
+    if (!report) {
+      return res.status(404).json({
+        success: false,
+        error: 'Report not found'
+      });
+    }
+
+    const model = renderClientReportDocx(report);
+    const buffer = await buildDocxBuffer(model);
+    const filenameBase = sanitizeFilename(`Client_Report_${report.reportNumber || report._id}`);
+    sendDocxBuffer(res, buffer, filenameBase);
+  } catch (error) {
+    console.error('❌ Error generating report DOCX:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST /api/client-reports/:id/google-doc - Create Google Doc and return link
+router.post('/:id/google-doc', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('📄 Creating Google Doc for report:', id);
+
+    if (!googleDocsPublisher.isAvailable()) {
+      return res.status(400).json({ success: false, error: 'Google Docs is not configured on the server' });
+    }
+
+    const report = await ClientReport.findById(id)
+      .populate('customer', 'firstName lastName email phone address')
+      .populate('jobId', 'title jobId');
+
+    if (!report) {
+      return res.status(404).json({ success: false, error: 'Report not found' });
+    }
+
+    const model = renderClientReportDocx(report);
+    const buffer = await buildDocxBuffer(model);
+    const title = `Client Report ${report.reportNumber || report._id}`;
+
+    const docInfo = await googleDocsPublisher.publishDocxAsGoogleDoc({ buffer, title });
+
+    const shareWith = Array.isArray(req.body?.shareWith) ? req.body.shareWith : [];
+    if (docInfo.documentId && shareWith.length > 0) {
+      for (const entry of shareWith) {
+        if (!entry?.email) continue;
+        await googleDocsPublisher.shareDocument(docInfo.documentId, entry.email, entry.role || 'reader');
+      }
+    }
+
+    res.json({ success: true, documentId: docInfo.documentId, url: docInfo.url, title: docInfo.title });
+  } catch (error) {
+    console.error('❌ Error creating Google Doc for report:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

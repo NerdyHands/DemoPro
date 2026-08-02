@@ -130,15 +130,9 @@ class EstimatePdfService {
     })();
 
     const customerAddress = (() => {
-      const addressSources = [
-        estimate.clientAddress,
-        estimate.propertyAddress,
-        typeof estimate.customer?.address === 'string' ? estimate.customer.address : null,
-        estimate.customer?.address?.full,
-        estimate.customer?.address?.street
-      ];
-      const address = addressSources.find(value => typeof value === 'string' && value.trim().length > 0);
-      return address ? address.trim() : null;
+      const { resolveEstimateAddress } = require('./documentOutputs/formatters');
+      const address = resolveEstimateAddress(estimate);
+      return address || null;
     })();
 
     doc.fontSize(12)

@@ -56,6 +56,13 @@ const Services = () => {
       desc: 'Detached or attached garage demolition with debris removal. We keep the jobsite clean and leave your property ready for what’s next.'
     },
     {
+      title: 'House Demolition',
+      img: '/assets/img/features/hampton-roads.webp',
+      link: '/services/house-demolition/',
+      aria: 'Get a house demolition quote in Hampton Roads',
+      desc: 'Whole house demolition with full teardown, foundation removal, debris haul-off, and permit coordination across Hampton Roads.'
+    },
+    {
       title: 'Concrete Removal',
       img: '/assets/img/features/services-overview.webp',
       link: '/services/concrete-removal/',
@@ -82,6 +89,13 @@ const Services = () => {
       link: '/services/cleanout/',
       aria: 'Get a property cleanout quote in Hampton Roads',
       desc: 'Complete property cleanout and debris removal services. We handle everything from estate cleanouts to construction debris removal, leaving your property clean and ready.'
+    },
+    {
+      title: 'Hoarding Cleanout',
+      img: '/assets/Icons/cleanout.webp',
+      link: '/services/hoarding-cleanout/',
+      aria: 'Get a hoarding cleanout quote in Hampton Roads',
+      desc: 'Discreet, compassionate hoarding cleanout for heavily cluttered homes. We sort keepsakes, haul away debris, and leave the property clean and move-in ready.'
     }
   ];
 
@@ -90,7 +104,7 @@ const Services = () => {
       <Container>
         <Row className="text-center mb-5">
           <Col>
-            <motion.h2
+            <motion.h1
               id="services-heading"
               initial={{opacity: 0}}
               animate={{opacity: 1}}
@@ -101,23 +115,83 @@ const Services = () => {
                 fontWeight: 'bold'
               }}
             >
-              Our Services
-            </motion.h2>
+              Demolition Services in Hampton Roads, VA
+            </motion.h1>
             <motion.p
               initial={{opacity: 0}}
               animate={{opacity: 1}}
               transition={{delay: 0.2, duration: 0.6}}
               style={{
                 color: 'var(--color-text-secondary)',
-                fontSize: 'var(--font-size-lg)'
+                fontSize: 'var(--font-size-lg)',
+                maxWidth: '900px',
+                margin: '0 auto'
               }}
             >
               Looking for a full overview? Visit our{' '}
               <Link to="/demolition-services/" onClick={scrollTop}>
                 demolition services page
               </Link>{' '}
-              for more options.
+              for more options, or see our{' '}
+              <Link to="/service-area/" onClick={scrollTop}>
+                local service area hub
+              </Link>{' '}
+              (Hampton, Newport News, Norfolk, Virginia Beach, Chesapeake,
+              Portsmouth, and Suffolk) for city-specific demolition intent.
             </motion.p>
+          </Col>
+        </Row>
+
+        <Row className="mb-5">
+          <Col lg={10} className="mx-auto">
+            <div
+              style={{
+                padding: '24px',
+                borderRadius: '16px',
+                backgroundColor: 'var(--color-surface)',
+                border: '1px solid var(--color-border)'
+              }}
+            >
+              <h2
+                style={{
+                  color: 'var(--color-primary)',
+                  fontSize: 'var(--font-size-2xl)',
+                  marginBottom: '16px'
+                }}
+              >
+                Local demolition pages
+              </h2>
+              <p style={{color: 'var(--color-text-secondary)', lineHeight: 1.65}}>
+                Need a demolition contractor by city? Start with{' '}
+                {[
+                  {label: 'Hampton', to: '/demolition-contractor-hampton-va/'},
+                  {
+                    label: 'Newport News',
+                    to: '/demolition-contractor-newport-news-va/'
+                  },
+                  {label: 'Norfolk', to: '/demolition-contractor-norfolk-va/'},
+                  {
+                    label: 'Virginia Beach',
+                    to: '/demolition-contractor-virginia-beach-va/'
+                  },
+                  {label: 'Chesapeake', to: '/demolition-contractor-chesapeake-va/'},
+                  {label: 'Portsmouth', to: '/demolition-contractor-portsmouth-va/'},
+                  {label: 'Suffolk', to: '/demolition-contractor-suffolk-va/'}
+                ].map((city, index, list) => (
+                  <span key={city.to}>
+                    <Link to={city.to} onClick={scrollTop}>
+                      {city.label}
+                    </Link>
+                    {index < list.length - 1 ? ', ' : '.'}
+                  </span>
+                ))}
+                {' '}For budget planning, read our{' '}
+                <Link to="/demolition-cost-virginia/" onClick={scrollTop}>
+                  Virginia demolition cost guide
+                </Link>
+                .
+              </p>
+            </div>
           </Col>
         </Row>
 

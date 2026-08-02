@@ -1,8 +1,12 @@
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router-dom';
+import {useScrollDepth} from '../hooks/useScrollDepth';
 
-const About = () => (
+const About = () => {
+  useScrollDepth('other');
+
+  return (
   <main>
     <section
       style={{
@@ -180,6 +184,7 @@ const About = () => (
       </Container>
     </section>
   </main>
-);
+  );
+};
 
 export default About;

@@ -1,24 +1,29 @@
 # AWS Amplify SPA Routing - Quick Setup Guide
 
 ## The Problem
-Routes like `/services/` return 404 errors because AWS Amplify doesn't know to serve `index.html` for client-side routes.
+
+A catch-all **Rewrite (200)** to `/index.html` makes every extensionless path serve the **homepage** HTML. That breaks prerendered per-route files (`dist/services/.../index.html`) and causes identical `canonical` / `og:url` on every URL.
 
 ## The Solution
-Configure a rewrite rule in the AWS Amplify Console.
+
+1. Keep trailing-slash **301** rules first.
+2. Use a **404-200** fallback so Amplify serves an existing artifact when present, and only rewrites unknown paths to `/index.html`.
 
 ## Quick Steps
 
 ### 1. Go to Amplify Console
-1. Visit: https://console.aws.amazon.com/amplify/
-2. Select your app
-3. Click **"Rewrites and redirects"** (in left sidebar under "App settings")
 
-### 2. Add Rewrite Rule
-Click **"Add rewrite/redirect"** and configure:
+1. Visit: https://console.aws.amazon.com/amplify/
+2. Select app `d28gzr68fr7a30` (or your landing app)
+3. Open **Hosting** → **Rewrites and redirects**
+
+### 2. Preferred SPA fallback (404-200)
+
+Click **Add rewrite/redirect** (or edit JSON) and configure:
 
 **Source address:**
 ```
-</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|eot|map|json|xml|webp)$)([^.]+$)/>
+/<*>
 ```
 
 **Target address:**
@@ -27,47 +32,54 @@ Click **"Add rewrite/redirect"** and configure:
 ```
 
 **Type:**
-- Select **"Rewrite (200)"** ⚠️ (NOT Redirect!)
+- Select **404 (Rewrite)** / **404-200** (serve `/index.html` only when the requested path is missing)
 
-Click **"Save"**
+Click **Save**. Place this rule **after** trailing-slash 301s and any specific redirects.
 
-### 3. Verify
-After deployment completes, test:
+### 3. Remove the old catch-all 200 rewrite
+
+If you still have a rule like:
+
+```
+</^[^.]+$|.../>  →  /index.html  (200 Rewrite)
+```
+
+**Delete or disable it.** That rule always rewrites to the root homepage HTML and undoes Playwright prerender SEO.
+
+### 4. Verify
+
 ```bash
-curl -I https://mrdemopro.com/services/
+curl -s https://main.d28gzr68fr7a30.amplifyapp.com/services/shed-removal/ | findstr /i canonical
+# or after custom domain:
+curl -s https://mrdemopro.com/services/shed-removal/ | findstr /i canonical
 ```
 
-Should return `HTTP/2 200` (not 404).
+Canonical should be the **route** URL (`.../services/shed-removal/`), not `https://mrdemopro.com/`.
 
-## Alternative: Simpler Pattern
+## Trailing slash 301s (keep first)
 
-If the regex above doesn't work, try this simpler pattern:
+Example (adjust to match your console rules):
 
-**Source address:**
+```json
+[
+  {
+    "source": "/<*>/",
+    "status": "404-200",
+    "target": "/index.html",
+    "condition": null
+  }
+]
 ```
-</^[^.]+$/>
-```
 
-This matches any path without a dot (file extension), which covers most SPA routes.
+Use Amplify's UI for trailing-slash redirects as needed; order matters: **specific 301s → 404-200 fallback last**.
 
 ## Important Notes
 
-- ✅ Use **"Rewrite (200)"** not "Redirect (301/302)"
-- ✅ Place this rule **last** in the list (after any specific redirects)
-- ✅ Wait for deployment to complete after saving
-- ❌ The `_redirects` file alone won't work - you must configure in console
-
-## Troubleshooting
-
-**Still getting 404?**
-1. Verify rule is set to "Rewrite (200)"
-2. Check rule is at the bottom of the list
-3. Wait for deployment to finish
-4. Clear browser cache and test again
-
-**Static assets not loading?**
-- The regex should exclude file extensions - verify it includes all your asset types
+- ✅ Prefer **404-200** so prerendered `*/index.html` files win
+- ✅ Place the fallback **last**
+- ❌ Do not use a blanket **200** rewrite to `/index.html` for all extensionless paths
+- ❌ The `_redirects` file alone is not honored by Amplify Hosting
 
 ## Full Documentation
 
-See `AMPLIFY_SPA_ROUTING.md` for detailed explanation and advanced configuration.
+See `AMPLIFY_SPA_ROUTING.md` for details.

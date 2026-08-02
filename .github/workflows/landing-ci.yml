@@ -37,7 +37,7 @@ jobs:
           cache-dependency-path: landing/package-lock.json
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
       - name: Run linter
         run: npm run lint
@@ -51,8 +51,9 @@ jobs:
         run: npm run build:no-seo
         env:
           NODE_ENV: production
-          # Add required VITE_ environment variables here or use GitHub Secrets
-          VITE_S3_BLOG_DATA_BASE: ${{ secrets.VITE_S3_BLOG_DATA_BASE || 'https://mr-demo-blog-bucket.s3.us-east-1.amazonaws.com/blog-data' }}
+          OPINLY_API_KEY: ${{ secrets.OPINLY_API_KEY }}
+          OPINLY_CDN_NAMESPACE: ${{ secrets.OPINLY_CDN_NAMESPACE }}
+          OPINLY_IMAGES_PREFIX: ${{ secrets.OPINLY_IMAGES_PREFIX }}
           VITE_USE_STATIC_BLOG_DATA: 'true'
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL || 'https://mrdemopro.com' }}
       

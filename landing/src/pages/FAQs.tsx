@@ -1,17 +1,42 @@
 import {Container, Row, Col, Accordion, Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
-import SEOHead from '../components/SEO';
+import PhoneLink from '../components/PhoneLink';
+import {trackFaqExpand} from '../config/gtm';
+import {useScrollDepth} from '../hooks/useScrollDepth';
+
+const FAQ_ITEMS: {key: string; question: string}[] = [
+  {key: '0', question: 'What areas do you serve?'},
+  {key: '1', question: 'How quickly can you complete a demolition project?'},
+  {key: '2', question: 'Do you provide free quotes?'},
+  {key: '3', question: 'What types of sheds can you remove?'},
+  {key: '4', question: 'Do you clean up after shed removal?'},
+  {key: '5', question: 'How do you remove deck posts and footings?'},
+  {key: '6', question: 'Will deck removal damage my property?'},
+  {key: '7', question: 'Can you remove concrete fence posts?'},
+  {key: '8', question: 'Do you handle fence gates and hardware?'},
+  {key: '9', question: 'Are you licensed and insured?'},
+  {key: '10', question: 'What safety measures do you take?'},
+  {key: '11', question: 'How do you determine pricing?'},
+  {key: '12', question: 'What payment methods do you accept?'},
+  {key: '13', question: 'How far in advance should I schedule?'},
+  {key: '14', question: 'Do you work in all weather conditions?'}
+];
 
 const FAQs = () => {
+  useScrollDepth('other');
+
+  const handleFaqSelect = (eventKey: string | string[] | null | undefined) => {
+    const key = Array.isArray(eventKey) ? eventKey[eventKey.length - 1] : eventKey;
+    if (key == null) return;
+    const item = FAQ_ITEMS.find((f) => f.key === String(key));
+    if (item) {
+      trackFaqExpand({question_text: item.question});
+    }
+  };
+
   return (
     <>
-      <SEOHead
-        title="Frequently Asked Questions - Mr Demo Pro Demolition Services in Hampton Roads"
-        description="Answers to common questions about demolition, cleanouts, shed, deck, and fence removal in Hampton Roads, VA. Contact us for more info."
-        canonicalUrl="https://mrdemopro.com/faqs"
-      />
-
       <main role="main" aria-labelledby="faq-heading">
         {/* FAQ Schema for Google */}
         <script
@@ -118,7 +143,7 @@ const FAQs = () => {
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.6}}
                   >
-                    <Accordion>
+                    <Accordion onSelect={handleFaqSelect}>
                       {/* General Service Questions */}
                       <Accordion.Item
                         eventKey="0"
@@ -678,9 +703,10 @@ const FAQs = () => {
                       Contact Us
                     </Link>
 
-                    <a
-                      href="tel:757-848-4559"
-                      aria-label="Call mrdemopro at 757-848-4559 for professional demolition services"
+                    <PhoneLink
+                      ctaLocation="faq_bottom"
+                      clickLocation="cta"
+                      ariaLabel="Call mrdemopro at 757-848-4559 for professional demolition services"
                     >
                       <Button
                         size="lg"
@@ -697,7 +723,7 @@ const FAQs = () => {
                       >
                         Call 757-848-4559
                       </Button>
-                    </a>
+                    </PhoneLink>
                   </motion.div>
                 </Col>
               </Row>

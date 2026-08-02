@@ -11,6 +11,23 @@ const api = axios.create({
   },
 });
 
+const downloadBlobAsFile = (blob, filename) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+const downloadEndpoint = async (endpoint, filename) => {
+  const response = await api.get(endpoint, { responseType: 'blob' });
+  downloadBlobAsFile(new Blob([response.data]), filename);
+  return { success: true };
+};
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
@@ -128,16 +145,18 @@ export const estimateApi = {
 
   // Download estimate PDF (server endpoint expected at /api/estimates/:id/pdf)
   downloadPdf: async (id) => {
-    const response = await api.get(`/api/estimates/${id}/pdf`, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `estimate-${id}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    return { success: true };
+    return await downloadEndpoint(`/api/estimates/${id}/pdf`, `estimate-${id}.pdf`);
+  },
+
+  // Download estimate DOCX
+  downloadDocx: async (id) => {
+    return await downloadEndpoint(`/api/estimates/${id}/docx`, `estimate-${id}.docx`);
+  },
+
+  // Create Google Doc for estimate
+  createGoogleDoc: async (id, payload = {}) => {
+    const response = await api.post(`/api/estimates/${id}/google-doc`, payload);
+    return response.data;
   },
 };
 
@@ -181,21 +200,32 @@ export const contractApi = {
 
   // Download contract PDF
   downloadPdf: async (id) => {
-    const response = await api.get(`/api/contracts/${id}/pdf`, {
-      responseType: 'blob'
-    });
-    
-    // Create a download link
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `contract-${id}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    
-    return { success: true };
+    return await downloadEndpoint(`/api/contracts/${id}/pdf`, `contract-${id}.pdf`);
+  },
+
+  // Download contract DOCX
+  downloadDocx: async (id) => {
+    return await downloadEndpoint(`/api/contracts/${id}/docx`, `contract-${id}.docx`);
+  },
+
+  // Create Google Doc for contract
+  createGoogleDoc: async (id, payload = {}) => {
+    const response = await api.post(`/api/contracts/${id}/google-doc`, payload);
+    return response.data;
+  },
+
+  // Final invoice exports
+  downloadFinalInvoicePdf: async (id) => {
+    return await downloadEndpoint(`/api/contracts/${id}/final-invoice`, `final-invoice-${id}.pdf`);
+  },
+
+  downloadFinalInvoiceDocx: async (id) => {
+    return await downloadEndpoint(`/api/contracts/${id}/final-invoice/docx`, `final-invoice-${id}.docx`);
+  },
+
+  createFinalInvoiceGoogleDoc: async (id, payload = {}) => {
+    const response = await api.post(`/api/contracts/${id}/final-invoice/google-doc`, payload);
+    return response.data;
   },
 
   // BoldSign Integration
@@ -290,21 +320,16 @@ export const amendmentApi = {
 
   // Download amendment PDF
   downloadPdf: async (id) => {
-    const response = await api.get(`/api/amendments/${id}/pdf`, {
-      responseType: 'blob'
-    });
-    
-    // Create a download link
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `amendment-${id}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    
-    return { success: true };
+    return await downloadEndpoint(`/api/amendments/${id}/pdf`, `amendment-${id}.pdf`);
+  },
+
+  downloadDocx: async (id) => {
+    return await downloadEndpoint(`/api/amendments/${id}/docx`, `amendment-${id}.docx`);
+  },
+
+  createGoogleDoc: async (id, payload = {}) => {
+    const response = await api.post(`/api/amendments/${id}/google-doc`, payload);
+    return response.data;
   },
 };
 
@@ -409,21 +434,16 @@ export const clientReportApi = {
 
   // Download report PDF
   downloadPdf: async (id) => {
-    const response = await api.get(`/api/client-reports/${id}/pdf`, {
-      responseType: 'blob'
-    });
-    
-    // Create a download link
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `client-report-${id}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    
-    return { success: true };
+    return await downloadEndpoint(`/api/client-reports/${id}/pdf`, `client-report-${id}.pdf`);
+  },
+
+  downloadDocx: async (id) => {
+    return await downloadEndpoint(`/api/client-reports/${id}/docx`, `client-report-${id}.docx`);
+  },
+
+  createGoogleDoc: async (id, payload = {}) => {
+    const response = await api.post(`/api/client-reports/${id}/google-doc`, payload);
+    return response.data;
   },
 
   // Send report to client

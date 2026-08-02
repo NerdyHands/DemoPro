@@ -1,10 +1,49 @@
 import {useState, useRef, useEffect} from 'react';
+import {Link} from 'react-router-dom';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
-import SEOHead from '../components/SEO';
 import QuoteForm from '../components/QuoteForm';
+import PhoneLink from '../components/PhoneLink';
+import {useScrollDepth} from '../hooks/useScrollDepth';
+
+const SHED_FAQS = [
+  {
+    question: 'Do I need a permit to remove a shed?',
+    answer:
+      'Most small residential sheds in Hampton Roads do not require a demolition permit, but requirements vary by city and county — especially for larger structures or sheds with electrical hookups. We help you understand local rules before work begins.'
+  },
+  {
+    question: 'How much does shed removal cost in Hampton Roads?',
+    answer:
+      'PLACEHOLDER — confirm with owner before publish: typical shed removal often falls in a $400–$1,500+ range depending on size, materials (wood, metal, or vinyl), access, and disposal needs. We provide a free written quote after reviewing your shed.'
+  },
+  {
+    question: 'Do you remove metal, wood, and plastic sheds?',
+    answer:
+      'Yes. We dismantle and haul away wood, metal, and vinyl/plastic sheds. Material type affects dismantling approach and disposal, which we factor into your quote.'
+  },
+  {
+    question: 'How long does shed removal take?',
+    answer:
+      'Most shed removals are completed in a single visit — typically a few hours for standard backyard sheds. Larger or hard-to-access structures may take longer.'
+  }
+];
+
+const shedFaqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: SHED_FAQS.map(f => ({
+    '@type': 'Question',
+    name: f.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: f.answer
+    }
+  }))
+};
 
 const ShedRemoval = () => {
+  useScrollDepth('service');
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
   const scrollPosRef = useRef<number>(0);
@@ -148,31 +187,9 @@ const ShedRemoval = () => {
   return (
     <>
       <main>
-        <SEOHead
-          title="Shed Removal Services in Hampton Roads, VA"
-          description="Professional shed removal services in Hampton Roads, VA. Fast, safe, and complete shed demolition and cleanup. Get your free quote today."
-          canonicalUrl="https://mrdemopro.com/services/shed-removal"
-          structuredData={[
-            {
-              '@context': 'https://schema.org',
-              '@type': 'Service',
-              name: 'Shed Removal Services',
-              serviceType: 'Shed Removal',
-              provider: {
-                '@type': 'LocalBusiness',
-                name: 'MrDemoPro',
-                telephone: '757-848-4559',
-                areaServed: 'Hampton Roads, VA'
-              },
-              areaServed: [
-                'Hampton, VA',
-                'Norfolk, VA',
-                'Newport News, VA',
-                'Yorktown, VA'
-              ],
-              url: 'https://mrdemopro.com/services/shed-removal'
-            }
-          ]}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{__html: JSON.stringify(shedFaqJsonLd)}}
         />
         <div itemScope itemType="https://schema.org/Service">
           {/* Hero Section */}
@@ -202,7 +219,7 @@ const ShedRemoval = () => {
                       fontSize: 'var(--font-size-4xl)'
                     }}
                   >
-                    Professional Shed Removal Services
+                    Professional Shed Removal Services in Hampton Roads, VA
                   </motion.h1>
                   <motion.p
                     itemProp="description"
@@ -237,13 +254,15 @@ const ShedRemoval = () => {
                       Get Free Quote
                     </Button>
 
-                    <a
-                      href="tel:757-848-4559"
-                      aria-label="Call for shed removal services in Hampton Roads"
-                      className="cta-button  hero-badge hero-cta"
+                    <PhoneLink
+                      ctaLocation="service_page_hero"
+                      clickLocation="cta"
+                      serviceName="Shed Removal"
+                      ariaLabel="Call for shed removal services in Hampton Roads"
+                      className="cta-button hero-badge hero-cta"
                     >
                       Call (757) 848 4559
-                    </a>
+                    </PhoneLink>
                   </motion.div>
                 </Col>
                 <Col lg={6} md={12}>
@@ -491,6 +510,109 @@ const ShedRemoval = () => {
             </Container>
           </section>
 
+          {/* Pricing Section */}
+          <section style={{padding: '80px 0'}}>
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    className="title-small fw-bold text-center"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '28px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    Shed Removal Pricing in Hampton Roads
+                  </motion.h2>
+                  <p
+                    style={{
+                      color: 'var(--color-text-secondary)',
+                      fontSize: 'var(--font-size-md)',
+                      lineHeight: 1.65,
+                      marginBottom: '16px'
+                    }}
+                  >
+                    PLACEHOLDER — confirm with owner before publish: typical
+                    small–medium shed removal often falls in a{' '}
+                    <strong>$400–$1,500+</strong> range depending on shed size,
+                    materials (wood, metal, or vinyl), yard access, and disposal
+                    needs.
+                  </p>
+                  <p
+                    style={{
+                      color: 'var(--color-text-secondary)',
+                      fontSize: 'var(--font-size-md)',
+                      lineHeight: 1.65,
+                      marginBottom: 0
+                    }}
+                  >
+                    Every property is different — we provide a free written
+                    quote after reviewing your shed. See our{' '}
+                    <Link to="/prices/">pricing page</Link> and{' '}
+                    <Link to="/demolition-cost-virginia/">
+                      demolition cost guide
+                    </Link>{' '}
+                    for more detail.
+                  </p>
+                </Col>
+              </Row>
+            </Container>
+          </section>
+
+          {/* FAQ Section */}
+          <section
+            style={{padding: '80px 0', backgroundColor: 'var(--color-surface)'}}
+            aria-labelledby="shed-faq-heading"
+          >
+            <Container>
+              <Row className="justify-content-center">
+                <Col lg={10}>
+                  <motion.h2
+                    id="shed-faq-heading"
+                    className="title-small fw-bold text-center"
+                    initial={{opacity: 0}}
+                    whileInView={{opacity: 1}}
+                    transition={{duration: 0.6}}
+                    style={{
+                      color: 'var(--color-primary)',
+                      marginBottom: '32px',
+                      fontSize: 'var(--font-size-3xl)'
+                    }}
+                  >
+                    Shed Removal FAQs
+                  </motion.h2>
+                  {SHED_FAQS.map(faq => (
+                    <div key={faq.question} style={{marginBottom: '28px'}}>
+                      <h3
+                        style={{
+                          color: 'var(--color-text-primary)',
+                          fontSize: 'var(--font-size-lg)',
+                          marginBottom: '12px'
+                        }}
+                      >
+                        {faq.question}
+                      </h3>
+                      <p
+                        style={{
+                          color: 'var(--color-text-secondary)',
+                          fontSize: 'var(--font-size-md)',
+                          lineHeight: 1.65,
+                          marginBottom: 0
+                        }}
+                      >
+                        {faq.answer}
+                      </p>
+                    </div>
+                  ))}
+                </Col>
+              </Row>
+            </Container>
+          </section>
+
           {/* CTA Section */}
           <section
             style={{
@@ -559,9 +681,11 @@ const ShedRemoval = () => {
                       Get Free Quote
                     </Button>
 
-                    <a
-                      href="tel:757-848-4559"
-                      aria-label="Call for Shed removal services"
+                    <PhoneLink
+                      ctaLocation="service_page_bottom"
+                      clickLocation="cta"
+                      serviceName="Shed Removal"
+                      ariaLabel="Call for shed removal services"
                     >
                       <Button
                         size="lg"
@@ -578,7 +702,7 @@ const ShedRemoval = () => {
                       >
                         Call 757-848-4559
                       </Button>
-                    </a>
+                    </PhoneLink>
                   </motion.div>
                 </Col>
               </Row>

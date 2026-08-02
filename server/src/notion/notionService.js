@@ -502,7 +502,7 @@ async function generateStaticBlogData() {
         }
         
         // Build structured data for SEO (same as API)
-        const postUrl = `${siteUrl}/blog/${post.slug}`;
+        const postUrl = `${siteUrl}/blog/${post.slug}/`;
         const structuredData = {
           '@context': 'https://schema.org',
           '@type': 'BlogPosting',

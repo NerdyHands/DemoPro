@@ -1,30 +1,67 @@
 /**
- * Google Apps Script for Mr Demo Pro Form Submissions
- * This script handles form submissions from the website and stores them in Google Sheets
- * Includes spam protection: rate limiting, duplicate detection, honeypot validation
+ * Form submission web app — doPost / doGet, spam protection, email alerts.
+ * Shared config: Config.js | Menu: Menu.js | GHL sync: GHL.js | Make webhook: Make.js
  */
 
-// Replace with your Google Sheet ID
-const SHEET_ID = '16IbG2bRcoLGY8FUswtYLL-iX842EAo2jWWgppPB9NFI';
-const SHEET_NAME = 'Form Submissions';
+/**
+ * Normalize phone for validation (digits only, min 10)
+ */
+function isValidPhone(phone) {
+  if (!phone || typeof phone !== 'string') return false;
+  const digits = phone.replace(/\D/g, '');
+  return digits.length >= 10;
+}
 
-// Email notification settings
-// Replace with the email address where you want to receive lead notifications
-const NOTIFICATION_EMAIL = 'info@mrdemopro.com'; // Change this to your email
-const COMPANY_NAME = 'Mr Demo Pro';
-const COMPANY_PHONE = '757-848-4559';
+/**
+ * Resolve contact identifier for rate limiting / duplicate checks
+ */
+function getContactIdentifier(formData, ipAddress) {
+  const phone = formData.phone || '';
+  const email = formData.email || '';
+  const legacyContact = formData.contact || '';
+  return (phone || email || legacyContact || ipAddress || 'anonymous').toLowerCase().trim();
+}
 
-// Spam protection settings
-const RATE_LIMIT_MINUTES = 15; // Time window for rate limiting
-const MAX_SUBMISSIONS_PER_WINDOW = 3; // Max submissions per IP per time window
-const MIN_SUBMISSION_TIME_SECONDS = 3; // Minimum time between form load and submission (anti-bot)
-const DUPLICATE_CHECK_MINUTES = 5; // Check for duplicate submissions within this time
+/**
+ * Extract row fields from form submission
+ */
+function extractSubmissionFields(formData) {
+  if (formData.form_type === 'quote_request') {
+    const phone = formData.phone || (formData.contact && !formData.contact.includes('@') ? formData.contact : '') || '';
+    const legacyEmail = formData.contact && formData.contact.includes('@') ? formData.contact : '';
+    return {
+      name: formData.name || '',
+      phone: phone,
+      businessName: formData.business_name || '',
+      serviceType: formData.service_type || '',
+      address: formData.address || '',
+      message: 'Quote Request',
+      contactField: phone || legacyEmail || formData.contact || ''
+    };
+  }
 
-// reCAPTCHA v3 settings
-// IMPORTANT: Replace with your reCAPTCHA secret key (get it from https://www.google.com/recaptcha/admin)
-// The secret key is different from the site key used on the frontend
-const RECAPTCHA_SECRET_KEY = '6LcmDkssAAAAAPUATFz-CjL4pCsH228ZRBBsztuL'; // Replace with your actual secret key
-const RECAPTCHA_MIN_SCORE = 0.5; // Minimum score to accept (0.0 to 1.0)
+  if (formData.form_type === 'contact_form') {
+    return {
+      name: formData.name || '',
+      phone: formData.phone || '',
+      businessName: formData.business_name || '',
+      serviceType: formData.service_type || '',
+      address: formData.address || '',
+      message: formData.message || '',
+      contactField: formData.email || formData.phone || ''
+    };
+  }
+
+  return {
+    name: formData.name || formData.address || '',
+    phone: formData.phone || '',
+    businessName: formData.business_name || '',
+    serviceType: formData.service_type || '',
+    address: formData.address || '',
+    message: formData.message || 'Form Submission',
+    contactField: formData.phone || formData.email || formData.contact || ''
+  };
+}
 
 /**
  * Verify reCAPTCHA v3 token
@@ -95,7 +132,7 @@ function doPost(e) {
     const ipAddress = e.parameter.IP_ADDRESS || 'Unknown';
     
     // Use contact info for rate limiting if IP not available (more reliable in Google Apps Script)
-    const contactIdentifier = (formData.email || formData.contact || ipAddress || 'anonymous').toLowerCase().trim();
+    const contactIdentifier = getContactIdentifier(formData, ipAddress);
     
     // ========== SPAM PROTECTION CHECKS ==========
     
@@ -181,72 +218,102 @@ function doPost(e) {
           .setMimeType(ContentService.MimeType.JSON);
       }
     } else if (formData.form_type === 'quote_request') {
-      if (!formData.contact || (!formData.contact.includes('@') && !formData.contact.match(/^[\+]?[1-9][\d]{0,15}$/))) {
-        console.log('SPAM DETECTED: Invalid contact info', { ipAddress, contact: formData.contact });
+      if (formData.phone) {
+        if (!isValidPhone(formData.phone)) {
+          console.log('SPAM DETECTED: Invalid phone', { ipAddress, phone: formData.phone });
+          return ContentService
+            .createTextOutput(JSON.stringify({ success: false, error: 'Invalid phone number' }))
+            .setMimeType(ContentService.MimeType.JSON);
+        }
+        if (!formData.name || formData.name.trim().length < 2) {
+          console.log('SPAM DETECTED: Invalid name', { ipAddress, name: formData.name });
+          return ContentService
+            .createTextOutput(JSON.stringify({ success: false, error: 'Invalid name' }))
+            .setMimeType(ContentService.MimeType.JSON);
+        }
+      } else if (formData.contact) {
+        const isEmail = formData.contact.includes('@');
+        const isPhone = isValidPhone(formData.contact);
+        if (!isEmail && !isPhone) {
+          console.log('SPAM DETECTED: Invalid contact info', { ipAddress, contact: formData.contact });
+          return ContentService
+            .createTextOutput(JSON.stringify({ success: false, error: 'Invalid contact information' }))
+            .setMimeType(ContentService.MimeType.JSON);
+        }
+      } else {
+        console.log('SPAM DETECTED: Missing phone', { ipAddress });
         return ContentService
-          .createTextOutput(JSON.stringify({ success: false, error: 'Invalid contact information' }))
+          .createTextOutput(JSON.stringify({ success: false, error: 'Phone number is required' }))
           .setMimeType(ContentService.MimeType.JSON);
       }
     }
     
     // ========== VALIDATION PASSED - PROCESS SUBMISSION ==========
     
-    // Create headers if they don't exist (updated to include spam flag)
+    // Create headers if they don't exist
     if (sheet.getLastRow() === 0) {
-      sheet.getRange(1, 1, 1, 7).setValues([
-        ['Timestamp', 'Form Type', 'Name/Address', 'Contact', 'Message', 'IP Address', 'Status']
-      ]);
-      sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+      sheet.getRange(1, 1, 1, SHEET_HEADERS.length).setValues([SHEET_HEADERS]);
+      sheet.getRange(1, 1, 1, SHEET_HEADERS.length).setFontWeight('bold');
     }
-    
-    // Determine form type and extract data accordingly
-    let nameField, contactField, messageField;
-    
-    if (formData.form_type === 'quote_request') {
-      nameField = formData.address || '';
-      contactField = formData.contact || '';
-      messageField = 'Quote Request';
-    } else if (formData.form_type === 'contact_form') {
-      nameField = formData.name || '';
-      contactField = formData.email || '';
-      messageField = formData.message || '';
-    } else {
-      // Fallback for other form types
-      nameField = formData.name || formData.address || '';
-      contactField = formData.email || formData.contact || '';
-      messageField = formData.message || 'Form Submission';
-    }
+
+    const fields = extractSubmissionFields(formData);
     
     // Add data to sheet (mark as valid submission)
     sheet.appendRow([
       timestamp,
       formData.form_type || 'unknown',
-      nameField,
-      contactField,
-      messageField,
+      fields.name,
+      fields.phone,
+      fields.businessName,
+      fields.serviceType,
+      fields.address,
+      fields.message,
       contactIdentifier,
-      'Valid'
+      'Valid',
+      ''
     ]);
     
     // Record submission for rate limiting
-    recordSubmission(contactIdentifier, contactField, timestamp);
+    recordSubmission(contactIdentifier, fields.contactField, timestamp);
     
     // Auto-resize columns
-    sheet.autoResizeColumns(1, 7);
+    sheet.autoResizeColumns(1, SHEET_HEADERS.length);
     
     // Send email notification (non-blocking - won't fail form submission if email fails)
     try {
       sendLeadNotification({
         formType: formData.form_type || 'unknown',
-        nameField: nameField,
-        contactField: contactField,
-        messageField: messageField,
-        timestamp: timestamp,
-        serviceType: formData.service_type || ''
+        nameField: fields.name,
+        phoneField: fields.phone,
+        businessName: fields.businessName,
+        serviceType: fields.serviceType,
+        addressField: fields.address,
+        contactField: fields.contactField,
+        messageField: fields.message,
+        timestamp: timestamp
       });
     } catch (emailError) {
       // Log error but don't fail the form submission
       console.error('Failed to send email notification:', emailError);
+    }
+
+    // Send to Make.com webhook (non-blocking)
+    try {
+      sendRecordToMake_({
+        'Timestamp': timestamp,
+        'Form Type': formData.form_type || 'unknown',
+        'Name': fields.name,
+        'Phone': fields.phone,
+        'Business Name': fields.businessName,
+        'Service Type': fields.serviceType,
+        'Address': fields.address,
+        'Message': fields.message,
+        'Identifier': contactIdentifier,
+        'Status': 'Valid',
+        'GHL Status': ''
+      });
+    } catch (makeError) {
+      console.error('Failed to send Make webhook:', makeError);
     }
     
     // Return success response
@@ -283,13 +350,11 @@ function setupSpreadsheet() {
   
   // Clear existing data and create headers
   sheet.clear();
-  sheet.getRange(1, 1, 1, 7).setValues([
-    ['Timestamp', 'Form Type', 'Name/Address', 'Contact', 'Message', 'IP Address', 'Status']
-  ]);
-  sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+  sheet.getRange(1, 1, 1, SHEET_HEADERS.length).setValues([SHEET_HEADERS]);
+  sheet.getRange(1, 1, 1, SHEET_HEADERS.length).setFontWeight('bold');
   
   // Format the header row
-  const headerRange = sheet.getRange(1, 1, 1, 7);
+  const headerRange = sheet.getRange(1, 1, 1, SHEET_HEADERS.length);
   headerRange.setBackground('#4285f4');
   headerRange.setFontColor('white');
   headerRange.setFontWeight('bold');
@@ -297,11 +362,15 @@ function setupSpreadsheet() {
   // Set column widths
   sheet.setColumnWidth(1, 150); // Timestamp
   sheet.setColumnWidth(2, 120); // Form Type
-  sheet.setColumnWidth(3, 200); // Name/Address
-  sheet.setColumnWidth(4, 200); // Contact
-  sheet.setColumnWidth(5, 300); // Message
-  sheet.setColumnWidth(6, 120); // IP Address
-  sheet.setColumnWidth(7, 150); // Status
+  sheet.setColumnWidth(3, 160); // Name
+  sheet.setColumnWidth(4, 140); // Phone
+  sheet.setColumnWidth(5, 180); // Business Name
+  sheet.setColumnWidth(6, 180); // Service Type
+  sheet.setColumnWidth(7, 220); // Address
+  sheet.setColumnWidth(8, 260); // Message
+  sheet.setColumnWidth(9, 160); // Identifier
+  sheet.setColumnWidth(10, 150); // Status
+  sheet.setColumnWidth(11, 180); // GHL Status
   
   console.log('Spreadsheet setup completed!');
 }
@@ -324,9 +393,11 @@ function sendLeadNotification(leadData) {
               
               <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                 <p><strong>📅 Date/Time:</strong> ${Utilities.formatDate(leadData.timestamp, Session.getScriptTimeZone(), 'MM/dd/yyyy hh:mm a')}</p>
-                <p><strong>📍 Property Address:</strong> ${leadData.nameField || 'Not provided'}</p>
-                <p><strong>📞 Contact Info:</strong> ${leadData.contactField || 'Not provided'}</p>
-                ${leadData.serviceType ? `<p><strong>🛠️ Service Type:</strong> ${leadData.serviceType}</p>` : ''}
+                ${leadData.nameField ? `<p><strong>👤 Name:</strong> ${leadData.nameField}</p>` : ''}
+                <p><strong>📞 Phone:</strong> ${leadData.phoneField || leadData.contactField || 'Not provided'}</p>
+                ${leadData.businessName ? `<p><strong>🏢 Business Name:</strong> ${leadData.businessName}</p>` : ''}
+                ${leadData.serviceType ? `<p><strong>🛠️ Type of Work:</strong> ${leadData.serviceType}</p>` : ''}
+                <p><strong>📍 Property Address:</strong> ${leadData.addressField || 'Not provided'}</p>
               </div>
               
               <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
@@ -334,8 +405,8 @@ function sendLeadNotification(leadData) {
               </div>
               
               <p style="margin-top: 30px;">
-                <a href="mailto:${leadData.contactField}" style="background-color: #d9534f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                  📧 Reply to Lead
+                <a href="tel:${(leadData.phoneField || leadData.contactField || '').replace(/\D/g, '')}" style="background-color: #d9534f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                  📞 Call Lead
                 </a>
               </p>
               
@@ -529,31 +600,21 @@ function isDuplicateSubmission(formData, identifier) {
  */
 function logSuspiciousSubmission(sheet, formData, timestamp, identifier, reason) {
   try {
-    // Append to same sheet with 'Spam' status
-    let nameField, contactField, messageField;
-    
-    if (formData.form_type === 'quote_request') {
-      nameField = formData.address || '';
-      contactField = formData.contact || '';
-      messageField = 'Quote Request [SPAM: ' + reason + ']';
-    } else if (formData.form_type === 'contact_form') {
-      nameField = formData.name || '';
-      contactField = formData.email || '';
-      messageField = (formData.message || '') + ' [SPAM: ' + reason + ']';
-    } else {
-      nameField = formData.name || formData.address || '';
-      contactField = formData.email || formData.contact || '';
-      messageField = formData.message || 'Form Submission [SPAM: ' + reason + ']';
-    }
-    
+    const fields = extractSubmissionFields(formData);
+    const spamMessage = fields.message + ' [SPAM: ' + reason + ']';
+
     sheet.appendRow([
       timestamp,
       formData.form_type || 'unknown',
-      nameField,
-      contactField,
-      messageField,
+      fields.name,
+      fields.phone,
+      fields.businessName,
+      fields.serviceType,
+      fields.address,
+      spamMessage,
       identifier,
-      'Spam: ' + reason
+      'Spam: ' + reason,
+      ''
     ]);
   } catch (error) {
     console.error('Error logging suspicious submission:', error);
@@ -565,11 +626,13 @@ function testFormSubmission() {
   const testData = {
     parameter: {
       form_type: 'quote_request',
+      name: 'Jane Doe',
+      phone: '7575551234',
+      business_name: 'Acme Properties',
+      service_type: 'Shed Removal',
       address: '123 Test Street, Hampton, VA',
-      contact: 'test@example.com',
-      service_type: 'shed_removal',
       IP_ADDRESS: '127.0.0.1',
-      form_load_time: (Date.now() - 10000).toString() // 10 seconds ago
+      form_load_time: (Date.now() - 10000).toString()
     }
   };
   
@@ -581,11 +644,14 @@ function testFormSubmission() {
 function testEmailNotification() {
   sendLeadNotification({
     formType: 'quote_request',
-    nameField: '123 Test Street, Hampton, VA',
-    contactField: 'test@example.com',
+    nameField: 'Jane Doe',
+    phoneField: '7575551234',
+    businessName: 'Acme Properties',
+    serviceType: 'Shed Removal',
+    addressField: '123 Test Street, Hampton, VA',
+    contactField: '7575551234',
     messageField: 'Test quote request',
-    timestamp: new Date(),
-    serviceType: 'shed_removal'
+    timestamp: new Date()
   });
   console.log('Test email notification sent!');
 }

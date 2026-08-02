@@ -54,6 +54,9 @@
   padding: 8px 14px;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
 }
 
 .tag.active {

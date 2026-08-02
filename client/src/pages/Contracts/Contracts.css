@@ -1002,6 +1002,11 @@
   color: var(--primary-color);
 }
 
+.line-item-total-discount,
+.line-item-discount {
+  color: #c0392b;
+}
+
 /* New Line Items Card Layout */
 .line-items-table-new {
   background-color: white;

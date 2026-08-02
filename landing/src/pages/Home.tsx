@@ -1,20 +1,70 @@
-import {useState, useRef} from 'react';
+import {useState, useRef, useCallback, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {Link, useNavigate} from 'react-router-dom';
 import {motion} from 'framer-motion';
-import {trackFormSubmission} from '../config/gtm';
+import {
+  trackFormAbandon,
+  trackFormStart,
+  trackGenerateLead,
+  trackPhoneClick
+} from '../config/gtm';
+import {useScrollDepth} from '../hooks/useScrollDepth';
 import {GOOGLE_APPS_SCRIPT_URL} from '../config/googleAppsScript';
 import {getRecaptchaToken} from '../config/recaptcha';
+import {getServiceOptionsForForm} from '../config/servicesList';
+import AddressAutocomplete from '../components/AddressAutocomplete/AddressAutocomplete';
 
 const Home = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    address: '',
-    contact: ''
+    serviceType: '',
+    name: '',
+    phone: '',
+    businessName: '',
+    address: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
   const learnMoreRef = useRef<HTMLHRElement | null>(null);
+  const formId = 'home_hero_quote';
+  const formStarted = useRef(false);
+  const formSubmitted = useRef(false);
+  const abandonReported = useRef(false);
+
+  useScrollDepth('home');
+
+  const markFormStart = useCallback(() => {
+    if (formStarted.current) return;
+    formStarted.current = true;
+    trackFormStart({
+      form_id: formId,
+      form_type: 'quote_request',
+      service_name: 'Homepage quote'
+    });
+  }, []);
+
+  useEffect(() => {
+    const onAbandon = () => {
+      if (!formStarted.current || formSubmitted.current || abandonReported.current) {
+        return;
+      }
+      abandonReported.current = true;
+      trackFormAbandon({
+        form_id: formId,
+        form_type: 'quote_request',
+        service_name: 'Homepage quote'
+      });
+    };
+    window.addEventListener('pagehide', onAbandon);
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') onAbandon();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.removeEventListener('pagehide', onAbandon);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []);
 
   const handleScrollToLearnMore = () => {
     const headerOffset = 80;
@@ -31,13 +81,26 @@ const Home = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    markFormStart();
     const {name, value} = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
+
+  const serviceOptions = getServiceOptionsForForm();
+  const fieldStyle = {
+    padding: '18px',
+    fontSize: '1.1rem',
+    borderRadius: '8px',
+    border: '2px solid var(--color-border)',
+    fontFamily: 'var(--font-family-primary)',
+    fontWeight: '400'
+  } as const;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,8 +114,11 @@ const Home = () => {
 
       // Use URLSearchParams to encode form data
       const formDataEncoded = new URLSearchParams();
+      formDataEncoded.append('name', formData.name);
+      formDataEncoded.append('phone', formData.phone);
+      formDataEncoded.append('business_name', formData.businessName);
+      formDataEncoded.append('service_type', formData.serviceType);
       formDataEncoded.append('address', formData.address);
-      formDataEncoded.append('contact', formData.contact);
       formDataEncoded.append('form_type', 'quote_request');
       formDataEncoded.append('form_load_time', formLoadTime.toString()); // For spam detection
       formDataEncoded.append('website', ''); // Honeypot field (should be empty)
@@ -68,15 +134,16 @@ const Home = () => {
         body: formDataEncoded.toString()
       });
 
-      // With no-cors mode, we can't read the response, but the submission should succeed
-      // Track successful form submission
-      trackFormSubmission('quote_request', {
+      formSubmitted.current = true;
+      trackGenerateLead({
+        form_id: formId,
+        lead_type: 'quote_request',
+        method: 'form',
         address: formData.address,
-        contact: formData.contact
+        service_name: formData.serviceType || 'Homepage quote'
       });
 
-      // Navigate to thank you page
-      navigate('/thank-you');
+      navigate('/thank-you/');
     } catch (error: any) {
       console.error('Error submitting form:', error);
       alert(
@@ -174,7 +241,7 @@ const Home = () => {
                       letterSpacing: '-0.025em'
                     }}
                   >
-                    Hassle-Free Demolition Services for Hampton Roads Homeowners &amp; Contractors
+                    Hassle-Free Demolition Services in Hampton Roads, VA
                   </h1>
 
                   <div className="mb-3">
@@ -224,6 +291,12 @@ const Home = () => {
                       href="tel:757-848-4559"
                       title="Call Mr Demo Pro"
                       aria-label="Call Mr Demo Pro at 757-848-4559"
+                      onClick={() =>
+                        trackPhoneClick({
+                          cta_location: 'homepage_hero',
+                          cta_label: 'Hero call CTA'
+                        })
+                      }
                       className="phone-link text-white text-decoration-none btn btn-primary"
                       style={{
                         fontSize: '1.1rem',
@@ -300,23 +373,68 @@ const Home = () => {
 
                   <form className="quote-form" onSubmit={handleSubmit}>
                     <div className="mb-3">
+                      <select
+                        className="form-control"
+                        name="serviceType"
+                        value={formData.serviceType}
+                        onChange={handleChange}
+                        onFocus={markFormStart}
+                        required
+                        aria-label="Type of work"
+                        style={{...fieldStyle, color: formData.serviceType ? 'inherit' : '#6c757d'}}
+                      >
+                        <option value="" disabled>
+                          Type of work
+                        </option>
+                        {serviceOptions.map(service => (
+                          <option key={service} value={service}>
+                            {service}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mb-3">
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Property Address"
-                        name="address"
-                        autoComplete="street-address"
-                        value={formData.address}
+                        placeholder="Your Name"
+                        name="name"
+                        autoComplete="name"
+                        value={formData.name}
                         onChange={handleChange}
+                        onFocus={markFormStart}
                         required
-                        style={{
-                          padding: '18px',
-                          fontSize: '1.1rem',
-                          borderRadius: '8px',
-                          border: '2px solid var(--color-border)',
-                          fontFamily: 'var(--font-family-primary)',
-                          fontWeight: '400'
-                        }}
+                        style={fieldStyle}
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <input
+                        type="tel"
+                        className="form-control"
+                        placeholder="Phone Number"
+                        name="phone"
+                        autoComplete="tel"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        onFocus={markFormStart}
+                        required
+                        style={fieldStyle}
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Business Name (optional)"
+                        name="businessName"
+                        autoComplete="organization"
+                        value={formData.businessName}
+                        onChange={handleChange}
+                        onFocus={markFormStart}
+                        style={fieldStyle}
                       />
                     </div>
 
@@ -326,23 +444,15 @@ const Home = () => {
                         paddingBottom: '32px'
                       }}
                     >
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Email or Phone"
-                        name="contact"
-                        autoComplete="email"
-                        value={formData.contact}
-                        onChange={handleChange}
+                      <AddressAutocomplete
+                        value={formData.address}
+                        onChange={address =>
+                          setFormData(prev => ({...prev, address}))
+                        }
+                        onFocus={markFormStart}
+                        placeholder="Property Address"
                         required
-                        style={{
-                          padding: '18px',
-                          fontSize: '1.1rem',
-                          borderRadius: '8px',
-                          border: '2px solid var(--color-border)',
-                          fontFamily: 'var(--font-family-primary)',
-                          fontWeight: '400'
-                        }}
+                        style={fieldStyle}
                       />
                     </div>
 
@@ -716,13 +826,62 @@ const Home = () => {
                 </motion.div>
               </Col>
 
-              {/* Junk Removal Service */}
+              {/* House Demolition Service */}
               <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
                 <motion.div
                   className="feature-item h-100"
                   initial={{opacity: 0, y: 50}}
                   whileInView={{opacity: 1, y: 0}}
                   transition={{delay: 1.0, duration: 0.5}}
+                >
+                  <div className="mb-3">
+                    <img
+                      src="/assets/img/features/hampton-roads.webp"
+                      alt="House demolition service in Hampton Roads by Mr Demo Pro"
+                      width="128"
+                      height="128"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3>House Demolition Services</h3>
+                  <p>
+                    Whole house demolition for outdated or damaged homes. We
+                    handle full teardown, foundation removal, debris haul-off,
+                    and permit coordination.
+                  </p>
+                  <div className="html_button">
+                    <Link
+                      to="/services/house-demolition/"
+                      aria-label="Get a house demolition quote in Hampton Roads"
+                      onClick={() =>
+                        window.scrollTo({top: 0, behavior: 'smooth'})
+                      }
+                    >
+                      <Button
+                        variant="primary"
+                        style={{
+                          borderRadius: '5px',
+                          fontWeight: 'bold',
+                          textTransform: 'uppercase',
+                          backgroundColor: 'rgb(242 124 80)',
+                          border: 'none',
+                          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        Get Quote
+                      </Button>
+                    </Link>
+                  </div>
+                </motion.div>
+              </Col>
+
+              {/* Junk Removal Service */}
+              <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
+                <motion.div
+                  className="feature-item h-100"
+                  initial={{opacity: 0, y: 50}}
+                  whileInView={{opacity: 1, y: 0}}
+                  transition={{delay: 1.2, duration: 0.5}}
                   // style={{ position: "relative" }}
                 >
                   <div className="mb-3">
@@ -772,7 +931,7 @@ const Home = () => {
                   className="feature-item h-100"
                   initial={{opacity: 0, y: 50}}
                   whileInView={{opacity: 1, y: 0}}
-                  transition={{delay: 1.2, duration: 0.5}}
+                  transition={{delay: 1.4, duration: 0.5}}
                   // style={{ position: "relative" }}
                 >
                   <div className="mb-3">

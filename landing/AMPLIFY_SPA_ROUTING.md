@@ -12,71 +12,62 @@ When Googlebot (or any crawler) requests a URL like `https://mrdemopro.com/servi
 
 **Important:** AWS Amplify requires redirects to be configured in the Amplify Console. The `_redirects` file alone is not sufficient - you must configure redirects in the console.
 
+### Recommended: 404-200 fallback (preserves prerender)
+
+This site prerenders each canonical route to `dist/<path>/index.html`. Amplify must serve those files when they exist.
+
+1. Keep trailing-slash **301** rules first.
+2. Add a SPA fallback:
+
+   **Source:** `/<*>`  
+   **Target:** `/index.html`  
+   **Type:** **404-200** (rewrite only when the requested object is missing)
+
+3. **Remove** any catch-all **Rewrite (200)** that always maps extensionless paths to `/index.html`. That rule serves the homepage HTML for every route and breaks per-route `canonical` / `og:url`.
+
+See [AMPLIFY_REDIRECT_QUICK_SETUP.md](./AMPLIFY_REDIRECT_QUICK_SETUP.md).
+
 ## Step-by-Step Configuration
 
 ### 1. Access AWS Amplify Console
 
 1. Go to [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
-2. Select your app (e.g., `mr-demo-pro-landing`)
+2. Select your app (e.g., `d28gzr68fr7a30`)
 3. Click on your app to open it
 
 ### 2. Navigate to Rewrites and Redirects
 
-1. In the left sidebar, click **"Rewrites and redirects"** (under "App settings")
+1. In the left sidebar, click **"Rewrites and redirects"** (under "App settings" / Hosting)
 2. You'll see a list of existing redirect rules (if any)
 
-### 3. Add SPA Rewrite Rule
+### 3. Add SPA fallback (404-200)
 
 1. Click **"Add rewrite/redirect"** or **"Create rule"**
-2. Configure the rule as follows:
-
-   **Source address:**
-   ```
-   </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|eot)$)([^.]+$)/>
-   ```
-   
-   Or use the simpler pattern:
-   ```
-   </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|eot|map|json|xml|webp)$)([^.]+$)/>
-   ```
-   
-   This pattern matches:
-   - All paths that don't contain a dot (e.g., `/services/`)
-   - Paths with extensions that aren't static assets
-   
-   **Target address:**
-   ```
-   /index.html
-   ```
-   
-   **Type:**
-   - Select **"Rewrite (200)"** (NOT "Redirect (301)" or "Redirect (302)")
-   
-   **Country code:** (leave empty)
-
-3. Click **"Save"**
-
-### Alternative: Simpler Pattern (Recommended)
-
-If the regex above is too complex, use this simpler approach:
-
-1. Click **"Add rewrite/redirect"**
 2. Configure:
-   
+
    **Source address:**
    ```
-   </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|eot|map|json|xml|webp)$)([^.]+$)/>
+   /<*>
    ```
-   
+
    **Target address:**
    ```
    /index.html
    ```
-   
+
    **Type:**
-   - **"Rewrite (200)"**
-   
+   - Select **"404 (Rewrite)" / 404-200** — not a blanket Rewrite (200)
+
 3. Click **"Save"**
+
+### Legacy catch-all 200 rewrite (do not use with prerender)
+
+The following pattern forces every extensionless path to the **root** `index.html` and should **not** be used when Playwright prerender artifacts exist:
+
+```
+</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|eot|map|json|xml|webp)$)([^.]+$)/>
+→ /index.html (200)
+```
 
 ### 4. Verify Rule Order
 
@@ -117,7 +108,7 @@ You can also configure redirects using JSON in the Amplify Console:
 
 The `_redirects` file in `landing/public/_redirects` contains:
 - SPA routing rule: `/*    /index.html   200` (for local development/testing)
-- No blog redirects (blog is served directly from `/blog` route using S3 data)
+- No blog redirects (blog is served from `/blog` using build-time Opinly → `/blog-data` JSON)
 
 **Note:** The `_redirects` file is kept for:
 - Local development/testing
@@ -157,18 +148,18 @@ curl -I https://mrdemopro.com/services/
 
 1. **Console Configuration Required:** AWS Amplify requires redirects to be configured in the Amplify Console - the `_redirects` file alone is not sufficient
 2. **Trailing Slashes:** The React Router now handles both `/services` and `/services/` routes, ensuring compatibility with how Googlebot and other crawlers request URLs
-3. **react-snap:** The build process uses `react-snap` to pre-render static HTML files, which helps with SEO and initial load times
+3. **Playwright prerender:** The build uses Playwright to pre-render static HTML per route for SEO and crawler visibility
 4. **Rule Order Matters:** More specific rules should come before the catch-all SPA rewrite rule
-5. **Use Rewrite (200), Not Redirect:** Using a rewrite with 200 status ensures proper SEO and prevents redirect loops
+5. **Prefer 404-200 for SPA fallback:** So prerendered route HTML is served when present; only unknown paths fall back to `/index.html`
 
 ## Troubleshooting
 
 ### Still Getting 404s?
 
 1. **Check Console Configuration:** Verify the rewrite rule exists in Amplify Console → Rewrites and redirects
-2. **Verify Rule Type:** Ensure it's set to **"Rewrite (200)"** not "Redirect (301/302)"
-3. **Check Rule Order:** Make sure the SPA rewrite rule is not being overridden by other rules
-4. **Test Pattern:** Try a simpler pattern first: `</^[^.]+$/>` to match all non-file paths
+2. **Verify Rule Type:** Prefer **404-200** fallback; avoid blanket **Rewrite (200)** to `/index.html`
+3. **Check Rule Order:** Trailing-slash 301s first; SPA fallback last
+4. **Canonical check:** `curl` a deep route and confirm `rel="canonical"` matches that route, not `/`
 5. **Redeploy:** After adding/updating rules, wait for deployment to complete
 6. **Clear Cache:** Test in incognito mode or clear browser cache
 7. **Check Build Logs:** Verify the build completed successfully in Amplify Console
@@ -179,29 +170,29 @@ curl -I https://mrdemopro.com/services/
 - Solution: Check that `baseDirectory` in `amplify.yml` matches your actual build output directory (`dist`)
 
 **Issue: Redirect loops**
-- Solution: Ensure you're using "Rewrite (200)" not "Redirect (301/302)"
+- Solution: Prefer 404-200 fallback; avoid Redirect (301) pointing at itself
 
-**Issue: Static assets not loading**
-- Solution: The regex pattern should exclude static file extensions. Verify the pattern includes all your asset extensions
+**Issue: Every page has the homepage canonical**
+- Solution: Remove catch-all Rewrite (200) to `/index.html`; use 404-200 instead
 
 **Issue: Specific routes not working**
-- Solution: Check rule order - more specific rules should come before the catch-all SPA rule
+- Solution: Check rule order — more specific rules should come before the SPA fallback
 
 ## Additional Redirect Rules
 
-If you need to add other redirects (e.g., redirecting old URLs to new ones), add them in the Amplify Console **before** the SPA rewrite rule:
+If you need to add other redirects (e.g., redirecting old URLs to new ones), add them in the Amplify Console **before** the SPA fallback:
 
 1. Go to **Rewrites and redirects** in Amplify Console
 2. Add specific redirects first (e.g., `/old-page` → `/new-page`)
-3. Add the SPA rewrite rule last
+3. Add the **404-200** SPA fallback last
 
 **Example rule order:**
-1. `/old-page` → `/new-page` (Redirect 301) - **First** (if you have specific redirects)
-2. `</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|eot|map|json|xml|webp)$)([^.]+$)/>` → `/index.html` (Rewrite 200) - **Last**
+1. Trailing-slash / legacy URL **301**s — **First**
+2. `/<*>` → `/index.html` (**404-200**) — **Last**
 
-**Important:** Rules are processed in order, and the first match wins. The SPA rewrite rule should be **last** so it only catches routes that don't match specific redirects or static files.
+**Important:** Rules are processed in order, and the first match wins. The SPA fallback should be **last**.
 
-**Note:** The blog is served directly from `/blog` as part of the React app (data comes from S3). No redirect is needed for the blog.
+**Note:** The blog is served from `/blog` as part of the React app (Opinly data baked into `/blog-data` at build time). No redirect is needed for the blog.
 
 ## References
 

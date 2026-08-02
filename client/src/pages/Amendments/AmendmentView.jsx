@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '../../components/Layout/Layout.jsx';
 import { amendmentApi } from '../../services/contractsApi';
+import ExportMenu from '../../components/ExportMenu/ExportMenu.jsx';
 import './Amendments.css';
 
 const AmendmentView = () => {
@@ -37,6 +38,35 @@ const AmendmentView = () => {
     } catch (err) {
       console.error('Error downloading PDF:', err);
       alert('Failed to download PDF');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    try {
+      setActionLoading(true);
+      await amendmentApi.downloadDocx(id);
+    } catch (err) {
+      console.error('Error downloading DOCX:', err);
+      alert('Failed to download DOCX');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCreateGoogleDoc = async () => {
+    try {
+      setActionLoading(true);
+      const result = await amendmentApi.createGoogleDoc(id);
+      if (result?.url) {
+        window.open(result.url, '_blank', 'noopener,noreferrer');
+      } else {
+        alert('Google Doc created, but no URL was returned.');
+      }
+    } catch (err) {
+      console.error('Error creating Google Doc:', err);
+      alert(err.response?.data?.error || 'Failed to create Google Doc');
     } finally {
       setActionLoading(false);
     }
@@ -176,13 +206,15 @@ const AmendmentView = () => {
             </span>
           </div>
           <div className="button-group">
-            <button 
-              className="btn btn-primary" 
-              onClick={handleDownloadPdf}
+            <ExportMenu
+              label={actionLoading ? 'Working…' : 'Export'}
               disabled={actionLoading}
-            >
-              Download PDF
-            </button>
+              options={[
+                { id: 'pdf', label: 'Download PDF', onSelect: handleDownloadPdf },
+                { id: 'docx', label: 'Download DOCX', onSelect: handleDownloadDocx },
+                { id: 'gdoc', label: 'Create Google Doc', onSelect: handleCreateGoogleDoc }
+              ]}
+            />
             {amendment.status === 'Draft' && (
               <>
                 <Link 

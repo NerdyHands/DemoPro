@@ -11,7 +11,7 @@ const setCache = (res, seconds = CACHE_SECONDS) => {
 const getSiteUrl = (req) => process.env.SITE_URL || `${req.protocol}://${req.get('host')}`;
 
 const buildStructuredData = (post, siteUrl) => {
-  const url = `${siteUrl}/blog/${post.slug}`;
+  const url = `${siteUrl}/blog/${post.slug}/`;
   
   // Handle authors - if array, use first author or join multiple
   let authorValue = 'Editorial Team';
@@ -148,7 +148,7 @@ router.get('/:slug', async (req, res) => {
       featured: Boolean(post.featured),
       metaTitle: post.metaTitle || post.title,
       metaDescription: post.metaDescription || post.excerpt,
-      canonicalUrl: post.canonicalUrl || '',
+      canonicalUrl: post.canonicalUrl || `${siteUrl}/blog/${post.slug}/`,
       contentHtml: post.contentHtml || '',
       contentJson: post.contentJson || {},
       updatedAt: post.updatedAt,

@@ -1,10 +1,13 @@
 import {useState, useRef, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
+import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
-import SEOHead from '../components/SEO';
 import QuoteForm from '../components/QuoteForm';
+import PhoneLink from '../components/PhoneLink';
+import {useScrollDepth} from '../hooks/useScrollDepth';
 
 const Cleanout = () => {
+  useScrollDepth('service');
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
   const scrollPosRef = useRef<number>(0);
@@ -71,32 +74,6 @@ const Cleanout = () => {
 
   return (
     <>
-      <SEOHead
-        title="Cleanout Services in Hampton Roads, VA"
-        description="Professional cleanout services in Hampton Roads, VA. Estate cleanouts, construction debris removal, and property cleanouts with full cleanup. Get a free quote today."
-        canonicalUrl="https://mrdemopro.com/services/cleanout"
-        structuredData={[
-          {
-            '@context': 'https://schema.org',
-            '@type': 'Service',
-            name: 'Cleanout Services',
-            serviceType: 'Cleanout Services',
-            provider: {
-              '@type': 'LocalBusiness',
-              name: 'Mr Demo Pro',
-              telephone: '757-848-4559',
-              areaServed: 'Hampton Roads, VA'
-            },
-            areaServed: [
-              'Hampton, VA',
-              'Norfolk, VA',
-              'Newport News, VA',
-              'Yorktown, VA'
-            ],
-            url: 'https://mrdemopro.com/services/cleanout'
-          }
-        ]}
-      />
       <div itemScope itemType="https://schema.org/Service">
         {/* Hero Section */}
         <section
@@ -124,7 +101,7 @@ const Cleanout = () => {
                     fontSize: 'var(--font-size-4xl)'
                   }}
                 >
-                  Cleanout Services
+                  Cleanout Services in Hampton Roads, VA
                 </motion.h1>
                 <motion.p
                   itemProp="description"
@@ -158,19 +135,21 @@ const Cleanout = () => {
                   >
                     Get Free Quote
                   </Button>
-                  <a
-                    href="tel:757-848-4559"
-                    aria-label="Call for cleanout services in Hampton Roads"
-                    className="cta-button  hero-badge hero-cta"
+                  <PhoneLink
+                    ctaLocation="service_page_hero"
+                    clickLocation="cta"
+                    serviceName="Cleanout Services"
+                    ariaLabel="Call for cleanout services in Hampton Roads"
+                    className="cta-button hero-badge hero-cta"
                   >
                     Call (757) 848 4559
-                  </a>
+                  </PhoneLink>
                 </motion.div>
               </Col>
               <Col lg={6} md={12}>
                 {showForm ? (
                   <div ref={formRef} className="quote-form-wrapper ">
-                    <QuoteForm serviceType="cleanout" inline={true} />
+                    <QuoteForm serviceType="Cleanout Services" inline={true} />
                   </div>
                 ) : (
                   <motion.img
@@ -479,6 +458,100 @@ const Cleanout = () => {
           </Container>
         </section>
 
+        {/* Foreclosure & REO Cleanout */}
+        <section style={{padding: '80px 0'}} aria-labelledby="foreclosure-reo-heading">
+          <Container>
+            <Row className="justify-content-center">
+              <Col lg={10}>
+                <motion.h2
+                  id="foreclosure-reo-heading"
+                  className="display-5 fw-bold mb-4 text-center"
+                  initial={{opacity: 0}}
+                  whileInView={{opacity: 1}}
+                  transition={{duration: 0.6}}
+                  style={{color: 'var(--color-primary)'}}
+                >
+                  Foreclosure &amp; REO Cleanout
+                </motion.h2>
+                <motion.p
+                  className="lead text-center"
+                  initial={{opacity: 0, y: 20}}
+                  whileInView={{opacity: 1, y: 0}}
+                  transition={{delay: 0.2, duration: 0.6}}
+                  style={{
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: '32px'
+                  }}
+                >
+                  Banks, asset managers, realtors, and landlords trust Mr Demo Pro
+                  for fast, turn-key foreclosure and REO cleanout services across
+                  Hampton Roads. We clear out abandoned belongings, trash, and
+                  debris so the property is ready to list, photograph, or
+                  rehab&mdash;often on tight timelines.
+                </motion.p>
+                <Row>
+                  {[
+                    {
+                      title: 'Bank & REO Property Cleanouts',
+                      desc: 'Complete removal of left-behind furniture, appliances, and junk from foreclosed and bank-owned homes.'
+                    },
+                    {
+                      title: 'Realtor & Listing Prep',
+                      desc: 'Get a vacant, broom-clean property ready for photos, showings, and a faster sale.'
+                    },
+                    {
+                      title: 'Fast Turnaround',
+                      desc: 'We work to your deadlines and coordinate with property managers and asset companies.'
+                    }
+                  ].map((item, idx) => (
+                    <Col key={item.title} md={4} className="mb-4">
+                      <motion.div
+                        className="p-4 h-100"
+                        initial={{opacity: 0, y: 40}}
+                        whileInView={{opacity: 1, y: 0}}
+                        transition={{delay: 0.2 + idx * 0.15, duration: 0.5}}
+                        style={{
+                          backgroundColor: 'var(--color-surface)',
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 30px rgba(0,0,0,0.08)'
+                        }}
+                      >
+                        <h3
+                          style={{
+                            fontSize: 'var(--font-size-xl)',
+                            color: 'var(--color-text-primary)',
+                            marginBottom: '12px'
+                          }}
+                        >
+                          {item.title}
+                        </h3>
+                        <p style={{marginBottom: 0}}>{item.desc}</p>
+                      </motion.div>
+                    </Col>
+                  ))}
+                </Row>
+                <p
+                  className="text-center"
+                  style={{
+                    color: 'var(--color-text-secondary)',
+                    marginTop: '16px',
+                    marginBottom: 0
+                  }}
+                >
+                  Dealing with a heavily cluttered or hoarder property? See our{' '}
+                  <Link
+                    to="/services/hoarding-cleanout/"
+                    onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+                  >
+                    hoarding cleanout services
+                  </Link>
+                  .
+                </p>
+              </Col>
+            </Row>
+          </Container>
+        </section>
+
         {/* Why Choose Us */}
         <section
           style={{
@@ -664,9 +737,11 @@ const Cleanout = () => {
                 Get Free Quote
               </Button>
 
-              <a
-                href="tel:757-848-4559"
-                aria-label="Call for cleanout services"
+              <PhoneLink
+                ctaLocation="service_page_bottom"
+                clickLocation="cta"
+                serviceName="Cleanout Services"
+                ariaLabel="Call for cleanout services"
               >
                 <Button
                   size="lg"
@@ -683,7 +758,7 @@ const Cleanout = () => {
                 >
                   Call 757-848-4559
                 </Button>
-              </a>
+              </PhoneLink>
             </motion.div>
           </Container>
         </section>

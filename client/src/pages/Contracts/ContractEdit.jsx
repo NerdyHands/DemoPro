@@ -5,6 +5,20 @@ import { contractApi, customerApi, estimateApi } from '../../services/contractsA
 import { milestoneApi } from '../../services/jobApi';
 import './Contracts.css';
 
+/** Parse numeric input; preserves "-" and "" while typing negative values */
+const parseDecimalInput = (raw) => {
+  if (raw === '' || raw === '-') return raw;
+  const n = parseFloat(raw);
+  return Number.isNaN(n) ? 0 : n;
+};
+
+const toLineItemNumber = (value) => {
+  if (typeof value === 'number') return value;
+  if (value === '' || value === '-') return NaN;
+  const n = Number(value);
+  return Number.isNaN(n) ? NaN : n;
+};
+
 const ContractEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -207,8 +221,8 @@ This document represents the complete and entire agreement between the parties a
           id: index + 1,
           description: item.description || '',
           quantity: item.quantity || 1,
-          unitPrice: item.unitPrice || 0,
-          total: item.totalPrice || 0,
+          unitPrice: item.unitPrice ?? 0,
+          total: item.totalPrice ?? 0,
           notes: item.notes || []
         })));
       }
@@ -365,8 +379,8 @@ This document represents the complete and entire agreement between the parties a
           id: index + 1,
           description: item.description || '',
           quantity: item.quantity || 1,
-          unitPrice: item.unitPrice || 0,
-          total: item.totalPrice || 0,
+          unitPrice: item.unitPrice ?? 0,
+          total: item.totalPrice ?? 0,
           notes: item.notes || []
         })));
       }
@@ -439,7 +453,7 @@ This document represents the complete and entire agreement between the parties a
   }, [isEditing, formData.contractNumber, getDefaultNotes]);
 
   const calculateTotal = useCallback(() => {
-    return lineItems.reduce((sum, item) => sum + item.total, 0);
+    return lineItems.reduce((sum, item) => sum + (Number.isFinite(item.total) ? item.total : 0), 0);
   }, [lineItems]);
 
   const handleSubmitPayment = async (e) => {
@@ -635,9 +649,12 @@ This document represents the complete and entire agreement between the parties a
     setLineItems(prev => prev.map(item => {
       if (item.id === id) {
         const updatedItem = { ...item, [field]: value };
-        // Calculate total for this line item
         if (field === 'quantity' || field === 'unitPrice') {
-          updatedItem.total = updatedItem.quantity * updatedItem.unitPrice;
+          const qty = toLineItemNumber(updatedItem.quantity);
+          const price = toLineItemNumber(updatedItem.unitPrice);
+          if (Number.isFinite(qty) && Number.isFinite(price)) {
+            updatedItem.total = qty * price;
+          }
         }
         return updatedItem;
       }
@@ -830,7 +847,10 @@ This document represents the complete and entire agreement between the parties a
         setError('Quantity must be greater than 0');
         return false;
       }
-      // Unit price may be negative (discount line items)
+      if (!Number.isFinite(toLineItemNumber(item.unitPrice))) {
+        setError('All line items must have a valid unit price');
+        return false;
+      }
     }
     
     setError(null);
@@ -875,7 +895,7 @@ This document represents the complete and entire agreement between the parties a
         lineItems: lineItems.filter(item => item.description.trim() && item.quantity > 0).map(item => ({
           description: item.description,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
+          unitPrice: toLineItemNumber(item.unitPrice),
           totalPrice: item.total,
           notes: (item.notes || []).filter(note => note && note.trim())
         })),
@@ -1222,7 +1242,7 @@ This document represents the complete and entire agreement between the parties a
                         <input
                           type="number"
                           value={item.unitPrice}
-                          onChange={(e) => handleLineItemChange(item.id, 'unitPrice', parseFloat(e.target.value) ?? 0)}
+                          onChange={(e) => handleLineItemChange(item.id, 'unitPrice', parseDecimalInput(e.target.value))}
                           className="form-input line-item-input"
                           step="0.01"
                           placeholder="0.00 (negative = discount)"
@@ -1231,8 +1251,8 @@ This document represents the complete and entire agreement between the parties a
                       
                       <div className="line-item-field">
                         <label className="line-item-label">Total</label>
-                        <div className="line-item-total">
-                          ${item.total.toFixed(2)}
+                        <div className={`line-item-total${item.total < 0 ? ' line-item-total-discount' : ''}`}>
+                          ${Number.isFinite(item.total) ? item.total.toFixed(2) : '—'}
                         </div>
                       </div>
                     </div>

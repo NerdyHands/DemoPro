@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { trackFormSubmission } from '../config/gtm';
+import {
+  trackFormAbandon,
+  trackFormStart,
+  trackGenerateLead
+} from '../config/gtm';
 import { GOOGLE_APPS_SCRIPT_URL } from '../config/googleAppsScript';
 import { getRecaptchaToken } from '../config/recaptcha';
+import { getServiceOptionsForForm } from '../config/servicesList';
+import AddressAutocomplete from './AddressAutocomplete/AddressAutocomplete';
 
 interface QuoteFormProps {
   serviceType: string;
@@ -12,17 +18,69 @@ interface QuoteFormProps {
   inline?: boolean;
 }
 
+const fieldStyle = {
+  padding: '18px',
+  fontSize: '1.1rem',
+  borderRadius: '8px',
+  border: '2px solid var(--color-border)',
+  fontFamily: 'var(--font-family-primary)',
+  fontWeight: '400'
+} as const;
+
 const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormProps) => {
   const navigate = useNavigate();
+  const serviceOptions = getServiceOptionsForForm(serviceType);
   const [formData, setFormData] = useState({
-    address: '',
-    contact: '',
-    serviceType: serviceType
+    serviceType: serviceType,
+    name: '',
+    phone: '',
+    businessName: '',
+    address: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
+  const [formLoadTime] = useState(Date.now());
+  const formId = `quote_${serviceType.replace(/\s+/g, '_')}_${inline ? 'inline' : 'block'}`;
+  const formStarted = useRef(false);
+  const formSubmitted = useRef(false);
+  const abandonReported = useRef(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const markFormStart = useCallback(() => {
+    if (formStarted.current) return;
+    formStarted.current = true;
+    trackFormStart({
+      form_id: formId,
+      form_type: 'quote_request',
+      service_name: serviceType
+    });
+  }, [formId, serviceType]);
+
+  useEffect(() => {
+    const onAbandon = () => {
+      if (!formStarted.current || formSubmitted.current || abandonReported.current) {
+        return;
+      }
+      abandonReported.current = true;
+      trackFormAbandon({
+        form_id: formId,
+        form_type: 'quote_request',
+        service_name: serviceType
+      });
+    };
+    window.addEventListener('pagehide', onAbandon);
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') onAbandon();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.removeEventListener('pagehide', onAbandon);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [formId, serviceType]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    markFormStart();
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -35,42 +93,39 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
     setIsSubmitting(true);
     
     try {
-      // Get reCAPTCHA token
       const recaptchaToken = await getRecaptchaToken('quote_request');
-
       const scriptURL = GOOGLE_APPS_SCRIPT_URL;
 
-      // Use URLSearchParams to encode form data
       const formDataEncoded = new URLSearchParams();
-      formDataEncoded.append('address', formData.address);
-      formDataEncoded.append('contact', formData.contact);
+      formDataEncoded.append('name', formData.name);
+      formDataEncoded.append('phone', formData.phone);
+      formDataEncoded.append('business_name', formData.businessName);
       formDataEncoded.append('service_type', formData.serviceType);
+      formDataEncoded.append('address', formData.address);
       formDataEncoded.append('form_type', 'quote_request');
-      formDataEncoded.append('form_load_time', formLoadTime.toString()); // For spam detection
-      formDataEncoded.append('website', ''); // Honeypot field (should be empty)
-      formDataEncoded.append('recaptcha_token', recaptchaToken); // reCAPTCHA token
+      formDataEncoded.append('form_load_time', formLoadTime.toString());
+      formDataEncoded.append('website', '');
+      formDataEncoded.append('recaptcha_token', recaptchaToken);
 
-      // Submit using fetch with proper encoding
-      // Google Apps Script web apps handle CORS automatically when deployed as "Anyone"
       await fetch(scriptURL, {
         method: 'POST',
-        mode: 'no-cors', // Required for Google Apps Script web apps
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: formDataEncoded.toString(),
       });
 
-      // With no-cors mode, we can't read the response, but the submission should succeed
-      // Track successful form submission
-      trackFormSubmission('quote_request', {
+      formSubmitted.current = true;
+      trackGenerateLead({
+        form_id: formId,
+        lead_type: 'quote_request',
         address: formData.address,
-        contact: formData.contact,
-        serviceType: formData.serviceType
+        service_name: formData.serviceType,
+        method: 'form'
       });
 
-      // Navigate to thank you page
-      navigate('/thank-you');
+      navigate('/thank-you/');
     } catch (error: any) {
       console.error('Error submitting form:', error);
       alert('There was an error submitting your request. Please try again or call us at 757-848-4559.');
@@ -78,6 +133,144 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
       setIsSubmitting(false);
     }
   };
+
+  const renderFormFields = (honeypotId: string) => (
+    <>
+      <div className="mb-3">
+        <select
+          className="form-control"
+          name="serviceType"
+          value={formData.serviceType}
+          onChange={handleChange}
+          onFocus={markFormStart}
+          required
+          aria-label="Type of work"
+          style={{...fieldStyle, color: formData.serviceType ? 'inherit' : '#6c757d'}}
+        >
+          <option value="" disabled>
+            Type of work
+          </option>
+          {serviceOptions.map(service => (
+            <option key={service} value={service}>
+              {service}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Your Name"
+          name="name"
+          autoComplete="name"
+          value={formData.name}
+          onChange={handleChange}
+          onFocus={markFormStart}
+          required
+          style={fieldStyle}
+        />
+      </div>
+
+      <div className="mb-3">
+        <input
+          type="tel"
+          className="form-control"
+          placeholder="Phone Number"
+          name="phone"
+          autoComplete="tel"
+          value={formData.phone}
+          onChange={handleChange}
+          onFocus={markFormStart}
+          required
+          style={fieldStyle}
+        />
+      </div>
+
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Business Name (optional)"
+          name="businessName"
+          autoComplete="organization"
+          value={formData.businessName}
+          onChange={handleChange}
+          onFocus={markFormStart}
+          style={fieldStyle}
+        />
+      </div>
+
+      <div className="mb-4">
+        <AddressAutocomplete
+          value={formData.address}
+          onChange={address =>
+            setFormData(prev => ({ ...prev, address }))
+          }
+          onFocus={markFormStart}
+          placeholder="Property Address"
+          required
+          style={fieldStyle}
+        />
+      </div>
+
+      <div style={{position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none'}}>
+        <label htmlFor={honeypotId}>Website (leave blank)</label>
+        <input type="text" id={honeypotId} name="website" tabIndex={-1} autoComplete="off" />
+      </div>
+
+      <Button
+        type="submit"
+        className="btn btn-primary w-100"
+        disabled={isSubmitting}
+        style={{
+          padding: '18px',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+          borderRadius: '8px',
+          backgroundColor: 'var(--color-primary)',
+          border: 'none',
+          fontFamily: 'var(--font-family-primary)',
+          textTransform: 'none'
+        }}
+      >
+        {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
+      </Button>
+    </>
+  );
+
+  const titleBlock = showTitle && (
+    <>
+      <h3
+        className="quote-form-title"
+        style={{
+          marginBottom: '15px',
+          fontSize: '1.4rem',
+          fontWeight: '600',
+          color: 'var(--color-text-primary)',
+          fontFamily: 'var(--font-family-primary)',
+          lineHeight: '1.4'
+        }}
+      >
+        Please text or email me a no-obligation demolition quote.
+      </h3>
+
+      <p
+        className="quote-form-subtitle"
+        style={{
+          marginBottom: '30px',
+          fontSize: '1.1rem',
+          fontWeight: '400',
+          color: 'var(--color-text-secondary)',
+          fontFamily: 'var(--font-family-primary)',
+          lineHeight: '1.5'
+        }}
+      >
+        We service Hampton, Newport News, Yorktown, and Norfolk
+      </p>
+    </>
+  );
 
   if (inline) {
     return (
@@ -95,108 +288,10 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {showTitle && (
-          <>
-            <h3 
-              className="quote-form-title"
-              style={{
-                marginBottom: '15px',
-                fontSize: '1.4rem',
-                fontWeight: '600',
-                color: 'var(--color-text-primary)',
-                fontFamily: 'var(--font-family-primary)',
-                lineHeight: '1.4'
-              }}
-            >
-              Please text or email me a no-obligation demolition quote.
-            </h3>
-            
-            <p 
-              className="quote-form-subtitle"
-              style={{
-                marginBottom: '30px',
-                fontSize: '1.1rem',
-                fontWeight: '400',
-                color: 'var(--color-text-secondary)',
-                fontFamily: 'var(--font-family-primary)',
-                lineHeight: '1.5'
-              }}
-            >
-              We service Hampton, Newport News, Yorktown, and Norfolk
-            </p>
-          </>
-        )}
+        {titleBlock}
 
         <form className="quote-form" onSubmit={handleSubmit}>
-          <input 
-            type="hidden" 
-            name="serviceType" 
-            value={serviceType}
-          />
-          
-          <div className="mb-3">
-            <input 
-              type="text" 
-              className="form-control"
-              placeholder="Property Address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              style={{
-                padding: '18px',
-                fontSize: '1.1rem',
-                borderRadius: '8px',
-                border: '2px solid var(--color-border)',
-                fontFamily: 'var(--font-family-primary)',
-                fontWeight: '400'
-              }}
-            />
-          </div>
-          
-          <div className="mb-4">
-            <input 
-              type="text" 
-              className="form-control"
-              placeholder="Email or Phone"
-              name="contact"
-              value={formData.contact}
-              onChange={handleChange}
-              required
-              style={{
-                padding: '18px',
-                fontSize: '1.1rem',
-                borderRadius: '8px',
-                border: '2px solid var(--color-border)',
-                fontFamily: 'var(--font-family-primary)',
-                fontWeight: '400'
-              }}
-            />
-          </div>
-          
-          {/* Honeypot field - hidden from users but bots will fill it */}
-          <div style={{position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none'}}>
-            <label htmlFor="website-quote">Website (leave blank)</label>
-            <input type="text" id="website-quote" name="website" tabIndex={-1} autoComplete="off" />
-          </div>
-          
-          <Button 
-            type="submit"
-            className="btn btn-primary w-100"
-            disabled={isSubmitting}
-            style={{
-              padding: '18px',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              borderRadius: '8px',
-              backgroundColor: 'var(--color-primary)',
-              border: 'none',
-              fontFamily: 'var(--font-family-primary)',
-              textTransform: 'none'
-            }}
-          >
-            {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
-          </Button>
+          {renderFormFields('website-quote')}
         </form>
       </motion.div>
     );
@@ -216,108 +311,10 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.8, delay: 0.2 }}
     >
-      {showTitle && (
-        <>
-          <h3 
-            className="quote-form-title"
-            style={{
-              marginBottom: '15px',
-              fontSize: '1.4rem',
-              fontWeight: '600',
-              color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-family-primary)',
-              lineHeight: '1.4'
-            }}
-          >
-            Please text or email me a no-obligation demolition quote.
-          </h3>
-          
-          <p 
-            className="quote-form-subtitle"
-            style={{
-              marginBottom: '30px',
-              fontSize: '1.1rem',
-              fontWeight: '400',
-              color: 'var(--color-text-secondary)',
-              fontFamily: 'var(--font-family-primary)',
-              lineHeight: '1.5'
-            }}
-          >
-            We service Hampton, Newport News, Yorktown, and Norfolk
-          </p>
-        </>
-      )}
+      {titleBlock}
 
       <form className="quote-form" onSubmit={handleSubmit}>
-        <input 
-          type="hidden" 
-          name="serviceType" 
-          value={serviceType}
-        />
-        
-        <div className="mb-3">
-          <input 
-            type="text" 
-            className="form-control"
-            placeholder="Property Address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-            style={{
-              padding: '18px',
-              fontSize: '1.1rem',
-              borderRadius: '8px',
-              border: '2px solid var(--color-border)',
-              fontFamily: 'var(--font-family-primary)',
-              fontWeight: '400'
-            }}
-          />
-        </div>
-        
-        <div className="mb-4">
-          <input 
-            type="text" 
-            className="form-control"
-            placeholder="Email or Phone"
-            name="contact"
-            value={formData.contact}
-            onChange={handleChange}
-            required
-            style={{
-              padding: '18px',
-              fontSize: '1.1rem',
-              borderRadius: '8px',
-              border: '2px solid var(--color-border)',
-              fontFamily: 'var(--font-family-primary)',
-              fontWeight: '400'
-            }}
-          />
-        </div>
-        
-        {/* Honeypot field - hidden from users but bots will fill it */}
-        <div style={{position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none'}}>
-          <label htmlFor="website-quote-2">Website (leave blank)</label>
-          <input type="text" id="website-quote-2" name="website" tabIndex={-1} autoComplete="off" />
-        </div>
-        
-        <Button 
-          type="submit"
-          className="btn btn-primary w-100"
-          disabled={isSubmitting}
-          style={{
-            padding: '18px',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            borderRadius: '8px',
-            backgroundColor: 'var(--color-primary)',
-            border: 'none',
-            fontFamily: 'var(--font-family-primary)',
-            textTransform: 'none'
-          }}
-        >
-          {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
-        </Button>
+        {renderFormFields('website-quote-2')}
       </form>
     </motion.div>
   );

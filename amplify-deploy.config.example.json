@@ -1,0 +1,13 @@
+{
+  "projectName": "Mr Demo Pro",
+  "region": "us-east-1",
+  "profile": "default",
+  "sites": {
+    "landing": {
+      "appId": "d28gzr68fr7a30",
+      "branch": "main",
+      "buildDir": "landing/dist",
+      "buildCommand": "npm run build"
+    }
+  }
+}

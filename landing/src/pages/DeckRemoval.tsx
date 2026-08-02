@@ -1,10 +1,49 @@
 import {useState, useRef, useEffect} from 'react';
+import {Link} from 'react-router-dom';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
-import SEOHead from '../components/SEO';
 import QuoteForm from '../components/QuoteForm';
+import PhoneLink from '../components/PhoneLink';
+import {useScrollDepth} from '../hooks/useScrollDepth';
+
+const DECK_FAQS = [
+  {
+    question: 'How much does deck removal cost?',
+    answer:
+      'PLACEHOLDER — confirm with owner before publish: typical deck removal often falls in an $800–$3,000+ range depending on deck size, height, attachment to the house, and disposal needs. We provide a free written quote after reviewing your deck.'
+  },
+  {
+    question: 'Do I need a permit to remove a deck?',
+    answer:
+      'Most residential deck removals in Hampton Roads do not require a permit, but requirements vary by locality — especially for elevated decks, decks with electrical, or work in historic districts. We help you understand local rules before starting.'
+  },
+  {
+    question: "Can you remove a deck without damaging the house it's attached to?",
+    answer:
+      'Yes. We carefully detach the deck from the house, protecting siding, brick, and the ledger board area. Our crew uses controlled dismantling to minimize impact on your home’s exterior.'
+  },
+  {
+    question: 'What happens to the deck debris?',
+    answer:
+      'We haul away all deck boards, framing, posts, and hardware as part of the job. Wood and composite materials are loaded out and disposed of properly — you do not need to coordinate a dumpster or second haul-off crew.'
+  }
+];
+
+const deckFaqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: DECK_FAQS.map(f => ({
+    '@type': 'Question',
+    name: f.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: f.answer
+    }
+  }))
+};
 
 const DeckRemoval = () => {
+  useScrollDepth('service');
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
   const scrollPosRef = useRef<number>(0);
@@ -97,32 +136,10 @@ const DeckRemoval = () => {
 
   return (
     <>
-      <SEOHead
-        title="Deck Removal Services in Hampton Roads, VA"
-        description="Professional deck removal services in Hampton Roads, VA. Safe dismantling, full cleanup, and fast service for homes and businesses. Get your free quote today."
-        canonicalUrl="https://mrdemopro.com/services/deck-removal"
-        structuredData={[
-          {
-            '@context': 'https://schema.org',
-            '@type': 'Service',
-            name: 'Deck Removal Services',
-            serviceType: 'Deck Removal',
-            areaServed: [
-              'Hampton, VA',
-              'Norfolk, VA',
-              'Newport News, VA',
-              'Yorktown, VA'
-            ],
-            provider: {
-              '@type': 'LocalBusiness',
-              name: 'MrDemoPro',
-              telephone: '757-848-4559'
-            },
-            url: 'https://mrdemopro.com/services/deck-removal'
-          }
-        ]}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{__html: JSON.stringify(deckFaqJsonLd)}}
       />
-
       <div itemScope itemType="https://schema.org/Service">
         {/* Hero Section */}
         <section
@@ -151,7 +168,7 @@ const DeckRemoval = () => {
                     fontSize: 'var(--font-size-4xl)'
                   }}
                 >
-                  Professional Deck Removal Services
+                  Professional Deck Removal Services in Hampton Roads, VA
                 </motion.h1>
                 <motion.p
                   className="lead"
@@ -186,13 +203,15 @@ const DeckRemoval = () => {
                     Get Free Quote
                   </Button>
 
-                  <a
-                    href="tel:757-848-4559"
-                    aria-label="Call for Deck removal services"
-                    className="cta-button  hero-badge hero-cta"
+                  <PhoneLink
+                    ctaLocation="service_page_hero"
+                    clickLocation="cta"
+                    serviceName="Deck Removal"
+                    ariaLabel="Call for deck removal services"
+                    className="cta-button hero-badge hero-cta"
                   >
                     Call (757) 848 4559
-                  </a>
+                  </PhoneLink>
                 </motion.div>
               </Col>
               <Col lg={6} md={12}>
@@ -517,6 +536,108 @@ const DeckRemoval = () => {
           </Container>
         </section>
 
+        {/* Pricing Section */}
+        <section style={{padding: '80px 0'}}>
+          <Container>
+            <Row className="justify-content-center">
+              <Col lg={10}>
+                <motion.h2
+                  className="title-small fw-bold text-center"
+                  initial={{opacity: 0}}
+                  whileInView={{opacity: 1}}
+                  transition={{duration: 0.6}}
+                  style={{
+                    color: 'var(--color-primary)',
+                    marginBottom: '28px',
+                    fontSize: 'var(--font-size-3xl)'
+                  }}
+                >
+                  Deck Removal Pricing in Hampton Roads
+                </motion.h2>
+                <p
+                  style={{
+                    color: 'var(--color-text-secondary)',
+                    fontSize: 'var(--font-size-md)',
+                    lineHeight: 1.65,
+                    marginBottom: '16px'
+                  }}
+                >
+                  PLACEHOLDER — confirm with owner before publish: typical deck
+                  removal often falls in an <strong>$800–$3,000+</strong> range
+                  depending on deck size, height, attachment to the house, and
+                  disposal needs.
+                </p>
+                <p
+                  style={{
+                    color: 'var(--color-text-secondary)',
+                    fontSize: 'var(--font-size-md)',
+                    lineHeight: 1.65,
+                    marginBottom: 0
+                  }}
+                >
+                  Every deck is different — we provide a free written quote
+                  after reviewing your project. See our{' '}
+                  <Link to="/prices/">pricing page</Link> and{' '}
+                  <Link to="/demolition-cost-virginia/">
+                    demolition cost guide
+                  </Link>{' '}
+                  for more detail.
+                </p>
+              </Col>
+            </Row>
+          </Container>
+        </section>
+
+        {/* FAQ Section */}
+        <section
+          style={{padding: '80px 0', backgroundColor: 'var(--color-surface)'}}
+          aria-labelledby="deck-faq-heading"
+        >
+          <Container>
+            <Row className="justify-content-center">
+              <Col lg={10}>
+                <motion.h2
+                  id="deck-faq-heading"
+                  className="title-small fw-bold text-center"
+                  initial={{opacity: 0}}
+                  whileInView={{opacity: 1}}
+                  transition={{duration: 0.6}}
+                  style={{
+                    color: 'var(--color-primary)',
+                    marginBottom: '32px',
+                    fontSize: 'var(--font-size-3xl)'
+                  }}
+                >
+                  Deck Removal FAQs
+                </motion.h2>
+                {DECK_FAQS.map(faq => (
+                  <div key={faq.question} style={{marginBottom: '28px'}}>
+                    <h3
+                      style={{
+                        color: 'var(--color-text-primary)',
+                        fontSize: 'var(--font-size-lg)',
+                        marginBottom: '12px'
+                      }}
+                    >
+                      {faq.question}
+                    </h3>
+                    <p
+                      style={{
+                        color: 'var(--color-text-secondary)',
+                        fontSize: 'var(--font-size-md)',
+                        lineHeight: 1.65,
+                        marginBottom: 0
+                      }}
+                    >
+                      {faq.answer}
+                    </p>
+                  </div>
+                ))}
+              </Col>
+            </Row>
+          </Container>
+        </section>
+
         {/* CTA Section */}
         <section
           style={{
@@ -584,9 +705,11 @@ const DeckRemoval = () => {
                   >
                     Get Free Quote
                   </Button>
-                  <a
-                    href="tel:757-848-4559"
-                    aria-label="Call for Deck removal services"
+                  <PhoneLink
+                    ctaLocation="service_page_bottom"
+                    clickLocation="cta"
+                    serviceName="Deck Removal"
+                    ariaLabel="Call for deck removal services"
                   >
                     <Button
                       size="lg"
@@ -603,7 +726,7 @@ const DeckRemoval = () => {
                     >
                       Call 757-848-4559
                     </Button>
-                  </a>
+                  </PhoneLink>
                 </motion.div>
               </Col>
             </Row>

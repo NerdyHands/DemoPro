@@ -5,6 +5,12 @@ const Contract = require('../models/Contract');
 const Job = require('../models/Job');
 const Customer = require('../models/Customer');
 const router = express.Router();
+const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
+const { sendDocxBuffer, sanitizeFilename } = require('../services/documentOutputs/sendDocxResponse');
+const { renderPaymentReceiptDocx } = require('../services/documentOutputs/renderers/paymentReceiptRenderer');
+const { GoogleDocsPublisher } = require('../services/documentOutputs/googleDocsPublisher');
+
+const googleDocsPublisher = new GoogleDocsPublisher();
 
 // JWT Secret (should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -671,6 +677,98 @@ router.post('/:id/payment/:paymentIndex/receipt', authenticateUser, requireAdmin
       success: false,
       error: error.message 
     });
+  }
+});
+
+// GET /api/milestones/:id/payment/:paymentIndex/receipt/docx - Generate receipt DOCX for existing payment
+router.get('/:id/payment/:paymentIndex/receipt/docx', authenticateUser, requireAdmin, async (req, res) => {
+  try {
+    const { id, paymentIndex } = req.params;
+    const paymentIdx = parseInt(paymentIndex, 10);
+
+    if (isNaN(paymentIdx) || paymentIdx < 0) {
+      return res.status(400).json({ success: false, error: 'Invalid payment index' });
+    }
+
+    const milestone = await Milestone.findById(id);
+    if (!milestone) {
+      return res.status(404).json({ success: false, error: 'Milestone not found' });
+    }
+    if (milestone.type !== 'Payment') {
+      return res.status(400).json({ success: false, error: 'This milestone is not a payment milestone' });
+    }
+    if (!milestone.payment.partialPayments || paymentIdx >= milestone.payment.partialPayments.length) {
+      return res.status(404).json({ success: false, error: 'Payment not found' });
+    }
+
+    const payment = milestone.payment.partialPayments[paymentIdx];
+    const contract = await Contract.findById(milestone.contractId);
+    const customer = await Customer.findById(milestone.customerId);
+
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    const model = renderPaymentReceiptDocx(payment, contract, customer, milestone);
+    const buffer = await buildDocxBuffer(model);
+    const filenameBase = sanitizeFilename(`Receipt_${contract.contractNumber || contract._id}_${paymentIdx + 1}`);
+    sendDocxBuffer(res, buffer, filenameBase);
+  } catch (error) {
+    console.error('❌ Error generating receipt DOCX:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/milestones/:id/payment/:paymentIndex/receipt/google-doc - Create Google Doc receipt and return link
+router.post('/:id/payment/:paymentIndex/receipt/google-doc', authenticateUser, requireAdmin, async (req, res) => {
+  try {
+    const { id, paymentIndex } = req.params;
+    const paymentIdx = parseInt(paymentIndex, 10);
+
+    if (isNaN(paymentIdx) || paymentIdx < 0) {
+      return res.status(400).json({ success: false, error: 'Invalid payment index' });
+    }
+
+    if (!googleDocsPublisher.isAvailable()) {
+      return res.status(400).json({ success: false, error: 'Google Docs is not configured on the server' });
+    }
+
+    const milestone = await Milestone.findById(id);
+    if (!milestone) {
+      return res.status(404).json({ success: false, error: 'Milestone not found' });
+    }
+    if (milestone.type !== 'Payment') {
+      return res.status(400).json({ success: false, error: 'This milestone is not a payment milestone' });
+    }
+    if (!milestone.payment.partialPayments || paymentIdx >= milestone.payment.partialPayments.length) {
+      return res.status(404).json({ success: false, error: 'Payment not found' });
+    }
+
+    const payment = milestone.payment.partialPayments[paymentIdx];
+    const contract = await Contract.findById(milestone.contractId);
+    const customer = await Customer.findById(milestone.customerId);
+    if (!contract) {
+      return res.status(404).json({ success: false, error: 'Contract not found' });
+    }
+
+    const model = renderPaymentReceiptDocx(payment, contract, customer, milestone);
+    const buffer = await buildDocxBuffer(model);
+    const title = `Receipt ${contract.contractNumber || contract._id} #${paymentIdx + 1}`;
+
+    const docInfo = await googleDocsPublisher.publishDocxAsGoogleDoc({ buffer, title });
+
+    const shareWith = Array.isArray(req.body?.shareWith) ? req.body.shareWith : [];
+    if (docInfo.documentId && shareWith.length > 0) {
+      for (const entry of shareWith) {
+        if (!entry?.email) continue;
+        await googleDocsPublisher.shareDocument(docInfo.documentId, entry.email, entry.role || 'reader');
+      }
+    }
+
+    res.json({ success: true, documentId: docInfo.documentId, url: docInfo.url, title: docInfo.title });
+  } catch (error) {
+    console.error('❌ Error creating Google Doc receipt:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

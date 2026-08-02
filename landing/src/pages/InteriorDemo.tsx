@@ -1,10 +1,12 @@
 import {useState, useRef, useEffect} from 'react';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 import {motion} from 'framer-motion';
-import SEOHead from '../components/SEO';
 import QuoteForm from '../components/QuoteForm';
+import PhoneLink from '../components/PhoneLink';
+import {useScrollDepth} from '../hooks/useScrollDepth';
 
 const InteriorDemo = () => {
+  useScrollDepth('service');
   const [showForm, setShowForm] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
   const scrollPosRef = useRef<number>(0);
@@ -71,32 +73,6 @@ const InteriorDemo = () => {
 
   return (
     <>
-      <SEOHead
-        title="Interior Demolition Services in Hampton Roads, VA "
-        description="Professional interior demolition services in Hampton Roads, VA. Safe wall removal, flooring removal, and fixture demolition for remodeling projects. Get a free estimate today."
-        canonicalUrl="https://mrdemopro.com/services/interior-demo/"
-        structuredData={[
-          {
-            '@context': 'https://schema.org',
-            '@type': 'Service',
-            name: 'Interior Demolition Services',
-            serviceType: 'Interior Demolition',
-            areaServed: [
-              'Hampton, VA',
-              'Norfolk, VA',
-              'Newport News, VA',
-              'Yorktown, VA'
-            ],
-            provider: {
-              '@type': 'LocalBusiness',
-              name: 'Mr Demo Pro',
-              telephone: '757-848-4559'
-            },
-            
-            url: 'https://mrdemopro.com/services/interior-demo/'
-          }
-        ]}
-      />
       <div itemScope itemType="https://schema.org/Service">
         {/* Hero Section */}
         <section
@@ -124,7 +100,7 @@ const InteriorDemo = () => {
                     fontSize: 'var(--font-size-4xl)'
                   }}
                 >
-                  Interior Demo Services
+                  Interior Demolition Services in Hampton Roads, VA
                 </motion.h1>
                 <motion.p
                   itemProp="description"
@@ -159,13 +135,15 @@ const InteriorDemo = () => {
                     Get Free Quote
                   </Button>
 
-                  <a
-                    href="tel:757-848-4559"
-                    aria-label="Get a free interior demolition quote"
-                    className="cta-button  hero-badge hero-cta"
+                  <PhoneLink
+                    ctaLocation="service_page_hero"
+                    clickLocation="cta"
+                    serviceName="Interior Demolition"
+                    ariaLabel="Get a free interior demolition quote"
+                    className="cta-button hero-badge hero-cta"
                   >
                     Call (757) 848 4559
-                  </a>
+                  </PhoneLink>
                 </motion.div>
               </Col>
               <Col lg={6} md={12}>
@@ -720,9 +698,11 @@ const InteriorDemo = () => {
                 Get Free Quote
               </Button>
 
-              <a
-                href="tel:757-848-4559"
-                aria-label="Call for interior demolition services in Hampton Roads"
+              <PhoneLink
+                ctaLocation="service_page_bottom"
+                clickLocation="cta"
+                serviceName="Interior Demolition"
+                ariaLabel="Call for interior demolition services in Hampton Roads"
               >
                 <Button
                   size="lg"
@@ -739,7 +719,7 @@ const InteriorDemo = () => {
                 >
                   Call 757-848-4559
                 </Button>
-              </a>
+              </PhoneLink>
             </motion.div>
           </Container>
         </section>
