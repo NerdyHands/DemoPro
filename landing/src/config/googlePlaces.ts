@@ -1,6 +1,7 @@
 /**
- * Google Places API — address autocomplete on quote forms.
+ * Google Places API (New) — PlaceAutocompleteElement on quote forms.
  * Set VITE_GOOGLE_PLACES_API_KEY in Amplify / .env (restrict key to your domains).
+ * Requires Maps JavaScript API + Places API (New) enabled on the GCP project.
  */
 
 export const GOOGLE_PLACES_API_KEY =
@@ -10,31 +11,43 @@ const SCRIPT_ID = 'google-maps-places-script';
 const CALLBACK_NAME = '__googleMapsApiOnLoad';
 const LOAD_TIMEOUT_MS = 10000;
 
+export type PlaceAddressComponent = {
+  longText?: string | null;
+  shortText?: string | null;
+  types?: string[];
+};
+
+export type PlaceAutocompleteElementInstance = HTMLElement & {
+  placeholder?: string;
+  value?: string;
+  name?: string;
+  disabled?: boolean;
+  includedRegionCodes?: string[];
+  includedPrimaryTypes?: string[];
+  focus?: () => void;
+};
+
+export type PlacePredictionSelectEvent = Event & {
+  placePrediction?: {
+    toPlace: () => {
+      id?: string;
+      formattedAddress?: string | null;
+      addressComponents?: PlaceAddressComponent[];
+      fetchFields: (opts: { fields: string[] }) => Promise<void>;
+    };
+  };
+};
+
+type PlacesLibrary = {
+  PlaceAutocompleteElement: new (opts?: Record<string, unknown>) => PlaceAutocompleteElementInstance;
+};
+
 declare global {
   interface Window {
     google?: {
       maps: {
-        places: {
-          Autocomplete: new (
-            input: HTMLInputElement,
-            opts?: Record<string, unknown>
-          ) => {
-            addListener: (event: string, handler: () => void) => void;
-            getPlace: () => {
-              formatted_address?: string;
-              place_id?: string;
-              geometry?: unknown;
-              address_components?: Array<{
-                long_name?: string;
-                short_name?: string;
-                types?: string[];
-              }>;
-            };
-          };
-        };
-        event: {
-          clearListeners: (instance: unknown, event: string) => void;
-        };
+        importLibrary?: (name: string) => Promise<PlacesLibrary>;
+        places?: unknown;
       };
     };
     [CALLBACK_NAME]?: () => void;
@@ -58,13 +71,18 @@ export function isPrerenderCrawler(): boolean {
 }
 
 let loadPromise: Promise<void> | null = null;
+let placesLibraryPromise: Promise<PlacesLibrary> | null = null;
+
+function mapsBootstrapReady(): boolean {
+  return typeof window.google?.maps?.importLibrary === 'function';
+}
 
 export function loadGooglePlacesScript(): Promise<void> {
   if (!isGooglePlacesConfigured()) {
     return Promise.reject(new Error('Google Places API key not configured'));
   }
 
-  if (window.google?.maps?.places) {
+  if (mapsBootstrapReady()) {
     return Promise.resolve();
   }
 
@@ -94,12 +112,9 @@ export function loadGooglePlacesScript(): Promise<void> {
 
     const existing = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
     if (existing) {
-      // Leftover/duplicate script tag (e.g. a second Autocomplete mounting concurrently,
-      // or a stale cached page). We can't trust that our callback was wired in time, so
-      // poll for readiness instead while still respecting the shared timeout.
       const poll = () => {
         if (settled) return;
-        if (window.google?.maps?.places) {
+        if (mapsBootstrapReady()) {
           finish(resolve);
           return;
         }
@@ -122,15 +137,37 @@ export function loadGooglePlacesScript(): Promise<void> {
     const script = document.createElement('script');
     script.id = SCRIPT_ID;
     script.async = true;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_PLACES_API_KEY)}&libraries=places&loading=async&callback=${CALLBACK_NAME}`;
-    script.onerror = () => finish(() => reject(new Error('Failed to load Google Places script')));
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_PLACES_API_KEY)}&loading=async&callback=${CALLBACK_NAME}`;
+    script.onerror = () =>
+      finish(() => reject(new Error('Failed to load Google Places script')));
     document.head.appendChild(script);
   }).catch(err => {
-    // Allow a later retry (e.g. user clicks "Retry" or reconnects) instead of caching a
-    // permanently-rejected promise.
     loadPromise = null;
     throw err;
   });
 
   return loadPromise;
+}
+
+/** Loads Maps JS bootstrap + the places library (PlaceAutocompleteElement). */
+export function loadPlacesLibrary(): Promise<PlacesLibrary> {
+  if (placesLibraryPromise) return placesLibraryPromise;
+
+  placesLibraryPromise = (async () => {
+    await loadGooglePlacesScript();
+    const importLibrary = window.google?.maps?.importLibrary;
+    if (!importLibrary) {
+      throw new Error('google.maps.importLibrary unavailable');
+    }
+    const lib = await importLibrary('places');
+    if (!lib?.PlaceAutocompleteElement) {
+      throw new Error('PlaceAutocompleteElement unavailable');
+    }
+    return lib;
+  })().catch(err => {
+    placesLibraryPromise = null;
+    throw err;
+  });
+
+  return placesLibraryPromise;
 }
