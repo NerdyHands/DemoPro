@@ -39,6 +39,24 @@
   text-align: left;
 }
 
+.address-autocomplete-retry {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary, #dc3545);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.address-autocomplete-retry:hover,
+.address-autocomplete-retry:focus-visible {
+  opacity: 0.8;
+}
+
 .pac-item {
   padding: 8px 12px;
   cursor: pointer;

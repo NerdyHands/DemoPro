@@ -22,6 +22,13 @@ type AddressAutocompleteProps = {
   onChange: (value: string) => void;
   /** Fires when a Google Place is chosen (or cleared by typing). */
   onResolvedChange?: (resolved: ResolvedAddress | null) => void;
+  /**
+   * Fires once we know whether Google Places is actually usable. `true` means the script
+   * failed to load (network issue, ad blocker, key restriction, etc.) and the field has
+   * fallen back to plain free-text entry — callers should stop requiring a Google-verified
+   * selection in that case so the form never becomes un-submittable.
+   */
+  onAvailabilityChange?: (unavailable: boolean) => void;
   onFocus?: () => void;
   placeholder?: string;
   required?: boolean;
@@ -62,6 +69,7 @@ const AddressAutocomplete = ({
   value,
   onChange,
   onResolvedChange,
+  onAvailabilityChange,
   onFocus,
   placeholder = 'Property Address',
   required = false,
@@ -78,9 +86,15 @@ const AddressAutocomplete = ({
   > | null>(null);
   const onResolvedRef = useRef(onResolvedChange);
   const onChangeRef = useRef(onChange);
+  const onAvailabilityRef = useRef(onAvailabilityChange);
   const [placesReady, setPlacesReady] = useState(false);
+  const [placesFailed, setPlacesFailed] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
   const usePlaces = isGooglePlacesConfigured();
+  // Places is configured but couldn't actually load — fall back to plain text entry
+  // rather than leaving the field permanently unusable.
+  const placesUnavailable = usePlaces && placesFailed;
 
   useEffect(() => {
     onResolvedRef.current = onResolvedChange;
@@ -91,21 +105,31 @@ const AddressAutocomplete = ({
   }, [onChange]);
 
   useEffect(() => {
+    onAvailabilityRef.current = onAvailabilityChange;
+  }, [onAvailabilityChange]);
+
+  useEffect(() => {
     if (!usePlaces) return;
 
     let cancelled = false;
     loadGooglePlacesScript()
       .then(() => {
-        if (!cancelled) setPlacesReady(true);
+        if (cancelled) return;
+        setPlacesReady(true);
+        setPlacesFailed(false);
+        onAvailabilityRef.current?.(false);
       })
       .catch(err => {
+        if (cancelled) return;
         console.warn('Address autocomplete unavailable:', err);
+        setPlacesFailed(true);
+        onAvailabilityRef.current?.(true);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [usePlaces]);
+  }, [usePlaces, retryToken]);
 
   useEffect(() => {
     if (!placesReady || !inputRef.current || !window.google?.maps?.places) return;
@@ -168,7 +192,7 @@ const AddressAutocomplete = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
     // Typing clears a prior Places selection so free-text can't be submitted as "selected".
-    if (usePlaces && requireCompleteSelection) {
+    if (usePlaces && !placesUnavailable && requireCompleteSelection) {
       onResolvedChange?.(null);
       setLocalError(null);
     }
@@ -183,7 +207,15 @@ const AddressAutocomplete = ({
     }
   };
 
+  const handleRetry = () => {
+    setLocalError(null);
+    setPlacesReady(false);
+    setPlacesFailed(false);
+    setRetryToken(t => t + 1);
+  };
+
   const shownError = error || localError;
+  const showGoogleUx = usePlaces && !placesUnavailable;
 
   return (
     <div className="address-autocomplete-container">
@@ -196,26 +228,37 @@ const AddressAutocomplete = ({
         onKeyDown={handleKeyDown}
         onFocus={onFocus}
         placeholder={
-          usePlaces
-            ? `${placeholder} (select from suggestions)`
-            : placeholder
+          showGoogleUx ? `${placeholder} (select from suggestions)` : placeholder
         }
         className={`${className}${shownError ? ' is-invalid' : ''}`}
         style={style}
         required={required}
         disabled={disabled}
-        autoComplete={usePlaces ? 'off' : 'street-address'}
+        autoComplete={showGoogleUx ? 'off' : 'street-address'}
         aria-invalid={Boolean(shownError)}
         aria-describedby={shownError ? `${name}-help` : undefined}
       />
-      {usePlaces && !placesReady && (
+      {showGoogleUx && !placesReady && (
         <span className="google-loading-indicator" aria-hidden="true">
           Loading suggestions…
         </span>
       )}
-      {usePlaces && requireCompleteSelection && !shownError && (
+      {showGoogleUx && requireCompleteSelection && !shownError && (
         <p id={`${name}-help`} className="address-autocomplete-hint">
           Start typing, then select the full address from the Google suggestions.
+        </p>
+      )}
+      {placesUnavailable && !shownError && (
+        <p id={`${name}-help`} className="address-autocomplete-hint">
+          Address suggestions are unavailable right now — just type your full property
+          address.{' '}
+          <button
+            type="button"
+            className="address-autocomplete-retry"
+            onClick={handleRetry}
+          >
+            Retry suggestions
+          </button>
         </p>
       )}
       {shownError && (

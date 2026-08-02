@@ -30,6 +30,7 @@ const Home = () => {
     null
   );
   const [addressError, setAddressError] = useState<string | null>(null);
+  const [placesUnavailable, setPlacesUnavailable] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
   const learnMoreRef = useRef<HTMLHRElement | null>(null);
@@ -112,13 +113,16 @@ const Home = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isGooglePlacesConfigured()) {
+    if (isGooglePlacesConfigured() && !placesUnavailable) {
       if (!resolvedAddress?.isComplete || !resolvedAddress.placeId) {
         setAddressError(
           'Please select a complete property address from the Google suggestions.'
         );
         return;
       }
+    } else if (!formData.address.trim()) {
+      setAddressError('Property address is required.');
+      return;
     }
 
     setIsSubmitting(true);
@@ -475,6 +479,7 @@ const Home = () => {
                           setResolvedAddress(resolved);
                           if (resolved?.isComplete) setAddressError(null);
                         }}
+                        onAvailabilityChange={setPlacesUnavailable}
                         onFocus={markFormStart}
                         placeholder="Property Address"
                         required

@@ -44,6 +44,7 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
     null
   );
   const [addressError, setAddressError] = useState<string | null>(null);
+  const [placesUnavailable, setPlacesUnavailable] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now());
   const formId = `quote_${serviceType.replace(/\s+/g, '_')}_${inline ? 'inline' : 'block'}`;
@@ -98,13 +99,16 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isGooglePlacesConfigured()) {
+    if (isGooglePlacesConfigured() && !placesUnavailable) {
       if (!resolvedAddress?.isComplete || !resolvedAddress.placeId) {
         setAddressError(
           'Please select a complete property address from the Google suggestions.'
         );
         return;
       }
+    } else if (!formData.address.trim()) {
+      setAddressError('Property address is required.');
+      return;
     }
 
     setIsSubmitting(true);
@@ -234,6 +238,7 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
             setResolvedAddress(resolved);
             if (resolved?.isComplete) setAddressError(null);
           }}
+          onAvailabilityChange={setPlacesUnavailable}
           onFocus={markFormStart}
           placeholder="Property Address"
           required
