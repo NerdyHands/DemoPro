@@ -16,12 +16,27 @@
   pointer-events: none;
 }
 
+/* Above fixed nav and custom modals (e.g. DIY quiz overlay at 9999) */
 .pac-container {
   border-radius: 8px;
   border: 1px solid #e1e5e9;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-family: inherit;
-  z-index: 2000;
+  z-index: 10050 !important;
+}
+
+.address-autocomplete-hint {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: left;
+}
+
+.address-autocomplete-error {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: #dc3545;
+  text-align: left;
 }
 
 .pac-item {

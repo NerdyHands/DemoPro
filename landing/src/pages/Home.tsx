@@ -12,7 +12,10 @@ import {useScrollDepth} from '../hooks/useScrollDepth';
 import {GOOGLE_APPS_SCRIPT_URL} from '../config/googleAppsScript';
 import {getRecaptchaToken} from '../config/recaptcha';
 import {getServiceOptionsForForm} from '../config/servicesList';
-import AddressAutocomplete from '../components/AddressAutocomplete/AddressAutocomplete';
+import AddressAutocomplete, {
+  type ResolvedAddress
+} from '../components/AddressAutocomplete/AddressAutocomplete';
+import {isGooglePlacesConfigured} from '../config/googlePlaces';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -23,6 +26,10 @@ const Home = () => {
     businessName: '',
     address: ''
   });
+  const [resolvedAddress, setResolvedAddress] = useState<ResolvedAddress | null>(
+    null
+  );
+  const [addressError, setAddressError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
   const learnMoreRef = useRef<HTMLHRElement | null>(null);
@@ -104,7 +111,18 @@ const Home = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isGooglePlacesConfigured()) {
+      if (!resolvedAddress?.isComplete || !resolvedAddress.placeId) {
+        setAddressError(
+          'Please select a complete property address from the Google suggestions.'
+        );
+        return;
+      }
+    }
+
     setIsSubmitting(true);
+    setAddressError(null);
 
     try {
       // Get reCAPTCHA token
@@ -119,6 +137,9 @@ const Home = () => {
       formDataEncoded.append('business_name', formData.businessName);
       formDataEncoded.append('service_type', formData.serviceType);
       formDataEncoded.append('address', formData.address);
+      if (resolvedAddress?.placeId) {
+        formDataEncoded.append('place_id', resolvedAddress.placeId);
+      }
       formDataEncoded.append('form_type', 'quote_request');
       formDataEncoded.append('form_load_time', formLoadTime.toString()); // For spam detection
       formDataEncoded.append('website', ''); // Honeypot field (should be empty)
@@ -446,12 +467,19 @@ const Home = () => {
                     >
                       <AddressAutocomplete
                         value={formData.address}
-                        onChange={address =>
-                          setFormData(prev => ({...prev, address}))
-                        }
+                        onChange={address => {
+                          setFormData(prev => ({...prev, address}));
+                          setAddressError(null);
+                        }}
+                        onResolvedChange={resolved => {
+                          setResolvedAddress(resolved);
+                          if (resolved?.isComplete) setAddressError(null);
+                        }}
                         onFocus={markFormStart}
                         placeholder="Property Address"
                         required
+                        requireCompleteSelection
+                        error={addressError || undefined}
                         style={fieldStyle}
                       />
                     </div>

@@ -5,9 +5,23 @@ import {
 } from '../../config/googlePlaces';
 import './AddressAutocomplete.css';
 
+export type ResolvedAddress = {
+  formattedAddress: string;
+  placeId: string;
+  isComplete: boolean;
+};
+
+type AddressComponent = {
+  long_name?: string;
+  short_name?: string;
+  types?: string[];
+};
+
 type AddressAutocompleteProps = {
   value: string;
   onChange: (value: string) => void;
+  /** Fires when a Google Place is chosen (or cleared by typing). */
+  onResolvedChange?: (resolved: ResolvedAddress | null) => void;
   onFocus?: () => void;
   placeholder?: string;
   required?: boolean;
@@ -15,25 +29,66 @@ type AddressAutocompleteProps = {
   className?: string;
   style?: CSSProperties;
   name?: string;
+  /** When Places is configured, block free-typed incomplete addresses. */
+  requireCompleteSelection?: boolean;
+  error?: string;
 };
+
+function hasType(components: AddressComponent[] | undefined, type: string) {
+  return Boolean(components?.some(c => c.types?.includes(type)));
+}
+
+function isCompletePlace(place: {
+  formatted_address?: string;
+  place_id?: string;
+  address_components?: AddressComponent[];
+}) {
+  if (!place.formatted_address || !place.place_id) return false;
+  const components = place.address_components || [];
+  const hasStreetNumber = hasType(components, 'street_number');
+  const hasRoute = hasType(components, 'route');
+  const hasLocality =
+    hasType(components, 'locality') ||
+    hasType(components, 'sublocality') ||
+    hasType(components, 'neighborhood') ||
+    hasType(components, 'administrative_area_level_3');
+  const hasRegion = hasType(components, 'administrative_area_level_1');
+  const hasPostal = hasType(components, 'postal_code');
+  // Require street number + street + (city or postal) + state for a usable jobsite.
+  return hasStreetNumber && hasRoute && hasRegion && (hasLocality || hasPostal);
+}
 
 const AddressAutocomplete = ({
   value,
   onChange,
+  onResolvedChange,
   onFocus,
   placeholder = 'Property Address',
   required = false,
   disabled = false,
   className = 'form-control',
   style,
-  name = 'address'
+  name = 'address',
+  requireCompleteSelection = true,
+  error
 }: AddressAutocompleteProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<InstanceType<
     NonNullable<typeof window.google>['maps']['places']['Autocomplete']
   > | null>(null);
+  const onResolvedRef = useRef(onResolvedChange);
+  const onChangeRef = useRef(onChange);
   const [placesReady, setPlacesReady] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
   const usePlaces = isGooglePlacesConfigured();
+
+  useEffect(() => {
+    onResolvedRef.current = onResolvedChange;
+  }, [onResolvedChange]);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     if (!usePlaces) return;
@@ -68,9 +123,35 @@ const AddressAutocomplete = ({
 
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
-      if (place.formatted_address) {
-        onChange(place.formatted_address);
+      const complete = isCompletePlace(place);
+      const formatted = place.formatted_address || '';
+
+      if (!formatted || !place.place_id) {
+        setLocalError('Please select a complete address from the suggestions.');
+        onResolvedRef.current?.(null);
+        return;
       }
+
+      onChangeRef.current(formatted);
+
+      if (requireCompleteSelection && !complete) {
+        setLocalError(
+          'Please choose a full street address (with street number) from the list.'
+        );
+        onResolvedRef.current?.({
+          formattedAddress: formatted,
+          placeId: place.place_id,
+          isComplete: false
+        });
+        return;
+      }
+
+      setLocalError(null);
+      onResolvedRef.current?.({
+        formattedAddress: formatted,
+        placeId: place.place_id,
+        isComplete: true
+      });
     });
 
     return () => {
@@ -80,11 +161,17 @@ const AddressAutocomplete = ({
           'place_changed'
         );
       }
+      autocompleteRef.current = null;
     };
-  }, [placesReady, onChange]);
+  }, [placesReady, requireCompleteSelection]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
+    // Typing clears a prior Places selection so free-text can't be submitted as "selected".
+    if (usePlaces && requireCompleteSelection) {
+      onResolvedChange?.(null);
+      setLocalError(null);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -96,6 +183,8 @@ const AddressAutocomplete = ({
     }
   };
 
+  const shownError = error || localError;
+
   return (
     <div className="address-autocomplete-container">
       <input
@@ -106,17 +195,33 @@ const AddressAutocomplete = ({
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onFocus={onFocus}
-        placeholder={placeholder}
-        className={className}
+        placeholder={
+          usePlaces
+            ? `${placeholder} (select from suggestions)`
+            : placeholder
+        }
+        className={`${className}${shownError ? ' is-invalid' : ''}`}
         style={style}
         required={required}
         disabled={disabled}
         autoComplete={usePlaces ? 'off' : 'street-address'}
+        aria-invalid={Boolean(shownError)}
+        aria-describedby={shownError ? `${name}-help` : undefined}
       />
       {usePlaces && !placesReady && (
         <span className="google-loading-indicator" aria-hidden="true">
           Loading suggestions…
         </span>
+      )}
+      {usePlaces && requireCompleteSelection && !shownError && (
+        <p id={`${name}-help`} className="address-autocomplete-hint">
+          Start typing, then select the full address from the Google suggestions.
+        </p>
+      )}
+      {shownError && (
+        <p id={`${name}-help`} className="address-autocomplete-error" role="alert">
+          {shownError}
+        </p>
       )}
     </div>
   );

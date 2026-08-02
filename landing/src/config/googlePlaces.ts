@@ -22,7 +22,11 @@ declare global {
               formatted_address?: string;
               place_id?: string;
               geometry?: unknown;
-              address_components?: unknown[];
+              address_components?: Array<{
+                long_name?: string;
+                short_name?: string;
+                types?: string[];
+              }>;
             };
           };
         };

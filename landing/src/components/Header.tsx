@@ -361,30 +361,6 @@ const Header = () => {
                       </Nav.Link>
                     ))}
 
-                    <Nav.Link
-                      href="https://mrdemopro.softr.app"
-                      onClick={handleNavClick}
-                      style={{
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        color: '#fff',
-                        backgroundColor: 'rgb(236, 65, 0)',
-                        padding: '0.75rem 1.25rem',
-                        borderRadius: '0.5rem',
-                        textDecoration: 'none',
-                        transition: 'all 0.3s ease',
-                        marginLeft: '0.25rem'
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.backgroundColor = '#d63500';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.backgroundColor =
-                          'rgb(236, 65, 0)';
-                      }}
-                    >
-                      Login
-                    </Nav.Link>
                   </Nav>
                 </nav>
               </div>

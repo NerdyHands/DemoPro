@@ -10,7 +10,10 @@ import {
 import { GOOGLE_APPS_SCRIPT_URL } from '../config/googleAppsScript';
 import { getRecaptchaToken } from '../config/recaptcha';
 import { getServiceOptionsForForm } from '../config/servicesList';
-import AddressAutocomplete from './AddressAutocomplete/AddressAutocomplete';
+import AddressAutocomplete, {
+  type ResolvedAddress
+} from './AddressAutocomplete/AddressAutocomplete';
+import { isGooglePlacesConfigured } from '../config/googlePlaces';
 
 interface QuoteFormProps {
   serviceType: string;
@@ -37,6 +40,10 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
     businessName: '',
     address: ''
   });
+  const [resolvedAddress, setResolvedAddress] = useState<ResolvedAddress | null>(
+    null
+  );
+  const [addressError, setAddressError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now());
   const formId = `quote_${serviceType.replace(/\s+/g, '_')}_${inline ? 'inline' : 'block'}`;
@@ -90,8 +97,19 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isGooglePlacesConfigured()) {
+      if (!resolvedAddress?.isComplete || !resolvedAddress.placeId) {
+        setAddressError(
+          'Please select a complete property address from the Google suggestions.'
+        );
+        return;
+      }
+    }
+
     setIsSubmitting(true);
-    
+    setAddressError(null);
+
     try {
       const recaptchaToken = await getRecaptchaToken('quote_request');
       const scriptURL = GOOGLE_APPS_SCRIPT_URL;
@@ -102,6 +120,9 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
       formDataEncoded.append('business_name', formData.businessName);
       formDataEncoded.append('service_type', formData.serviceType);
       formDataEncoded.append('address', formData.address);
+      if (resolvedAddress?.placeId) {
+        formDataEncoded.append('place_id', resolvedAddress.placeId);
+      }
       formDataEncoded.append('form_type', 'quote_request');
       formDataEncoded.append('form_load_time', formLoadTime.toString());
       formDataEncoded.append('website', '');
@@ -205,12 +226,19 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
       <div className="mb-4">
         <AddressAutocomplete
           value={formData.address}
-          onChange={address =>
-            setFormData(prev => ({ ...prev, address }))
-          }
+          onChange={address => {
+            setFormData(prev => ({ ...prev, address }));
+            setAddressError(null);
+          }}
+          onResolvedChange={resolved => {
+            setResolvedAddress(resolved);
+            if (resolved?.isComplete) setAddressError(null);
+          }}
           onFocus={markFormStart}
           placeholder="Property Address"
           required
+          requireCompleteSelection
+          error={addressError || undefined}
           style={fieldStyle}
         />
       </div>
