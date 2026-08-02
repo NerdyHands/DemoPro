@@ -5,7 +5,7 @@ import ServiceLandingPage from '../components/ServiceLandingPage';
 const CommercialInteriorDemolition = () => (
   <ServiceLandingPage
     title="Commercial Interior Demolition in Hampton Roads, VA"
-    description="Mr Demo Pro provides commercial interior demolition and strip-outs for offices, retail, and tenant improvements. We help keep projects clean, organized, and on schedule with debris haul-off included."
+    description="Mr Demo Pro provides commercial interior demolition and strip-outs in Hampton Roads—including Hampton, VA—for offices, retail, and tenant improvements. We keep projects clean, organized, and on schedule with debris haul-off included."
     serviceType="Commercial Interior Demolition"
     heroImage={{
       src: '/assets/img/features/services-overview.webp',

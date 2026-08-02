@@ -190,6 +190,7 @@ const SERVICE_PATH_SLUGS: Record<string, string> = {
   '/services/concrete-removal': 'concrete_removal',
   '/services/commercial-interior-demolition': 'commercial_interior_demolition',
   '/services/cleanout': 'cleanout',
+  '/services/construction-debris-removal': 'construction_debris_removal',
   '/services/junk-removal': 'junk_removal',
   '/services': 'services_overview',
   '/building-demolition': 'building_demolition',

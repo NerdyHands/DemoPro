@@ -11,7 +11,8 @@ export const SERVICE_OPTIONS = [
   'Concrete Removal',
   'Commercial Interior Demolition',
   'Junk Removal',
-  'Cleanout Services'
+  'Cleanout Services',
+  'Construction Debris Removal'
 ] as const;
 
 export type ServiceOption = (typeof SERVICE_OPTIONS)[number];

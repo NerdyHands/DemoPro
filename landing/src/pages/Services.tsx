@@ -91,6 +91,13 @@ const Services = () => {
       desc: 'Complete property cleanout and debris removal services. We handle everything from estate cleanouts to construction debris removal, leaving your property clean and ready.'
     },
     {
+      title: 'Construction Debris Removal',
+      img: '/assets/Icons/trash.webp',
+      link: '/services/construction-debris-removal/',
+      aria: 'Get a construction debris removal quote in Hampton Roads',
+      desc: 'Renovation debris, contractor cleanup, and job site cleanout with load-and-haul. We clear construction waste so your next phase can start on a clean site.'
+    },
+    {
       title: 'Hoarding Cleanout',
       img: '/assets/Icons/cleanout.webp',
       link: '/services/hoarding-cleanout/',

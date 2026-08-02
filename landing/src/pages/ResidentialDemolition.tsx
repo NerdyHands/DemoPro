@@ -1,4 +1,5 @@
 import {Container, Row, Col} from 'react-bootstrap';
+import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
 import ServiceLandingPage from '../components/ServiceLandingPage';
 
@@ -87,9 +88,14 @@ const ResidentialDemolition = () => (
                 color: 'var(--color-text-secondary)'
               }}
             >
-              Planning a house demolition? We safely remove outdated or damaged
-              homes, managing debris and cleanup so your property is ready for
-              a rebuild or sale.
+              Planning a house demolition in Hampton or elsewhere in Hampton
+              Roads? We safely remove outdated or damaged homes, managing
+              debris and cleanup so your property is ready for a rebuild or
+              sale. For whole-house teardown details, see our{' '}
+              <Link to="/services/house-demolition/">
+                house demolition service page
+              </Link>
+              .
             </motion.p>
           </Col>
           <Col lg={6} md={12}>

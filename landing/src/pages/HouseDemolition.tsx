@@ -6,7 +6,7 @@ import {CITY_PATHS, SERVICE_AREA_HUB_PATH} from '../content/locationCluster';
 const HouseDemolition = () => (
   <ServiceLandingPage
     title="Whole House Demolition Services in Hampton Roads, VA"
-    description="Mr Demo Pro provides whole house demolition in Hampton Roads — full structural teardown, foundation removal, debris haul-off, and permit coordination for residential properties."
+    description="Mr Demo Pro provides whole house demolition in Hampton Roads—including Hampton, VA—with full structural teardown, foundation removal, debris haul-off, and permit coordination for residential properties."
     serviceType="House Demolition"
     heroImage={{
       src: '/assets/img/features/hampton-roads.webp',

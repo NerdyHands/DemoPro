@@ -5,7 +5,7 @@ import ServiceLandingPage from '../components/ServiceLandingPage';
 const KitchenDemolition = () => (
   <ServiceLandingPage
     title="Kitchen Demolition in Hampton Roads, VA"
-    description="Planning a kitchen remodel? Mr Demo Pro provides clean, controlled kitchen demolition including cabinet removal, countertop demo, flooring removal, and debris haul-off across Hampton Roads."
+    description="Planning a kitchen remodel in Hampton or elsewhere in Hampton Roads? Mr Demo Pro provides clean, controlled kitchen demolition including cabinet removal, countertop demo, flooring removal, and debris haul-off."
     serviceType="Kitchen Demolition"
     heroImage={{
       src: '/assets/Icons/hammer.webp',

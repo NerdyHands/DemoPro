@@ -301,6 +301,17 @@ const Header = () => {
                       </NavDropdown.Item>
                       <NavDropdown.Item
                         as={Link}
+                        to="/services/construction-debris-removal/"
+                        onClick={handleNavClick}
+                        style={{
+                          fontWeight: 500,
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        Construction Debris Removal
+                      </NavDropdown.Item>
+                      <NavDropdown.Item
+                        as={Link}
                         to="/services/hoarding-cleanout/"
                         onClick={handleNavClick}
                         style={{

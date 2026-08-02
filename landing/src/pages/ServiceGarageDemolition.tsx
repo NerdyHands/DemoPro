@@ -5,7 +5,7 @@ import ServiceLandingPage from '../components/ServiceLandingPage';
 const ServiceGarageDemolition = () => (
   <ServiceLandingPage
     title="Garage Demolition in Hampton Roads, VA"
-    description="Need a garage removed as part of a renovation or property cleanup? Mr Demo Pro handles detached and attached garage demolition, slab removal options, and debris haul-off across Hampton Roads."
+    description="Need garage demolition in Hampton or elsewhere in Hampton Roads? Mr Demo Pro handles detached and attached garage demolition, slab removal options, and debris haul-off."
     serviceType="Garage Demolition"
     heroImage={{
       src: '/assets/Icons/fence-removal.webp',

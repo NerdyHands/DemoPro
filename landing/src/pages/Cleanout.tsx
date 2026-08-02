@@ -358,7 +358,12 @@ const Cleanout = () => {
                   <h4 className="fw-bold mb-3">Construction Cleanout</h4>
                   <p>
                     Post-construction debris removal and cleanup services,
-                    ensuring your construction site is clean and safe.
+                    ensuring your construction site is clean and safe. For
+                    dedicated renovation and job-site haul-off, see our{' '}
+                    <Link to="/services/construction-debris-removal/">
+                      construction debris removal
+                    </Link>{' '}
+                    page.
                   </p>
                 </motion.div>
               </Col>

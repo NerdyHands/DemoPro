@@ -115,10 +115,10 @@ const InteriorDemo = () => {
                     marginBottom: '40px'
                   }}
                 >
-                  Professional interior demolition services for renovations and
-                  remodeling in Hampton Roads, VA. We safely remove walls,
-                  fixtures, and interior structures to prepare your space for
-                  new construction.
+                  Residential interior demolition and selective demolition for
+                  renovations and remodeling in Hampton Roads, VA—including
+                  Hampton. We safely remove walls, fixtures, and interior
+                  structures to prepare your space for new construction.
                 </motion.p>
                 <motion.div
                   initial={{opacity: 0}}

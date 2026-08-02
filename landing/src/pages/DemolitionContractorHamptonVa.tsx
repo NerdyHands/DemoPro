@@ -6,7 +6,7 @@ import {CITY_PATHS, SERVICE_AREA_HUB_PATH} from '../content/locationCluster';
 const DemolitionContractorHamptonVa = () => (
   <ServiceLandingPage
     title="Demolition Contractor in Hampton, VA"
-    description="Looking for a demolition contractor in Hampton, VA? Mr Demo Pro provides clean, professional demolition and removal services across Hampton Roads—fast quotes, safe work, and haul-off included."
+    description="Looking for a demolition contractor in Hampton, VA? Mr Demo Pro is a local demolition company providing professional demolition services with fast quotes, safe work, and haul-off included."
     serviceType="Demolition Contractor"
     areaServed="Hampton, VA"
     heroImage={{
@@ -15,29 +15,29 @@ const DemolitionContractorHamptonVa = () => (
     }}
     benefits={[
       {
-        title: 'Local Hampton Roads Crew',
+        title: 'Local Hampton Crew',
         description:
-          'We serve Hampton and surrounding cities with responsive scheduling and straightforward communication.'
+          'We serve Hampton and nearby Hampton Roads cities with responsive scheduling and straightforward communication.'
       },
       {
-        title: 'Clean, Controlled Work',
+        title: 'One Contractor, Clear Scope',
         description:
-          'From selective interior demo to removal projects, we keep debris controlled and sites organized.'
+          'Tell us about the project and we route you to the right service—interior, outdoor structures, concrete, or commercial—without juggling multiple vendors.'
       },
       {
         title: 'Haul-Off Included',
         description:
-          'We don’t leave you with piles of debris—cleanup and disposal are part of the service.'
+          'Cleanup and disposal are part of how we work—we don’t leave piles of debris for you to figure out.'
       }
     ]}
-    whatWeDemolishTitle="What we demolish in Hampton"
+    whatWeDemolishTitle="How we help Hampton property owners"
     whatWeDemolishItems={[
-      'Small structures, sheds, and outbuildings',
-      'Kitchen and bathroom demolition for remodels',
-      'Garage demolition and concrete pads',
-      'Driveways, patios, slabs, and selective concrete removal',
-      'Commercial interior demolition and tenant strip-outs',
-      'Debris haul-off and jobsite cleanup'
+      'Local demolition contractor coordination from quote to cleanup',
+      'Guidance on permits and what your project type typically requires',
+      'Clear written scope before work begins',
+      'Debris haul-off and jobsite cleanup on every job',
+      'Links to specialized service pages for room, structure, and concrete work',
+      'Service across Hampton and the wider Hampton Roads area'
     ]}
     processSteps={[
       {
@@ -63,8 +63,8 @@ const DemolitionContractorHamptonVa = () => (
     ]}
     pricingExpectationsTitle="Pricing expectations"
     pricingExpectationsItems={[
-      'Every quote is based on what we see: structure size, materials, access, disposal, and time on site—so you get a number that matches the real job.',
-      'Smaller selective projects (single rooms, small sheds) are typically less than full-structure or heavy concrete work, but the fastest way to know is a quick walkthrough or photos.',
+      'Every quote is based on what we see: project size, materials, access, disposal, and time on site—so you get a number that matches the real job.',
+      'Smaller jobs typically cost less than full-structure work, but the fastest way to know is a quick walkthrough or photos.',
       'We provide a clear, written scope before we start so you are not surprised mid-project.'
     ]}
     permitsSafetyTitle="Permits & safety in Hampton"
@@ -72,34 +72,39 @@ const DemolitionContractorHamptonVa = () => (
       'Permit and inspection rules depend on your project type, property, and what is being removed. In many cases, work that changes the building envelope, load-bearing elements, or certain outdoor structures will require a permit or an approval from the local building office. We help you understand what to ask, and we can coordinate documentation when it is part of the plan.',
       'On site, we work to protect people, neighboring properties, and access points. That means planning for dust and debris, safe tool use, and an organized load-out so the area stays as contained as possible before the final cleanup.'
     ]}
-    beforeAfterTitle="Before & after: what to expect"
+    beforeAfterTitle="What working with a Hampton demolition contractor looks like"
     beforeAfterExamples={[
       {
-        title: 'Remodel-ready interior',
+        title: 'Clear scope up front',
         description:
-          'Cabinets, flooring, and fixtures are removed and hauled off, leaving a broom-clean space for your build team.'
+          'You get a written plan and price before work starts, whether the job is a remodel tear-out or a larger removal.'
       },
       {
-        title: 'Clear outdoor pad',
+        title: 'Clean handoff',
         description:
-          'Sheds, small outbuildings, and concrete are broken out, loaded, and hauled so you are not left with hidden disposal work.'
+          'Debris is loaded and hauled so the property is ready for renovation, construction, or turnover—not left with leftover piles.'
       }
     ]}
     faqs={[
       {
         question: 'Do I need a permit for demolition in Hampton, VA?',
         answer:
-          'It depends on scope. Interior selective demolition may not always trigger the same permits as structural teardown or exterior removals—but requirements vary by situation and jurisdiction. If permits apply for your job, we help you understand next steps and coordinate documentation when appropriate.'
+          'It depends on scope. Some interior projects differ from structural teardown or exterior removals—requirements vary by situation and jurisdiction. If permits apply for your job, we help you understand next steps and coordinate documentation when appropriate.'
       },
       {
         question: 'How long does demolition take?',
         answer:
-          'Many small-to-mid projects are completed in a day or two once utilities are cleared and access is confirmed. Larger removals or concrete-heavy jobs take longer based on equipment needs and debris volume.'
+          'Many small-to-mid projects are completed in a day or two once utilities are cleared and access is confirmed. Larger jobs take longer based on equipment needs and debris volume.'
       },
       {
         question: 'Do you remove debris?',
         answer:
           'Yes. Loading, hauling, and disposal are core parts of how we work—we do not leave piles behind for you to figure out.'
+      },
+      {
+        question: 'Which service page should I use for my project?',
+        answer:
+          'Use this page if you are searching for a demolition contractor in Hampton, VA. For a specific job type—interior demo, kitchen, bathroom, garage, concrete, shed, or house demolition—open the matching service page linked below so you get the right details and quote path.'
       }
     ]}
     nearbyAreasTitle="Nearby areas & helpful links"
@@ -124,10 +129,11 @@ const DemolitionContractorHamptonVa = () => (
                 fontWeight: 800
               }}
             >
-              Popular demolition services in Hampton
+              Specialized demolition services (use these pages)
             </h2>
             <p style={{color: 'var(--color-text-secondary)', marginBottom: 0}}>
-              Start with one of these common requests or browse{' '}
+              This page is your Hampton demolition contractor hub. For a specific
+              job type, use the dedicated service page below—or browse{' '}
               <Link to="/services/">all services</Link>.
             </p>
           </Col>
@@ -142,6 +148,10 @@ const DemolitionContractorHamptonVa = () => (
               }}
             >
               {[
+                {
+                  label: 'Interior / Residential Interior Demolition',
+                  to: '/services/interior-demo/'
+                },
                 {label: 'Kitchen Demolition', to: '/services/kitchen-demolition/'},
                 {label: 'Bathroom Demolition', to: '/services/bathroom-demolition/'},
                 {label: 'Garage Demolition', to: '/services/garage-demolition/'},
@@ -150,6 +160,8 @@ const DemolitionContractorHamptonVa = () => (
                   label: 'Commercial Interior Demolition',
                   to: '/services/commercial-interior-demolition/'
                 },
+                {label: 'Shed Removal', to: '/services/shed-removal/'},
+                {label: 'House Demolition', to: '/services/house-demolition/'},
                 {label: 'Contact for a Quote', to: '/contact/'}
               ].map(item => (
                 <li

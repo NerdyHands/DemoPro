@@ -5,7 +5,7 @@ import ServiceLandingPage from '../components/ServiceLandingPage';
 const BathroomDemolition = () => (
   <ServiceLandingPage
     title="Bathroom Demolition in Hampton Roads, VA"
-    description="Mr Demo Pro provides selective bathroom demolition for remodels—tub and shower removal, vanity demo, tile removal, and full debris haul-off—throughout Hampton Roads."
+    description="Mr Demo Pro provides selective bathroom demolition for remodels in Hampton Roads—including Hampton, VA—tub and shower removal, vanity demo, tile removal, and full debris haul-off."
     serviceType="Bathroom Demolition"
     heroImage={{
       src: '/assets/Icons/hammer.webp',

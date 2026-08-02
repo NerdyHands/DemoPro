@@ -5,7 +5,7 @@ import ServiceLandingPage from '../components/ServiceLandingPage';
 const ConcreteRemoval = () => (
   <ServiceLandingPage
     title="Concrete Removal in Hampton Roads, VA"
-    description="Mr Demo Pro provides concrete removal for driveways, patios, walkways, slabs, and small foundations. We break up, remove, and haul off concrete so your site is ready for the next phase."
+    description="Mr Demo Pro provides concrete removal in Hampton Roads—including Hampton, VA—for driveways, patios, walkways, slabs, and small foundations. We break up, remove, and haul off concrete so your site is ready for the next phase."
     serviceType="Concrete Removal"
     heroImage={{
       src: '/assets/img/features/services-overview.webp',
@@ -92,6 +92,10 @@ const ConcreteRemoval = () => (
               {[
                 {label: 'Garage Demolition', to: '/services/garage-demolition/'},
                 {label: 'Commercial Interior Demolition', to: '/services/commercial-interior-demolition/'},
+                {
+                  label: 'Demolition Contractor Hampton, VA',
+                  to: '/demolition-contractor-hampton-va/'
+                },
                 {label: 'Demolition Services Overview', to: '/demolition-services/'},
                 {label: 'Contact for a Quote', to: '/contact/'}
               ].map(item => (

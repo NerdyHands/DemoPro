@@ -235,9 +235,9 @@ const ShedRemoval = () => {
                     }}
                   >
                     Transform your outdoor space with our professional shed
-                    removal services. We safely and efficiently remove unwanted
-                    sheds, leaving your property clean and ready for new
-                    possibilities.
+                    removal services across Hampton Roads—including Hampton, VA.
+                    We safely and efficiently remove unwanted sheds, leaving
+                    your property clean and ready for new possibilities.
                   </motion.p>
                   <motion.div
                     initial={{opacity: 0}}

@@ -15,6 +15,7 @@ import FenceRemoval from './pages/FenceRemoval';
 import InteriorDemo from './pages/InteriorDemo';
 import Cleanout from './pages/Cleanout';
 import HoardingCleanout from './pages/HoardingCleanout';
+import ConstructionDebrisRemoval from './pages/ConstructionDebrisRemoval';
 import JunkRemoval from './pages/JunkRemoval';
 import BuildingDemolition from './pages/BuildingDemolition';
 import DemolitionServices from './pages/DemolitionServices';
@@ -692,6 +693,24 @@ function AppContent() {
                     canonicalUrl="https://mrdemopro.com/services/hoarding-cleanout/"
                   />
                   <HoardingCleanout />
+                </>
+              }
+            />
+            <Route
+              path="/services/construction-debris-removal"
+              element={
+                <Navigate to="/services/construction-debris-removal/" replace />
+              }
+            />
+            <Route
+              path="/services/construction-debris-removal/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.constructionDebrisRemoval}
+                    canonicalUrl="https://mrdemopro.com/services/construction-debris-removal/"
+                  />
+                  <ConstructionDebrisRemoval />
                 </>
               }
             />

@@ -1001,6 +1001,55 @@ const Home = () => {
                   </div>
                 </motion.div>
               </Col>
+
+              {/* Construction Debris Removal */}
+              <Col lg={4} md={6} sm={6} xs={12} className="mb-5">
+                <motion.div
+                  className="feature-item h-100"
+                  initial={{opacity: 0, y: 50}}
+                  whileInView={{opacity: 1, y: 0}}
+                  transition={{delay: 1.6, duration: 0.5}}
+                >
+                  <div className="mb-3">
+                    <img
+                      src="/assets/Icons/trash.webp"
+                      alt="Construction debris removal in Hampton Roads by Mr Demo Pro"
+                      width="128"
+                      height="128"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3>Construction Debris Removal</h3>
+                  <p>
+                    Renovation debris, contractor cleanup, and job site
+                    cleanout with haul-off included—so your next phase starts
+                    on a clear site.
+                  </p>
+                  <div className="html_button">
+                    <Link
+                      to="/services/construction-debris-removal/"
+                      aria-label="Get a construction debris removal quote in Hampton Roads"
+                      onClick={() =>
+                        window.scrollTo({top: 0, behavior: 'smooth'})
+                      }
+                    >
+                      <Button
+                        variant="primary"
+                        style={{
+                          borderRadius: '5px',
+                          fontWeight: 'bold',
+                          textTransform: 'uppercase',
+                          backgroundColor: 'rgb(242 124 80)',
+                          border: 'none',
+                          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        Get Quote
+                      </Button>
+                    </Link>
+                  </div>
+                </motion.div>
+              </Col>
             </Row>
           </Container>
         </section>
