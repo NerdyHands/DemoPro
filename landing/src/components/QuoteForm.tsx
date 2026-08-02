@@ -169,11 +169,11 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
           onChange={handleChange}
           onFocus={markFormStart}
           required
-          aria-label="Type of work"
+          aria-label="Select type of work"
           style={{...fieldStyle, color: formData.serviceType ? 'inherit' : '#6c757d'}}
         >
           <option value="" hidden>
-            Type of work
+            Select type of work
           </option>
           {serviceOptions.map(service => (
             <option key={service} value={service}>
