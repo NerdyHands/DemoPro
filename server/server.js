@@ -6,10 +6,22 @@ const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-require('dotenv').config();
+const fs = require('fs');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+if (process.env.NODE_ENV !== 'production') {
+  const devEnvPath = path.join(__dirname, '.env.development');
+  if (fs.existsSync(devEnvPath)) {
+    require('dotenv').config({ path: devEnvPath, override: true });
+  }
+}
 
 const { validateEnv } = require('./src/config/validateEnv');
-const { configureMongoDns, getMongoConnectOptions } = require('./src/config/mongoConnection');
+const {
+  configureMongoDns,
+  trustOsCertificateStore,
+  getMongoConnectOptions,
+  logMongoConnectError,
+} = require('./src/config/mongoConnection');
 const cron = require('node-cron');
 const { syncNotionPosts } = require('./src/notion/notionService');
 const projectRoutes = require('./routes/projects');
@@ -255,10 +267,39 @@ if (process.env.NODE_ENV === 'development') {
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://wayne:1234%40wayne%235410337%40@35.243.189.22:27017/mr-demo-pro?authSource=admin';
 
 configureMongoDns();
-mongoose.connect(MONGODB_URI, getMongoConnectOptions())
-.then(() => {
-  console.log('✅ Connected to MongoDB successfully');
-  console.log(`📊 Connected to: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`);
+trustOsCertificateStore();
+const mongoOptions = getMongoConnectOptions();
+
+const MONGO_CONNECT_ATTEMPTS = process.env.NODE_ENV === 'production' ? 3 : 20;
+
+const connectMongo = async (attempt = 1) => {
+  try {
+    await mongoose.disconnect().catch(() => {});
+    await mongoose.connect(MONGODB_URI, mongoOptions);
+    console.log('✅ Connected to MongoDB successfully');
+    console.log(`📊 Connected to: ${MONGODB_URI.replace(/\/\/.*@/, '//***:***@')}`);
+    onMongoConnected();
+  } catch (error) {
+    logMongoConnectError(error, attempt, MONGO_CONNECT_ATTEMPTS);
+    if (attempt < MONGO_CONNECT_ATTEMPTS) {
+      const delayMs = Math.min(3000 * attempt, 15000);
+      console.error(`⏳ Retrying MongoDB connection in ${delayMs / 1000}s...`);
+      setTimeout(() => connectMongo(attempt + 1), delayMs);
+      return;
+    }
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
+    console.error('❌ MongoDB still unreachable; API is up and will retry in 30s (dev only).');
+    setTimeout(() => connectMongo(1), 30000);
+  }
+};
+
+let mongoReady = false;
+const onMongoConnected = () => {
+  if (mongoReady) return;
+  mongoReady = true;
+
   
   // Legacy Notion blog sync cron (off by default — landing uses Opinly at build time).
   // Enable only with ENABLE_NOTION_SYNC_CRON=true
@@ -320,18 +361,9 @@ mongoose.connect(MONGODB_URI, getMongoConnectOptions())
   } else {
     console.log('ℹ️  [CRON] Notion sync cron job disabled (legacy; landing uses Opinly). Set ENABLE_NOTION_SYNC_CRON=true to enable.');
   }
-})
-.catch((error) => {
-  console.error('❌ MongoDB connection error:', error);
-  console.error('🔍 Troubleshooting tips:');
-  console.error('   - Check if the MongoDB server is running');
-  console.error('   - Verify the IP address and port are correct');
-  console.error('   - Check network connectivity and firewall settings');
-  console.error('   - Verify username/password credentials');
-  console.error('   - Check if MongoDB is configured to accept external connections');
-  console.error('   - Verify firewall rules allow connections on port 27017');
-  process.exit(1);
-});
+};
+
+connectMongo();
 
 // Simple ping endpoint for basic connectivity
 app.get('/ping', (req, res) => {

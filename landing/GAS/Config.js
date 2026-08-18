@@ -27,8 +27,11 @@ var COMPANY_NAME = 'Mr Demo Pro';
 var COMPANY_PHONE = '757-848-4559';
 
 // Spam protection
+// Note: duplicates are keyed by contact + service_type + address, so testing
+// different services with the same phone is allowed. Rate limit only counts
+// accepted Valid rows (not rejected spam attempts).
 var RATE_LIMIT_MINUTES = 15;
-var MAX_SUBMISSIONS_PER_WINDOW = 3;
+var MAX_SUBMISSIONS_PER_WINDOW = 10;
 var MIN_SUBMISSION_TIME_SECONDS = 3;
 var DUPLICATE_CHECK_MINUTES = 5;
 

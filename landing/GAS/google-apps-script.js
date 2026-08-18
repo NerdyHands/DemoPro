@@ -274,7 +274,7 @@ function doPost(e) {
     ]);
     
     // Record submission for rate limiting
-    recordSubmission(contactIdentifier, fields.contactField, timestamp);
+    recordSubmission(contactIdentifier, fields.contactField, timestamp, formData);
     
     // Auto-resize columns
     sheet.autoResizeColumns(1, SHEET_HEADERS.length);
@@ -499,45 +499,48 @@ function sendLeadNotification(leadData) {
 }
 
 /**
- * Rate limiting: Check if identifier (contact/email/IP) has exceeded submission limit
- * Uses PropertiesService to store submission timestamps
+ * Fingerprint for duplicate detection: same contact + service + address within the window.
+ * Different service types from the same phone (e.g. Shed then Deck) are allowed.
+ */
+function getDuplicateFingerprint_(formData, identifier) {
+  const service = String(formData.service_type || '')
+    .toLowerCase()
+    .trim();
+  const address = String(formData.address || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+  return identifier + '|' + service + '|' + address;
+}
+
+/**
+ * Rate limiting: read-only check (does not record). Recording happens in recordSubmission
+ * after a submission is accepted as Valid — so rejected duplicates/spam do not burn quota.
  */
 function checkRateLimit(identifier) {
   try {
     const properties = PropertiesService.getScriptProperties();
     const key = 'rate_limit_' + identifier;
     const data = properties.getProperty(key);
-    
+
     if (!data) {
-      // First submission from this identifier
-      properties.setProperty(key, JSON.stringify([Date.now()]));
       return true;
     }
-    
+
     const submissions = JSON.parse(data);
     const now = Date.now();
     const windowMs = RATE_LIMIT_MINUTES * 60 * 1000;
-    
-    // Filter out submissions outside the time window
-    const recentSubmissions = submissions.filter(time => (now - time) < windowMs);
-    
+    const recentSubmissions = submissions.filter(function (time) {
+      return now - time < windowMs;
+    });
+
     if (recentSubmissions.length >= MAX_SUBMISSIONS_PER_WINDOW) {
-      return false; // Rate limit exceeded
+      return false;
     }
-    
-    // Add current submission and update storage
-    recentSubmissions.push(now);
-    properties.setProperty(key, JSON.stringify(recentSubmissions));
-    
-    // Clean up old entries periodically (keep only last 10 to prevent storage bloat)
-    if (recentSubmissions.length > 10) {
-      properties.setProperty(key, JSON.stringify(recentSubmissions.slice(-10)));
-    }
-    
+
     return true;
   } catch (error) {
     console.error('Error checking rate limit:', error);
-    // On error, allow submission (fail open)
     return true;
   }
 }
@@ -545,53 +548,58 @@ function checkRateLimit(identifier) {
 /**
  * Record a valid submission for rate limiting and duplicate detection
  */
-function recordSubmission(identifier, contactInfo, timestamp) {
+function recordSubmission(identifier, contactInfo, timestamp, formData) {
   try {
     const properties = PropertiesService.getScriptProperties();
-    
-    // Store for rate limiting (already done in checkRateLimit, but keep for completeness)
+    const now = timestamp.getTime();
+
     const rateLimitKey = 'rate_limit_' + identifier;
     const rateLimitData = properties.getProperty(rateLimitKey);
-    if (rateLimitData) {
-      const submissions = JSON.parse(rateLimitData);
-      submissions.push(timestamp.getTime());
-      properties.setProperty(rateLimitKey, JSON.stringify(submissions));
+    var submissions = rateLimitData ? JSON.parse(rateLimitData) : [];
+    var windowMs = RATE_LIMIT_MINUTES * 60 * 1000;
+    submissions = submissions.filter(function (time) {
+      return now - time < windowMs;
+    });
+    submissions.push(now);
+    if (submissions.length > 10) {
+      submissions = submissions.slice(-10);
     }
-    
-    // Store for duplicate detection
-    const duplicateKey = 'duplicate_' + identifier;
-    const duplicateWindow = DUPLICATE_CHECK_MINUTES * 60 * 1000;
-    properties.setProperty(duplicateKey, timestamp.getTime().toString(), duplicateWindow / 1000);
+    properties.setProperty(rateLimitKey, JSON.stringify(submissions));
+
+    const duplicateKey =
+      'duplicate_' + getDuplicateFingerprint_(formData || {}, identifier);
+    properties.setProperty(duplicateKey, String(now));
   } catch (error) {
     console.error('Error recording submission:', error);
   }
 }
 
 /**
- * Check if this is a duplicate submission
+ * Check if this is a duplicate submission (same contact + service + address)
  */
 function isDuplicateSubmission(formData, identifier) {
   try {
     const properties = PropertiesService.getScriptProperties();
-    const duplicateKey = 'duplicate_' + identifier;
+    const duplicateKey =
+      'duplicate_' + getDuplicateFingerprint_(formData, identifier);
     const lastSubmission = properties.getProperty(duplicateKey);
-    
+
     if (!lastSubmission) {
-      return false; // Not a duplicate
+      return false;
     }
-    
-    const lastSubmissionTime = parseInt(lastSubmission);
+
+    const lastSubmissionTime = parseInt(lastSubmission, 10);
     const now = Date.now();
     const windowMs = DUPLICATE_CHECK_MINUTES * 60 * 1000;
-    
-    if ((now - lastSubmissionTime) < windowMs) {
-      return true; // Duplicate detected
+
+    if (now - lastSubmissionTime < windowMs) {
+      return true;
     }
-    
+
     return false;
   } catch (error) {
     console.error('Error checking duplicate:', error);
-    return false; // On error, allow submission
+    return false;
   }
 }
 

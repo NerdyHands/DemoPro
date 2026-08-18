@@ -1,0 +1,16 @@
+# dependencies
+/node_modules
+
+# next
+/.next
+/out
+
+# env (keep .env.example)
+.env
+.env.*
+!.env.example
+
+# debug / os
+npm-debug.log*
+.DS_Store
+*.tsbuildinfo
