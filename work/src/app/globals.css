@@ -1,230 +1,31 @@
-:root {
-  --navy: #1e3a5f;
-  --navy-dark: #152a46;
-  --accent: #2f9e44;
-  --accent-hover: #278a3a;
-  --bg: #f4f6f9;
-  --surface: #ffffff;
-  --text: #1a202c;
-  --muted: #4a5568;
-  --border: #e2e8f0;
-  --danger: #c53030;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+@import "tailwindcss";
 
-* {
-  box-sizing: border-box;
+@theme {
+  --color-primary: rgb(236 65 0);
+  --color-primary-dark: #d63500;
+  --color-primary-light: rgb(242 124 80);
+  --color-navy: #1a202c;
+  --color-foreground: #1a202c;
+  --color-muted: #718096;
+  --color-surface: #f7fafc;
+  --color-border: #e2e8f0;
+  --color-danger: #c53030;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-heading: Poppins, Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
 html,
 body {
-  margin: 0;
-  padding: 0;
   min-height: 100%;
 }
 
 body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-}
-
-button,
-input {
-  font-family: inherit;
-}
-
-a {
-  color: var(--navy);
-}
-
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 32px;
-}
-
-.auth-card h1 {
-  margin: 0 0 8px;
-  font-size: 22px;
-  color: var(--navy);
-}
-
-.auth-card p {
-  margin: 0 0 20px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.field label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--navy);
-}
-
-.field input {
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 15px;
-  background: #fff;
-}
-
-.field input:focus {
-  outline: 2px solid var(--accent);
-  border-color: var(--accent);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 6px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-  width: 100%;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.btn-ghost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.error-text {
-  color: var(--danger);
-  font-size: 13px;
-  margin: 0 0 12px;
-}
-
-.success-text {
-  color: var(--accent);
-  font-size: 13px;
-  margin: 0 0 12px;
-}
-
-.shell-header {
-  background: var(--navy);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 20px;
-  min-height: 56px;
-}
-
-.shell-brand {
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.01em;
-}
-
-.shell-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13px;
-}
-
-.shell-meta span {
-  opacity: 0.85;
-}
-
-.shell-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 28px 20px 48px;
-}
-
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 24px;
-}
-
-.panel h1 {
-  margin: 0 0 8px;
-  font-size: 22px;
-  color: var(--navy);
-}
-
-.panel .lede {
-  margin: 0 0 20px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.status-list {
-  list-style: none;
   margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 }
 
-.status-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.pill {
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.pill-ok {
-  color: var(--accent);
-}
-
-.pill-missing {
-  color: var(--danger);
+.font-heading {
+  font-family: var(--font-heading);
 }

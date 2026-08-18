@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 function VerifyInner() {
   const router = useRouter();
@@ -16,9 +17,7 @@ function VerifyInner() {
     }
 
     let cancelled = false;
-    fetch(`/api/auth/verify?token=${encodeURIComponent(token)}`, {
-      cache: 'no-store'
-    })
+    fetch(`/api/auth/verify?token=${encodeURIComponent(token)}`, { cache: 'no-store' })
       .then(async response => {
         const data = (await response.json()) as { error?: string };
         if (!response.ok) {
@@ -41,22 +40,18 @@ function VerifyInner() {
   }, [token, router]);
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h1>Signing you in</h1>
+    <div className="flex min-h-screen items-center justify-center bg-surface p-6">
+      <div className="w-full max-w-md rounded-xl border border-border bg-white p-8 shadow-md">
+        <h1 className="font-heading text-2xl font-semibold text-navy">Signing you in</h1>
         {error ? (
           <>
-            <p className="error-text">{error}</p>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => router.push('/login')}
-            >
+            <p className="mt-3 text-sm text-danger">{error}</p>
+            <Button className="mt-4" type="button" onClick={() => router.push('/login')}>
               Back to login
-            </button>
+            </Button>
           </>
         ) : (
-          <p>Verifying your magic link…</p>
+          <p className="mt-3 text-sm text-muted">Verifying your magic link…</p>
         )}
       </div>
     </div>
@@ -67,10 +62,10 @@ export default function VerifyPage() {
   return (
     <Suspense
       fallback={
-        <div className="auth-page">
-          <div className="auth-card">
-            <h1>Signing you in</h1>
-            <p>Verifying your magic link…</p>
+        <div className="flex min-h-screen items-center justify-center bg-surface p-6">
+          <div className="w-full max-w-md rounded-xl border border-border bg-white p-8 shadow-md">
+            <h1 className="font-heading text-2xl font-semibold text-navy">Signing you in</h1>
+            <p className="mt-3 text-sm text-muted">Verifying your magic link…</p>
           </div>
         </div>
       }

@@ -1,6 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Field } from '@/components/crm/PageHeader';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -36,13 +40,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h1>Mr Demo Pro Admin</h1>
-        <p>Enter an allowlisted email to receive a magic sign-in link.</p>
-        <div className="field">
-          <label htmlFor="email">Email</label>
-          <input
+    <div className="flex min-h-screen items-center justify-center bg-surface p-6">
+      <div className="w-full max-w-md rounded-xl border border-border bg-white p-8 shadow-md">
+        <Image
+          src="/header-logo.webp"
+          alt="Mr Demo Pro"
+          width={180}
+          height={54}
+          className="mb-4 h-12 w-auto"
+        />
+        <h1 className="font-heading text-2xl font-semibold text-navy">Operator sign in</h1>
+        <p className="mb-5 mt-2 text-sm text-muted">
+          Enter an allowlisted email to receive a magic sign-in link.
+        </p>
+        <Field label="Email" htmlFor="email">
+          <Input
             id="email"
             type="email"
             autoComplete="email"
@@ -55,19 +67,19 @@ export default function LoginPage() {
               }
             }}
           />
-        </div>
-        {error ? <p className="error-text">{error}</p> : null}
+        </Field>
+        {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
         {sent ? (
-          <p className="success-text">Check your inbox for the sign-in link.</p>
+          <p className="mt-3 text-sm text-primary">Check your inbox for the sign-in link.</p>
         ) : null}
-        <button
+        <Button
+          className="mt-5 w-full"
           type="button"
-          className="btn btn-primary"
           onClick={sendMagicLink}
           disabled={loading || !email.trim()}
         >
           {loading ? 'Sending…' : 'Send magic link'}
-        </button>
+        </Button>
       </div>
     </div>
   );

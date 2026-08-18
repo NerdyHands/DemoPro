@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
+  images: {
+    unoptimized: true
+  },
   outputFileTracingRoot: path.join(__dirname)
 };
 
