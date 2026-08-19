@@ -81,9 +81,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 503 });
     }
     console.error('magic-link failed', error);
-    return NextResponse.json(
-      { error: 'Unable to send magic link' },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : 'Unable to send magic link';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
