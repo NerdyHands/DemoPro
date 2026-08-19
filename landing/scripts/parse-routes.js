@@ -54,6 +54,7 @@ function getPriorityForRoute(routePath, seoKey) {
     'cleanout',
     'hoardingCleanout',
     'junkRemoval',
+    'houseDemolition',
     'buildingDemolition',
     'demolitionServices',
     'concreteDemolition',
@@ -107,6 +108,7 @@ function getChangeFreqForRoute(routePath, seoKey) {
     'cleanout',
     'hoardingCleanout',
     'junkRemoval',
+    'houseDemolition',
     'buildingDemolition',
     'demolitionServices',
     'concreteDemolition',
@@ -204,13 +206,17 @@ export function getRoutesWithMetadata() {
   return parseRoutesFromApp();
 }
 
-/** Paths excluded from prerender/sitemap because they are noindex or redirect-only. */
+/** Paths excluded from sitemap (noindex). Thank-you routes are still prerendered. */
 const NO_INDEX_PATHS = new Set([
-  '/terms/',
-  '/privacy/',
   '/thank-you/',
   '/diy-vs-pro-demolition/thank-you/'
 ]);
+
+/** Noindex routes that must still be prerendered so hosting returns 200, not 404. */
+const PRERENDER_ONLY_PATHS = [
+  '/thank-you/',
+  '/diy-vs-pro-demolition/thank-you/'
+];
 
 /**
  * Canonical trailing-slash routes suitable for prerender and sitemap.
@@ -233,6 +239,13 @@ export function getCanonicalRoutes() {
  */
 export function getCanonicalRoutePaths() {
   return getCanonicalRoutes().map((route) => route.path);
+}
+
+/**
+ * Canonical indexable routes plus noindex pages that still need a static HTML file.
+ */
+export function getPrerenderRoutePaths() {
+  return [...getCanonicalRoutePaths(), ...PRERENDER_ONLY_PATHS];
 }
 
 /**
@@ -271,6 +284,7 @@ export function generateInternalLinks() {
         'cleanout',
         'hoardingCleanout',
         'junkRemoval',
+        'houseDemolition',
         'buildingDemolition',
         'demolitionServices',
         'serviceAreas',

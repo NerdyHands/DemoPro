@@ -42,19 +42,6 @@ async function createTable(
   return (await response.json()) as { id: string; name: string };
 }
 
-async function patchTable(token: string, baseId: string, tableId: string, name: string) {
-  const response = await airtableFetch(`/meta/bases/${baseId}/tables/${tableId}`, {
-    method: 'PATCH',
-    token,
-    body: JSON.stringify({ name })
-  });
-  if (!response.ok) {
-    console.warn(`Could not rename ${tableId}: ${await response.text()}`);
-    return;
-  }
-  console.log(`Renamed ${tableId} -> ${name}`);
-}
-
 async function main() {
   const env = getEnv();
   if (!env.AIRTABLE_TOKEN) {
@@ -63,11 +50,15 @@ async function main() {
   const baseId = env.AIRTABLE_CRM_BASE_ID || CRM_BASE_ID_DEFAULT;
   const tables = await listBaseTables({ token: env.AIRTABLE_TOKEN, baseId });
   const byName = new Map(tables.map(table => [table.name, table]));
-  const byId = new Map(tables.map(table => [table.id, table]));
 
-  const legacy = byId.get(LEGACY_MIXED_TABLE_ID);
-  if (legacy && legacy.name !== 'Legacy Mixed') {
-    await patchTable(env.AIRTABLE_TOKEN, baseId, legacy.id, 'Legacy Mixed');
+  const hasField = (table: { fields: Array<{ name: string }> } | undefined, name: string) =>
+    Boolean(table?.fields.some(field => field.name === name));
+
+  const legacy = tables.find(table => table.id === LEGACY_MIXED_TABLE_ID);
+  if (legacy) {
+    console.log(
+      `Leaving ${legacy.name} (${legacy.id}) as-is — this is the Leads table, not CRM.`
+    );
   }
 
   let admins = byName.get('Admins');
@@ -97,14 +88,7 @@ async function main() {
       baseId,
       'Customers',
       [
-        {
-          name: 'Name',
-          type: 'formula',
-          options: {
-            formula:
-              'IF({Business Name}, {Business Name}, TRIM({First Name} & " " & {Last Name}))'
-          }
-        },
+        { name: 'Name', type: 'singleLineText' },
         { name: 'First Name', type: 'singleLineText' },
         { name: 'Last Name', type: 'singleLineText' },
         { name: 'Business Name', type: 'singleLineText' },
@@ -113,8 +97,7 @@ async function main() {
         { name: 'Address', type: 'multilineText' },
         { name: 'Notes', type: 'multilineText' },
         select('Status', ['Lead', 'Active', 'Inactive']),
-        { name: 'MongoId', type: 'singleLineText' },
-        { name: 'Created', type: 'createdTime' }
+        { name: 'MongoId', type: 'singleLineText' }
       ],
       'Operator CRM customers'
     );
@@ -154,12 +137,15 @@ async function main() {
     console.log('Estimates exists', estimates.id);
   }
 
-  let contracts = byName.get('Contracts');
+  let contracts =
+    tables.find(table => hasField(table, 'Contract Number') && hasField(table, 'MongoId')) ??
+    byName.get('CRM Contracts');
   if (!contracts) {
+    const name = byName.has('Contracts') ? 'CRM Contracts' : 'Contracts';
     contracts = await createTable(
       env.AIRTABLE_TOKEN,
       baseId,
-      'Contracts',
+      name,
       [
         { name: 'Contract Number', type: 'singleLineText' },
         { name: 'Title', type: 'singleLineText' },
@@ -187,7 +173,7 @@ async function main() {
       ],
       'Operator CRM contracts'
     );
-    console.log('Created Contracts', contracts.id);
+    console.log(`Created ${name}`, contracts.id);
   } else {
     console.log('Contracts exists', contracts.id);
   }

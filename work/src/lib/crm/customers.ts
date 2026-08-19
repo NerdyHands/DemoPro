@@ -67,11 +67,16 @@ export function mapCustomer(record: AirtableRecord): Customer {
 }
 
 export function customerFields(input: CustomerInput): Record<string, unknown> {
+  const firstName = input.firstName?.trim() || '';
+  const lastName = input.lastName?.trim() || '';
+  const businessName = input.businessName?.trim() || '';
+  const email = input.email.trim().toLowerCase();
   const fields: Record<string, unknown> = {
-    'First Name': input.firstName?.trim() || '',
-    'Last Name': input.lastName?.trim() || '',
-    'Business Name': input.businessName?.trim() || '',
-    Email: input.email.trim().toLowerCase(),
+    Name: displayName({ firstName, lastName, businessName, email }),
+    'First Name': firstName,
+    'Last Name': lastName,
+    'Business Name': businessName,
+    Email: email,
     Phone: input.phone?.trim() || '',
     Address: input.address?.trim() || '',
     Notes: input.notes?.trim() || '',

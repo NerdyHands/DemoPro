@@ -18,7 +18,7 @@ const SEO: React.FC<SEOProps> = ({
   title = "Mr Demo Pro - Professional Demolition Services in Hampton Roads, VA",
   description = "Professional demolition services in Hampton Roads, VA. Expert shed removal, deck removal, and fence removal. Free estimates. Call 757-848-4559 for quality demolition work.",
   canonicalUrl,
-  ogImage = "/main-logo.png",
+  ogImage = "/main-logo.webp",
   ogType = "website",
   twitterCard = "summary_large_image",
   structuredData,
@@ -67,8 +67,8 @@ const SEO: React.FC<SEOProps> = ({
       "Pool Removal"
     ],
     "priceRange": "$$",
-    "image": "https://mrdemopro.com/main-logo.png",
-    "logo": "https://mrdemopro.com/main-logo.png",
+    "image": "https://mrdemopro.com/main-logo.webp",
+    "logo": "https://mrdemopro.com/main-logo.webp",
     "sameAs": [
       "https://www.facebook.com/mrdemopro",
       "https://www.instagram.com/mrdemopro"
@@ -91,8 +91,9 @@ const finalStructuredData = structuredData
       <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
       <meta name="language" content="English" />
       
-      {/* Canonical URL */}
-      {!noIndex && normalizedCanonicalUrl && (
+      {/* Canonical URL — emit even on noindex pages so prerendered thank-you
+          routes exist as real files instead of hosting-layer 404s. */}
+      {normalizedCanonicalUrl && (
         <link rel="canonical" href={normalizedCanonicalUrl} />
       )}
       

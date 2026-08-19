@@ -29,10 +29,22 @@ function encodePath(tableId: string): string {
   return encodeURIComponent(tableId);
 }
 
+function allowInvalidTls(): boolean {
+  return (process.env.AIRTABLE_TLS_ALLOW_INVALID ?? '').trim() === 'true';
+}
+
+function applyLocalTlsBypass() {
+  // SSL inspection (same issue as Mongo locally) breaks Airtable's cert chain.
+  if (allowInvalidTls() && process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  }
+}
+
 export async function airtableFetch(
   path: string,
   init: RequestInit & { token: string }
 ): Promise<Response> {
+  applyLocalTlsBypass();
   const { token, ...rest } = init;
   const maxAttempts = 5;
   let lastError: unknown;

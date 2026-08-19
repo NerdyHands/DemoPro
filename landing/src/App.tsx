@@ -46,6 +46,8 @@ import BlogTag, { BlogTagTrailingRedirect } from './pages/BlogTag';
 import DiyVsProDemolition from './pages/DiyVsProDemolition';
 import DiyQuizThankYou from './pages/DiyQuizThankYou';
 import DemolitionCostVirginia from './pages/DemolitionCostVirginia';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import seoConfig from './config/seoConfig';
 import {
   getServiceNameFromPath,
@@ -843,6 +845,7 @@ function AppContent() {
               }
             />
             <Route path="/blog" element={<Navigate to="/blog/" replace />} />
+            <Route path="/blog/tag/" element={<Navigate to="/blog/" replace />} />
             <Route
               path="/blog/"
               element={
@@ -921,11 +924,7 @@ function AppContent() {
                     {...seoConfig.terms}
                     canonicalUrl="https://mrdemopro.com/terms/"
                   />
-                  <div style={{paddingTop: '100px', minHeight: '50vh'}}>
-                    <h1 className="text-center">
-                      Terms and Conditions - Coming Soon
-                    </h1>
-                  </div>
+                  <Terms />
                 </>
               }
             />
@@ -941,11 +940,7 @@ function AppContent() {
                     {...seoConfig.privacy}
                     canonicalUrl="https://mrdemopro.com/privacy/"
                   />
-                  <div style={{paddingTop: '100px', minHeight: '50vh'}}>
-                    <h1 className="text-center">
-                      Privacy Policy - Coming Soon
-                    </h1>
-                  </div>
+                  <Privacy />
                 </>
               }
             />

@@ -54,6 +54,7 @@ npm run migrate:airtable
 | Variable | Required for | Notes |
 |---|---|---|
 | `AIRTABLE_TOKEN` | Auth + CRM | PAT for base `appBDw3qjn76qICKH` |
+| `AIRTABLE_TLS_ALLOW_INVALID` | Local scripts | `true` if SSL inspection causes `UNABLE_TO_VERIFY_LEAF_SIGNATURE` |
 | `AIRTABLE_ADMINS_BASE_ID` | Auth | Default `appBDw3qjn76qICKH` |
 | `AIRTABLE_ADMINS_TABLE_ID` | Auth | `Admins` name or `tbl…` id |
 | `AIRTABLE_ADMINS_VIEW_ID` | Optional | If set, list uses this view |

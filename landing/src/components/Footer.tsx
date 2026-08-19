@@ -84,6 +84,59 @@ const Footer = () => {
                     House Demolition
                   </Link>
                 </li>
+                {[
+                  {
+                    to: "/residential-demolition/",
+                    label: "Residential Demolition"
+                  },
+                  {
+                    to: "/commercial-demolition/",
+                    label: "Commercial Demolition"
+                  },
+                  {
+                    to: "/building-demolition/",
+                    label: "Building Demolition"
+                  },
+                  {
+                    to: "/tenant-clean-out/",
+                    label: "Tenant Clean-Out"
+                  },
+                  {
+                    to: "/demolition-services/",
+                    label: "Demolition Services"
+                  },
+                  {
+                    to: "/concrete-demolition/",
+                    label: "Concrete Demolition"
+                  },
+                  {
+                    to: "/diy-vs-pro-demolition/",
+                    label: "DIY vs Pro Demolition"
+                  }
+                ].map(item => (
+                  <li key={item.to} style={{ marginBottom: "0.5rem" }}>
+                    <Link
+                      to={item.to}
+                      onClick={() =>
+                        window.scrollTo({ top: 0, behavior: "smooth" })
+                      }
+                      style={{
+                        color: "#fff",
+                        textDecoration: "none",
+                        transition: "color 0.3s ease",
+                        fontSize: "0.95rem",
+                      }}
+                      onMouseEnter={(e) =>
+                        ((e.target as HTMLElement).style.color = "#ffd700")
+                      }
+                      onMouseLeave={(e) =>
+                        ((e.target as HTMLElement).style.color = "#fff")
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
                 <li style={{ marginBottom: "0.5rem" }}>
                   <Link
                     to="/service-area/"

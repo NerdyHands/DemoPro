@@ -36,8 +36,8 @@ export const seoConfig = {
         "Cleanout Services",
       ],
       "priceRange": "$$",
-      "image": "https://mrdemopro.com/main-logo.png",
-      "logo": "https://mrdemopro.com/main-logo.png"
+      "image": "https://mrdemopro.com/main-logo.webp",
+      "logo": "https://mrdemopro.com/main-logo.webp"
     }
   },
 
@@ -358,7 +358,7 @@ export const seoConfig = {
         "name": "Mr Demo Pro",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://mrdemopro.com/main-logo.png"
+          "url": "https://mrdemopro.com/main-logo.webp"
         }
       },
       "mainEntityOfPage": "https://mrdemopro.com/demolition-cost-virginia/"
@@ -782,19 +782,17 @@ export const seoConfig = {
   },
 
   terms: {
-    title: "Terms and Conditions - Mr Demo Pro",
-    description: "Terms and conditions for Mr Demo Pro demolition services in Hampton Roads, VA. Professional shed removal, deck removal, and fence removal. Free estimates. Call 757-848-4559.",
+    title: "Terms and Conditions | Mr Demo Pro",
+    description: "Terms and conditions for Mr Demo Pro demolition, cleanout, and junk removal services in Hampton Roads, VA. Quotes, scheduling, payment, and site access. Call 757-848-4559.",
     keywords: "terms and conditions, Mr Demo Pro terms, demolition service terms",
-    canonicalUrl: "https://mrdemopro.com/terms/",
-    noIndex: true
+    canonicalUrl: "https://mrdemopro.com/terms/"
   },
 
   privacy: {
-    title: "Privacy Policy - Mr Demo Pro", 
-    description: "Privacy policy for Mr Demo Pro demolition services in Hampton Roads, VA. Professional shed removal, deck removal, and fence removal. Free estimates. Call 757-848-4559.",
+    title: "Privacy Policy | Mr Demo Pro",
+    description: "Privacy policy for Mr Demo Pro. How we collect and use quote-form, call, and analytics information for demolition services in Hampton Roads, VA. Call 757-848-4559.",
     keywords: "privacy policy, Mr Demo Pro privacy, data protection",
-    canonicalUrl: "https://mrdemopro.com/privacy/",
-    noIndex: true
+    canonicalUrl: "https://mrdemopro.com/privacy/"
   }
 };
 

@@ -3,6 +3,7 @@ import { createRecords, listRecords, updateRecords } from '../src/lib/airtable';
 import { assertCrmConfigured } from '../src/lib/env';
 import { fieldString } from '../src/lib/fields';
 import { serializeLineItems, sumLineItems, normalizeLineItems } from '../src/lib/crm/line-items';
+import { displayName } from '../src/lib/crm/customers';
 import { loadScriptEnv } from './load-env';
 
 loadScriptEnv();
@@ -121,13 +122,18 @@ async function main() {
   );
   const customerRows = customers.map(doc => {
     const mongoId = mongoIdOf(doc);
+    const firstName = String(doc.firstName || '');
+    const lastName = String(doc.lastName || '');
+    const businessName = String(doc.businessName || '');
+    const email = String(doc.email || '').toLowerCase();
     return {
       mongoId,
       fields: {
-        'First Name': String(doc.firstName || ''),
-        'Last Name': String(doc.lastName || ''),
-        'Business Name': String(doc.businessName || ''),
-        Email: String(doc.email || '').toLowerCase(),
+        Name: displayName({ firstName, lastName, businessName, email }),
+        'First Name': firstName,
+        'Last Name': lastName,
+        'Business Name': businessName,
+        Email: email,
         Phone: String(doc.phone || ''),
         Address: addressFull(doc.address),
         Notes: String(doc.notes || ''),

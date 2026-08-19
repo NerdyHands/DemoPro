@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getCanonicalRoutePaths } from './parse-routes.js';
+import { getPrerenderRoutePaths } from './parse-routes.js';
 import { fetchBlogPostsFromS3 } from './generate-sitemap.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -116,7 +116,7 @@ function validateHtmlFile(filePath, routePath, homeHtml) {
 }
 
 async function getAllPrerenderPaths() {
-  const staticPaths = getCanonicalRoutePaths();
+  const staticPaths = getPrerenderRoutePaths();
   const posts = await fetchBlogPostsFromS3();
   const blogPaths = posts
     .filter((p) => p?.slug)
