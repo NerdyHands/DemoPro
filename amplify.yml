@@ -21,3 +21,22 @@ applications:
         paths:
           - node_modules/**/*
           - .npm/**/*
+  - appRoot: work
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - node -v
+            - nvm use 20 || true
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
