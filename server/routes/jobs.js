@@ -5,6 +5,7 @@ const Contract = require('../models/Contract');
 const Customer = require('../models/Customer');
 const Technician = require('../models/Technician');
 const JobProgress = require('../models/JobProgress');
+const { tryOpsService } = require('../middleware/opsServiceAuth');
 const router = express.Router();
 
 // JWT Secret (should be in environment variables)
@@ -12,6 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 // Middleware to check if user is authenticated
 const authenticateUser = async (req, res, next) => {
+  if (tryOpsService(req)) return next();
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -436,9 +438,11 @@ router.put('/:id/status', authenticateUser, [
       });
     }
     
-    // Check permissions - only assigned technician or admin can update status
-    const technician = await Technician.findOne({ userId: req.user._id });
-    if (req.user.role !== 'admin' && 
+    let technician = null;
+    if (!req.opsService && req.user?._id && req.user._id !== 'ops-service') {
+      technician = await Technician.findOne({ userId: req.user._id });
+    }
+    if (req.user.role !== 'admin' &&
         (!technician || job.assignedTechnician?.toString() !== technician._id.toString())) {
       return res.status(403).json({
         success: false,

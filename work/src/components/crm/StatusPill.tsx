@@ -11,7 +11,22 @@ const TONES: Record<string, 'neutral' | 'primary' | 'success' | 'danger' | 'mute
   Rejected: 'danger',
   Cancelled: 'danger',
   Expired: 'muted',
-  Inactive: 'muted'
+  Inactive: 'muted',
+  Pending: 'muted',
+  Assigned: 'primary',
+  'In Progress': 'primary',
+  'On Hold': 'muted',
+  'Needs Review': 'danger',
+  draft: 'neutral',
+  sent: 'muted',
+  approved: 'primary',
+  rejected: 'danger',
+  expired: 'muted',
+  cancelled: 'danger',
+  'Pending Approval': 'muted',
+  'In Review': 'primary',
+  'Sent to Client': 'success',
+  Archived: 'muted'
 };
 
 export function StatusPill({ status }: { status: string }) {

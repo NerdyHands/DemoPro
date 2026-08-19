@@ -11,6 +11,22 @@ import {
   type EstimateStatus
 } from './types';
 
+export function isStatusOnlyBody(body: unknown): body is { status: string } {
+  if (!body || typeof body !== 'object') return false;
+  const keys = Object.keys(body as object);
+  return keys.length === 1 && keys[0] === 'status' && typeof (body as { status: unknown }).status === 'string';
+}
+
+export function parseStatusOnly<T extends string>(
+  body: unknown,
+  allowed: readonly T[]
+): { status?: T; error?: string } {
+  if (!isStatusOnlyBody(body)) return { error: 'Status is required' };
+  const status = body.status.trim() as T;
+  if (!allowed.includes(status)) return { error: 'Invalid status' };
+  return { status };
+}
+
 export function parseCustomer(body: unknown): {
   data?: CustomerInput;
   fields?: Record<string, string>;

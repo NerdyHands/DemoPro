@@ -26,6 +26,8 @@ export type Env = {
   N8N_BASE_URL: string;
   N8N_LEADS_WEBHOOK_URL: string;
   N8N_WEBHOOK_SECRET: string;
+  OPS_API_URL: string;
+  OPS_SERVICE_TOKEN: string;
 };
 
 export function getEnv(): Env {
@@ -48,7 +50,9 @@ export function getEnv(): Env {
     AIRTABLE_LEADS_BASE_ID: read(process.env.AIRTABLE_LEADS_BASE_ID),
     N8N_BASE_URL: read(process.env.N8N_BASE_URL) || 'https://nerdyhands.app.n8n.cloud',
     N8N_LEADS_WEBHOOK_URL: read(process.env.N8N_LEADS_WEBHOOK_URL),
-    N8N_WEBHOOK_SECRET: read(process.env.N8N_WEBHOOK_SECRET)
+    N8N_WEBHOOK_SECRET: read(process.env.N8N_WEBHOOK_SECRET),
+    OPS_API_URL: read(process.env.OPS_API_URL),
+    OPS_SERVICE_TOKEN: read(process.env.OPS_SERVICE_TOKEN)
   };
 }
 
@@ -68,9 +72,11 @@ export type ConfigStatus = {
   leadsBase: boolean;
   n8nWebhook: boolean;
   n8nSecret: boolean;
+  opsApi: boolean;
   authReady: boolean;
   crmReady: boolean;
   leadGenReady: boolean;
+  opsReady: boolean;
 };
 
 export function getConfigStatus(): ConfigStatus {
@@ -90,6 +96,7 @@ export function getConfigStatus(): ConfigStatus {
   const leadsBase = Boolean(env.AIRTABLE_LEADS_BASE_ID);
   const n8nWebhook = Boolean(env.N8N_LEADS_WEBHOOK_URL);
   const n8nSecret = Boolean(env.N8N_WEBHOOK_SECRET);
+  const opsApi = Boolean(env.OPS_API_URL && env.OPS_SERVICE_TOKEN);
 
   return {
     airtableToken,
@@ -107,9 +114,11 @@ export function getConfigStatus(): ConfigStatus {
     leadsBase,
     n8nWebhook,
     n8nSecret,
+    opsApi,
     authReady: airtableToken && adminsBase && adminsTable && sessionSecret && resend,
     crmReady: airtableToken && crmBase && customersTable && estimatesTable && contractsTable,
-    leadGenReady: leadsBase && n8nWebhook && n8nSecret
+    leadGenReady: leadsBase && n8nWebhook && n8nSecret,
+    opsReady: opsApi
   };
 }
 

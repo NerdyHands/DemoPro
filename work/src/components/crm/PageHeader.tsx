@@ -54,6 +54,18 @@ export function EmptyState({
   );
 }
 
+export function OpsUnavailable({ title }: { title: string }) {
+  return (
+    <div>
+      <PageHeader title={title} />
+      <EmptyState
+        title="Express ops API is not connected"
+        description="Set OPS_API_URL and OPS_SERVICE_TOKEN in work/.env.local, and the same OPS_SERVICE_TOKEN on the Express server."
+      />
+    </div>
+  );
+}
+
 export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="text-sm text-danger">{message}</p>;

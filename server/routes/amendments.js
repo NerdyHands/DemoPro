@@ -10,6 +10,7 @@ const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
 const { sendDocxBuffer, sanitizeFilename } = require('../services/documentOutputs/sendDocxResponse');
 const { renderAmendmentDocx } = require('../services/documentOutputs/renderers/amendmentRenderer');
 const { GoogleDocsPublisher } = require('../services/documentOutputs/googleDocsPublisher');
+const { tryOpsService } = require('../middleware/opsServiceAuth');
 
 const googleDocsPublisher = new GoogleDocsPublisher();
 
@@ -18,6 +19,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 // Middleware to check if user is authenticated
 const authenticateUser = async (req, res, next) => {
+  if (tryOpsService(req)) return next();
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     

@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-export function SearchFilterBar({ statuses }: { statuses: readonly string[] }) {
+export function SearchFilterBar({
+  statuses,
+  placeholder = 'Search name, email, phone, or number'
+}: {
+  statuses?: readonly string[];
+  placeholder?: string;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const [query, setQuery] = useState(params.get('q') ?? '');
@@ -35,29 +41,31 @@ export function SearchFilterBar({ statuses }: { statuses: readonly string[] }) {
         <Input
           value={query}
           onChange={event => setQuery(event.target.value)}
-          placeholder="Search name, email, phone, or number"
+          placeholder={placeholder}
         />
         <Button type="submit" variant="outline">
           Search
         </Button>
       </form>
-      <div className="flex flex-wrap gap-2">
-        {['all', ...statuses].map(status => (
-          <button
-            key={status}
-            type="button"
-            onClick={() => apply({ status })}
-            className={cn(
-              'min-h-10 rounded-full border px-3 text-sm font-medium capitalize',
-              activeStatus === status
-                ? 'border-primary bg-primary text-white'
-                : 'border-border bg-white text-foreground hover:border-primary hover:text-primary'
-            )}
-          >
-            {status}
-          </button>
-        ))}
-      </div>
+      {statuses?.length ? (
+        <div className="flex flex-wrap gap-2">
+          {['all', ...statuses].map(status => (
+            <button
+              key={status}
+              type="button"
+              onClick={() => apply({ status })}
+              className={cn(
+                'min-h-10 rounded-full border px-3 text-sm font-medium capitalize',
+                activeStatus === status
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-border bg-white text-foreground hover:border-primary hover:text-primary'
+              )}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

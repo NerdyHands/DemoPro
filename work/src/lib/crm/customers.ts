@@ -136,6 +136,10 @@ export async function updateCustomer(id: string, input: CustomerInput): Promise<
   );
 }
 
+export async function updateCustomerStatus(id: string, status: CustomerStatus): Promise<Customer> {
+  return mapCustomer(await updateRecord({ ...crm(), recordId: id, fields: { Status: asStatus(status) } }));
+}
+
 export async function deleteCustomer(id: string): Promise<void> {
   await deleteRecord({ ...crm(), recordId: id });
 }

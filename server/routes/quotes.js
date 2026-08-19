@@ -5,6 +5,7 @@ const Quote = require('../models/Quote');
 const Project = require('../models/Project');
 const PICRAProcessing = require('../models/PICRAProcessing');
 const User = require('../models/User');
+const { tryOpsService } = require('../middleware/opsServiceAuth');
 const router = express.Router();
 
 // JWT Secret (should be in environment variables)
@@ -12,6 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 // Middleware to check if user is authenticated and is admin
 const authenticateAdmin = async (req, res, next) => {
+  if (tryOpsService(req)) return next();
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     

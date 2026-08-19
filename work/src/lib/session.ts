@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SESSION_COOKIE_NAME, readSessionFromCookie, type SessionUser } from '@/lib/auth';
 import { AirtableError } from '@/lib/airtable';
 import { CrmNotConfiguredError } from '@/lib/env';
+import { OpsNotConfiguredError, OpsRequestError } from '@/lib/ops';
 
 export async function getSession(): Promise<SessionUser | null> {
   const store = await cookies();
@@ -22,6 +23,12 @@ export function jsonError(status: number, error: string, fields?: Record<string,
 export function handleCrmError(error: unknown): NextResponse {
   if (error instanceof CrmNotConfiguredError) {
     return jsonError(503, error.message);
+  }
+  if (error instanceof OpsNotConfiguredError) {
+    return jsonError(503, error.message);
+  }
+  if (error instanceof OpsRequestError) {
+    return jsonError(error.status >= 400 && error.status < 600 ? error.status : 502, error.message);
   }
   if (error instanceof AirtableError) {
     if (error.status === 404) {

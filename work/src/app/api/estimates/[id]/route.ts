@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteEstimate, getEstimate, updateEstimate } from '@/lib/crm/estimates';
-import { parseEstimate } from '@/lib/crm/validate';
+import { deleteEstimate, getEstimate, updateEstimate, updateEstimateStatus } from '@/lib/crm/estimates';
+import { ESTIMATE_STATUSES } from '@/lib/crm/types';
+import { isStatusOnlyBody, parseEstimate, parseStatusOnly } from '@/lib/crm/validate';
 import { getRequestSession, handleCrmError, jsonError } from '@/lib/session';
 
 type Params = { params: Promise<{ id: string }> };
@@ -21,7 +22,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   if (!(await getRequestSession(request))) return jsonError(401, 'Unauthorized');
   try {
     const { id } = await params;
-    const parsed = parseEstimate(await request.json());
+    const body = await request.json();
+    if (isStatusOnlyBody(body)) {
+      const parsedStatus = parseStatusOnly(body, ESTIMATE_STATUSES);
+      if (!parsedStatus.status) return jsonError(400, parsedStatus.error || 'Invalid status');
+      const estimate = await updateEstimateStatus(id, parsedStatus.status);
+      return NextResponse.json({ estimate });
+    }
+    const parsed = parseEstimate(body);
     if (!parsed.data) {
       return jsonError(400, 'Validation failed', parsed.fields);
     }

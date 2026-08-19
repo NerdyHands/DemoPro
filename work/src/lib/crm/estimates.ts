@@ -144,6 +144,14 @@ export async function updateEstimate(id: string, input: EstimateInput): Promise<
   );
 }
 
+export async function updateEstimateStatus(id: string, status: EstimateStatus): Promise<Estimate> {
+  const names = await customerNameMap();
+  return mapEstimate(
+    await updateRecord({ ...crm(), recordId: id, fields: { Status: asStatus(status) } }),
+    names
+  );
+}
+
 export async function deleteEstimate(id: string): Promise<void> {
   await deleteRecord({ ...crm(), recordId: id });
 }

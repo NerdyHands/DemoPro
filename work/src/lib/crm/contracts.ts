@@ -150,6 +150,14 @@ export async function updateContract(id: string, input: ContractInput): Promise<
   );
 }
 
+export async function updateContractStatus(id: string, status: ContractStatus): Promise<Contract> {
+  const names = await customerNameMap();
+  return mapContract(
+    await updateRecord({ ...crm(), recordId: id, fields: { Status: asStatus(status) } }),
+    names
+  );
+}
+
 export async function deleteContract(id: string): Promise<void> {
   await deleteRecord({ ...crm(), recordId: id });
 }

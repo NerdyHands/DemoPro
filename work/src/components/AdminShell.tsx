@@ -14,7 +14,10 @@ const LINKS = [
   { href: '/leads', label: 'Leads' },
   { href: '/customers', label: 'Customers' },
   { href: '/estimates', label: 'Estimates' },
-  { href: '/contracts', label: 'Contracts' }
+  { href: '/contracts', label: 'Contracts' },
+  { href: '/jobs', label: 'Jobs' },
+  { href: '/quotes', label: 'Quotes' },
+  { href: '/inspections', label: 'Inspections' }
 ];
 
 export function AdminShell({ children }: { children: ReactNode }) {
