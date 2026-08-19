@@ -30,6 +30,25 @@ function mongoIdOf(doc: Document): string {
   return String(doc._id);
 }
 
+function refKey(value: unknown): string {
+  if (value == null || value === '') return '';
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (typeof value === 'object') {
+    const record = value as { _id?: unknown; $oid?: unknown; customerId?: unknown; estimateId?: unknown };
+    if (record._id) return String(record._id);
+    if (record.$oid) return String(record.$oid);
+    return String(value);
+  }
+  return '';
+}
+
+function indexKeys(map: Map<string, string>, recId: string, ...keys: unknown[]) {
+  for (const key of keys) {
+    const normalized = refKey(key);
+    if (normalized) map.set(normalized, recId);
+  }
+}
+
 async function mongoIdMap(
   token: string,
   baseId: string,
@@ -59,14 +78,14 @@ async function upsertTable(
     label: string;
   }
 ) {
-  const toCreate: Array<{ fields: Record<string, unknown> }> = [];
+  const toCreate: Array<{ mongoId: string; fields: Record<string, unknown> }> = [];
   const toUpdate: Array<{ id: string; fields: Record<string, unknown> }> = [];
   for (const row of options.rows) {
     const existingId = options.existing.get(row.mongoId);
     if (existingId) {
       toUpdate.push({ id: existingId, fields: row.fields });
     } else {
-      toCreate.push({ fields: row.fields });
+      toCreate.push({ mongoId: row.mongoId, fields: row.fields });
     }
   }
   console.log(
@@ -79,11 +98,13 @@ async function upsertTable(
       token: options.token,
       baseId: options.baseId,
       tableId: options.tableId,
-      records: toCreate
+      records: toCreate.map(row => ({ fields: row.fields }))
     });
-    for (const record of created) {
-      const mongoId = fieldString(record.fields, 'MongoId');
-      if (mongoId) options.existing.set(mongoId, record.id);
+    for (let i = 0; i < created.length; i += 1) {
+      const record = created[i];
+      const mongoId =
+        fieldString(record?.fields ?? {}, 'MongoId') || toCreate[i]?.mongoId || '';
+      if (record && mongoId) options.existing.set(mongoId, record.id);
     }
   }
   if (toUpdate.length) {
@@ -150,6 +171,12 @@ async function main() {
     rows: customerRows,
     label: 'Customers'
   });
+  for (const doc of customers) {
+    const recId =
+      existingCustomers.get(mongoIdOf(doc)) ||
+      (DRY_RUN ? `pending:${mongoIdOf(doc)}` : '');
+    if (recId) indexKeys(existingCustomers, recId, mongoIdOf(doc), doc.customerId);
+  }
 
   const existingEstimates = await mongoIdMap(
     env.AIRTABLE_TOKEN,
@@ -159,11 +186,9 @@ async function main() {
   let unmatchedEstimates = 0;
   const estimateRows = estimates.flatMap(doc => {
     const mongoId = mongoIdOf(doc);
-    const customerMongoId =
-      doc.customer && typeof doc.customer === 'object' && '_id' in doc.customer
-        ? String((doc.customer as { _id: unknown })._id)
-        : String(doc.customer || '');
-    const customerRec = existingCustomers.get(customerMongoId);
+    const customerRec =
+      existingCustomers.get(refKey(doc.customer)) ||
+      existingCustomers.get(refKey(doc.customerId));
     if (!customerRec) {
       unmatchedEstimates += 1;
       return [];
@@ -198,6 +223,16 @@ async function main() {
     rows: estimateRows,
     label: 'Estimates'
   });
+  const matchedEstimateIds = new Set(estimateRows.map(row => row.mongoId));
+  for (const doc of estimates) {
+    const mongoId = mongoIdOf(doc);
+    if (!matchedEstimateIds.has(mongoId)) continue;
+    const recId =
+      existingEstimates.get(mongoId) || (DRY_RUN ? `pending:${mongoId}` : '');
+    if (recId) {
+      indexKeys(existingEstimates, recId, mongoId, doc.estimateId, doc.estimateNumber);
+    }
+  }
 
   const existingContracts = await mongoIdMap(
     env.AIRTABLE_TOKEN,
@@ -207,19 +242,16 @@ async function main() {
   let unmatchedContracts = 0;
   const contractRows = contracts.flatMap(doc => {
     const mongoId = mongoIdOf(doc);
-    const customerMongoId =
-      doc.customer && typeof doc.customer === 'object' && '_id' in doc.customer
-        ? String((doc.customer as { _id: unknown })._id)
-        : String(doc.customerId || doc.customer || '');
-    const customerRec = existingCustomers.get(customerMongoId);
+    const customerRec =
+      existingCustomers.get(refKey(doc.customer)) ||
+      existingCustomers.get(refKey(doc.customerId));
     if (!customerRec) {
       unmatchedContracts += 1;
       return [];
     }
-    const estimateMongoId = String(doc.estimateId || doc.estimate || '');
     const estimateRec =
-      existingEstimates.get(estimateMongoId) ||
-      [...existingEstimates.entries()].find(([key]) => key === estimateMongoId)?.[1];
+      existingEstimates.get(refKey(doc.estimate)) ||
+      existingEstimates.get(refKey(doc.estimateId));
     const lineItems = normalizeLineItems(doc.lineItems);
     const total = Number(doc.totalAmount) || sumLineItems(lineItems);
     return [
