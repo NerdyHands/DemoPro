@@ -8,6 +8,7 @@ frontend:
         - npm ci
     build:
       commands:
+        - env | grep -E '^(ADMIN_SESSION_SECRET|AIRTABLE_|RESEND_|NEXT_PUBLIC_|N8N_)' >> .env.production || true
         - npm run build
   artifacts:
     baseDirectory: .next

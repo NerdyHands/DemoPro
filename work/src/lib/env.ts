@@ -1,5 +1,6 @@
-function read(name: string): string {
-  return (process.env[name] ?? '').trim();
+/** Static process.env.* so Next.js inlines Amplify/.env.production values at build. */
+function read(value: string | undefined): string {
+  return (value ?? '').trim();
 }
 
 export const CRM_BASE_ID_DEFAULT = 'appBDw3qjn76qICKH';
@@ -28,26 +29,26 @@ export type Env = {
 };
 
 export function getEnv(): Env {
-  const adminsBase = read('AIRTABLE_ADMINS_BASE_ID') || CRM_BASE_ID_DEFAULT;
+  const adminsBase = read(process.env.AIRTABLE_ADMINS_BASE_ID) || CRM_BASE_ID_DEFAULT;
   return {
-    AIRTABLE_TOKEN: read('AIRTABLE_TOKEN'),
+    AIRTABLE_TOKEN: read(process.env.AIRTABLE_TOKEN),
     AIRTABLE_ADMINS_BASE_ID: adminsBase,
-    AIRTABLE_ADMINS_TABLE_ID: read('AIRTABLE_ADMINS_TABLE_ID') || 'Admins',
-    AIRTABLE_ADMINS_VIEW_ID: read('AIRTABLE_ADMINS_VIEW_ID'),
-    AIRTABLE_CRM_BASE_ID: read('AIRTABLE_CRM_BASE_ID') || adminsBase,
-    AIRTABLE_CUSTOMERS_TABLE_ID: read('AIRTABLE_CUSTOMERS_TABLE_ID') || 'Customers',
-    AIRTABLE_ESTIMATES_TABLE_ID: read('AIRTABLE_ESTIMATES_TABLE_ID') || 'Estimates',
-    AIRTABLE_CONTRACTS_TABLE_ID: read('AIRTABLE_CONTRACTS_TABLE_ID') || 'Contracts',
-    AIRTABLE_LEGACY_TABLE_ID: read('AIRTABLE_LEGACY_TABLE_ID') || LEGACY_MIXED_TABLE_ID,
-    AIRTABLE_TLS_ALLOW_INVALID: read('AIRTABLE_TLS_ALLOW_INVALID') === 'true',
-    ADMIN_SESSION_SECRET: read('ADMIN_SESSION_SECRET'),
-    NEXT_PUBLIC_APP_URL: read('NEXT_PUBLIC_APP_URL') || 'http://localhost:3002',
-    RESEND_API_KEY: read('RESEND_API_KEY'),
-    RESEND_FROM_EMAIL: read('RESEND_FROM_EMAIL') || 'no-reply@mrdemopro.com',
-    AIRTABLE_LEADS_BASE_ID: read('AIRTABLE_LEADS_BASE_ID'),
-    N8N_BASE_URL: read('N8N_BASE_URL') || 'https://nerdyhands.app.n8n.cloud',
-    N8N_LEADS_WEBHOOK_URL: read('N8N_LEADS_WEBHOOK_URL'),
-    N8N_WEBHOOK_SECRET: read('N8N_WEBHOOK_SECRET')
+    AIRTABLE_ADMINS_TABLE_ID: read(process.env.AIRTABLE_ADMINS_TABLE_ID) || 'Admins',
+    AIRTABLE_ADMINS_VIEW_ID: read(process.env.AIRTABLE_ADMINS_VIEW_ID),
+    AIRTABLE_CRM_BASE_ID: read(process.env.AIRTABLE_CRM_BASE_ID) || adminsBase,
+    AIRTABLE_CUSTOMERS_TABLE_ID: read(process.env.AIRTABLE_CUSTOMERS_TABLE_ID) || 'Customers',
+    AIRTABLE_ESTIMATES_TABLE_ID: read(process.env.AIRTABLE_ESTIMATES_TABLE_ID) || 'Estimates',
+    AIRTABLE_CONTRACTS_TABLE_ID: read(process.env.AIRTABLE_CONTRACTS_TABLE_ID) || 'Contracts',
+    AIRTABLE_LEGACY_TABLE_ID: read(process.env.AIRTABLE_LEGACY_TABLE_ID) || LEGACY_MIXED_TABLE_ID,
+    AIRTABLE_TLS_ALLOW_INVALID: read(process.env.AIRTABLE_TLS_ALLOW_INVALID) === 'true',
+    ADMIN_SESSION_SECRET: read(process.env.ADMIN_SESSION_SECRET),
+    NEXT_PUBLIC_APP_URL: read(process.env.NEXT_PUBLIC_APP_URL) || 'http://localhost:3002',
+    RESEND_API_KEY: read(process.env.RESEND_API_KEY),
+    RESEND_FROM_EMAIL: read(process.env.RESEND_FROM_EMAIL) || 'no-reply@mrdemopro.com',
+    AIRTABLE_LEADS_BASE_ID: read(process.env.AIRTABLE_LEADS_BASE_ID),
+    N8N_BASE_URL: read(process.env.N8N_BASE_URL) || 'https://nerdyhands.app.n8n.cloud',
+    N8N_LEADS_WEBHOOK_URL: read(process.env.N8N_LEADS_WEBHOOK_URL),
+    N8N_WEBHOOK_SECRET: read(process.env.N8N_WEBHOOK_SECRET)
   };
 }
 
