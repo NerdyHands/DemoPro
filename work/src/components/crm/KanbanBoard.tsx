@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 export type KanbanCard = {
   id: string;
   status: string;
+  badge?: string;
   title: string;
   subtitle?: string;
   value?: string;
@@ -23,7 +24,7 @@ export type KanbanColumn = {
 
 export type KanbanCardAction = {
   label: string;
-  whenStatus: string;
+  whenStatus?: string;
   toStatus?: string;
   href?: string;
 };
@@ -162,7 +163,7 @@ export function KanbanBoard({
                               <p className="mt-0.5 truncate text-sm text-muted">{item.subtitle}</p>
                             ) : null}
                           </div>
-                          <StatusPill status={item.status} />
+                          <StatusPill status={item.badge || item.status} />
                         </div>
                         {item.value ? <p className="mt-2 text-sm font-semibold">{item.value}</p> : null}
                         {item.meta ? (
@@ -175,7 +176,7 @@ export function KanbanBoard({
                             </Button>
                           ) : null}
                           {actions
-                            .filter(action => action.whenStatus === item.status)
+                            .filter(action => !action.whenStatus || action.whenStatus === item.status)
                             .map(action =>
                               action.href ? (
                                 <Button asChild key={`${item.id}-${action.label}`} size="sm">
