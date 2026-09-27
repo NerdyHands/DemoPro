@@ -1,12 +1,8 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  trackFormAbandon,
-  trackFormStart,
-  trackGenerateLead
-} from '../config/gtm';
+import { useLeadFormFunnel } from '../hooks/useLeadFormFunnel';
 import { GOOGLE_APPS_SCRIPT_URL } from '../config/googleAppsScript';
 import { getRecaptchaToken } from '../config/recaptcha';
 import { getServiceOptionsForForm } from '../config/servicesList';
@@ -48,42 +44,18 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now());
   const formId = `quote_${serviceType.replace(/\s+/g, '_')}_${inline ? 'inline' : 'block'}`;
-  const formStarted = useRef(false);
-  const formSubmitted = useRef(false);
-  const abandonReported = useRef(false);
-
-  const markFormStart = useCallback(() => {
-    if (formStarted.current) return;
-    formStarted.current = true;
-    trackFormStart({
-      form_id: formId,
-      form_type: 'quote_request',
-      service_name: serviceType
-    });
-  }, [formId, serviceType]);
-
-  useEffect(() => {
-    const onAbandon = () => {
-      if (!formStarted.current || formSubmitted.current || abandonReported.current) {
-        return;
-      }
-      abandonReported.current = true;
-      trackFormAbandon({
-        form_id: formId,
-        form_type: 'quote_request',
-        service_name: serviceType
-      });
-    };
-    window.addEventListener('pagehide', onAbandon);
-    const onVis = () => {
-      if (document.visibilityState === 'hidden') onAbandon();
-    };
-    document.addEventListener('visibilitychange', onVis);
-    return () => {
-      window.removeEventListener('pagehide', onAbandon);
-      document.removeEventListener('visibilitychange', onVis);
-    };
-  }, [formId, serviceType]);
+  const {
+    formRef,
+    markFormStart,
+    markSubmitAttempt,
+    markValidationError,
+    markNetworkError,
+    markSubmitted
+  } = useLeadFormFunnel({
+    formId,
+    formType: 'quote_request',
+    serviceName: serviceType
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -98,16 +70,19 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    markSubmitAttempt();
 
     if (isGooglePlacesConfigured() && !placesUnavailable) {
       if (!resolvedAddress?.isComplete || !resolvedAddress.placeId) {
         setAddressError(
           'Please select a complete property address from the Google suggestions.'
         );
+        markValidationError('address', 'incomplete_google_address');
         return;
       }
     } else if (!formData.address.trim()) {
       setAddressError('Property address is required.');
+      markValidationError('address', 'missing_address');
       return;
     }
 
@@ -141,18 +116,15 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
         body: formDataEncoded.toString(),
       });
 
-      formSubmitted.current = true;
-      trackGenerateLead({
-        form_id: formId,
-        lead_type: 'quote_request',
-        address: formData.address,
-        service_name: formData.serviceType,
-        method: 'form'
-      });
+      markSubmitted(
+        { name: formData.name, phone: formData.phone },
+        { address: formData.address, service_name: formData.serviceType }
+      );
 
       navigate('/thank-you/');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error submitting form:', error);
+      markNetworkError(error);
       alert('There was an error submitting your request. Please try again or call us at 757-848-4559.');
     } finally {
       setIsSubmitting(false);
@@ -323,7 +295,7 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
       >
         {titleBlock}
 
-        <form className="quote-form" onSubmit={handleSubmit}>
+        <form ref={formRef} className="quote-form" onSubmit={handleSubmit}>
           {renderFormFields('website-quote')}
         </form>
       </motion.div>
@@ -346,7 +318,7 @@ const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormP
     >
       {titleBlock}
 
-      <form className="quote-form" onSubmit={handleSubmit}>
+      <form ref={formRef} className="quote-form" onSubmit={handleSubmit}>
         {renderFormFields('website-quote-2')}
       </form>
     </motion.div>

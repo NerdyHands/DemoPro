@@ -18,6 +18,7 @@ import type {
   PageType,
   ScrollDepthPercent
 } from './analyticsTypes';
+import {capturePostHogEvent, capturePostHogPageview} from './posthog';
 
 export const GTM_ID = 'GTM-593BSRJT';
 
@@ -222,6 +223,16 @@ export function isServicePath(pathname: string): boolean {
   return getServiceNameFromPath(pathname) !== null;
 }
 
+/**
+ * GTM-only events: page_view is sent to PostHog as $pageview; form_submit and phone_click
+ * duplicate generate_lead / phone_call_click and exist only for legacy GTM triggers.
+ */
+const GTM_ONLY_EVENTS = new Set<string>([
+  GTM_EVENTS.PAGE_VIEW,
+  GTM_EVENTS.FORM_SUBMIT,
+  'phone_click'
+]);
+
 export const trackEvent = (
   eventName: string,
   eventData?: Record<string, unknown>
@@ -233,6 +244,10 @@ export const trackEvent = (
     event: eventName,
     ...eventData
   });
+
+  if (!GTM_ONLY_EVENTS.has(eventName)) {
+    capturePostHogEvent(eventName, eventData);
+  }
 };
 
 export type LeadType =
@@ -297,15 +312,19 @@ export function trackFormSubmission(
 
 export function trackPageView(pageName: string, pageUrl: string) {
   captureSessionLandingPage();
+  const pagePath =
+    typeof window !== 'undefined' ? window.location.pathname : undefined;
+  const pageType = pagePath ? getPageTypeFromPath(pagePath) : undefined;
   trackEvent(GTM_EVENTS.PAGE_VIEW, {
     page_name: pageName,
     page_url: pageUrl,
-    page_path:
-      typeof window !== 'undefined' ? window.location.pathname : undefined,
-    page_type:
-      typeof window !== 'undefined'
-        ? getPageTypeFromPath(window.location.pathname)
-        : undefined
+    page_path: pagePath,
+    page_type: pageType
+  });
+  capturePostHogPageview({
+    $current_url: pageUrl,
+    title: pageName,
+    page_type: pageType
   });
 }
 
@@ -509,6 +528,8 @@ export function trackFormAbandon(params: {
   form_type: LeadType | 'quote_request' | 'contact_form';
   page_path?: string;
   service_name?: string;
+  last_field?: string;
+  seconds_on_form?: number;
 }) {
   const path =
     params.page_path ??
@@ -518,7 +539,52 @@ export function trackFormAbandon(params: {
     form_type: params.form_type,
     page_path: path,
     page_type: getPageTypeFromPath(path),
-    service_name: params.service_name
+    service_name: params.service_name,
+    last_field: params.last_field,
+    seconds_on_form: params.seconds_on_form
+  });
+}
+
+type FormFunnelParams = {
+  form_id: string;
+  form_type: LeadType;
+  service_name?: string;
+};
+
+function formFunnelProps(params: FormFunnelParams) {
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  return {
+    form_id: params.form_id,
+    form_type: params.form_type,
+    service_name: params.service_name,
+    page_path: path,
+    page_type: getPageTypeFromPath(path)
+  };
+}
+
+/** Funnel step: lead form scrolled into view (once per mount). */
+export function trackFormView(params: FormFunnelParams) {
+  trackEvent('form_view', formFunnelProps(params));
+}
+
+/** Funnel step: submit pressed, before validation / network. */
+export function trackFormSubmitAttempt(params: FormFunnelParams) {
+  trackEvent('form_submit_attempt', formFunnelProps(params));
+}
+
+/** Submit blocked by validation or failed in transit. */
+export function trackFormError(
+  params: FormFunnelParams & {
+    error_type: 'validation' | 'network';
+    error_field?: string;
+    error_message?: string;
+  }
+) {
+  trackEvent('form_error', {
+    ...formFunnelProps(params),
+    error_type: params.error_type,
+    error_field: params.error_field,
+    error_message: params.error_message
   });
 }
 

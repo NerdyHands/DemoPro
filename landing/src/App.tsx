@@ -179,7 +179,7 @@ function AppContent() {
   return (
     <div className="App">
       {!isLandingPage && <Header />}
-      <main>
+      <main id="main-content">
         {showGlobalBreadcrumbs && <Breadcrumbs withContainer />}
         <Routes>
             <Route

@@ -34,6 +34,7 @@
     "@opinly/shared": "^1.4.0",
     "bootstrap": "^5.3.8",
     "framer-motion": "^12.23.12",
+    "posthog-js": "^1.434.15",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",

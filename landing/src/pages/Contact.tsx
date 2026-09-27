@@ -1,16 +1,12 @@
-import {useState, useRef, useCallback, useEffect} from 'react';
+import {useState} from 'react';
 import {Container, Row, Col, Form, Button, Alert} from 'react-bootstrap';
 import {useNavigate} from 'react-router-dom';
 import {motion} from 'framer-motion';
-import {
-  trackFormAbandon,
-  trackFormStart,
-  trackGenerateLead,
-  trackPhoneClick
-} from '../config/gtm';
+import {trackPhoneClick} from '../config/gtm';
 import {GOOGLE_APPS_SCRIPT_URL} from '../config/googleAppsScript';
 import {getRecaptchaToken} from '../config/recaptcha';
 import {useScrollDepth} from '../hooks/useScrollDepth';
+import {useLeadFormFunnel} from '../hooks/useLeadFormFunnel';
 
 const Contact = () => {
   useScrollDepth('contact');
@@ -24,41 +20,18 @@ const Contact = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formLoadTime] = useState(Date.now()); // Track when form loads for spam detection
-  const formId = 'contact_main';
-  const formStarted = useRef(false);
-  const formSubmitted = useRef(false);
-  const abandonReported = useRef(false);
-
-  const markFormStart = useCallback(() => {
-    if (formStarted.current) return;
-    formStarted.current = true;
-    trackFormStart({
-      form_id: formId,
-      form_type: 'contact_form'
-    });
-  }, []);
-
-  useEffect(() => {
-    const onAbandon = () => {
-      if (!formStarted.current || formSubmitted.current || abandonReported.current) {
-        return;
-      }
-      abandonReported.current = true;
-      trackFormAbandon({
-        form_id: formId,
-        form_type: 'contact_form'
-      });
-    };
-    window.addEventListener('pagehide', onAbandon);
-    const onVis = () => {
-      if (document.visibilityState === 'hidden') onAbandon();
-    };
-    document.addEventListener('visibilitychange', onVis);
-    return () => {
-      window.removeEventListener('pagehide', onAbandon);
-      document.removeEventListener('visibilitychange', onVis);
-    };
-  }, []);
+  const {
+    formRef,
+    markFormStart,
+    markSubmitAttempt,
+    markValidationError,
+    markNetworkError,
+    markSubmitted
+  } = useLeadFormFunnel({
+    formId: 'contact_form',
+    formType: 'contact_form',
+    serviceName: 'Contact'
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -71,17 +44,20 @@ const Contact = () => {
     }));
   };
 
+  const failValidation = (field: string, message: string) => {
+    setAlertMessage(message);
+    setShowAlert(true);
+    markValidationError(field, message);
+    return false;
+  };
+
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setAlertMessage('Name is required');
-      setShowAlert(true);
-      return false;
+      return failValidation('name', 'Name is required');
     }
 
     if (/\d/.test(formData.name)) {
-      setAlertMessage('Error: Name should not contain numbers');
-      setShowAlert(true);
-      return false;
+      return failValidation('name', 'Error: Name should not contain numbers');
     }
 
     // if (!formData.email.trim()) {
@@ -90,15 +66,11 @@ const Contact = () => {
     //   return false;
     // }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setAlertMessage('Please enter a valid email address');
-      setShowAlert(true);
-      return false;
+      return failValidation('email', 'Please enter a valid email address');
     }
 
     if (!formData.message.trim()) {
-      setAlertMessage('Message is required');
-      setShowAlert(true);
-      return false;
+      return failValidation('message', 'Message is required');
     }
 
     return true;
@@ -106,6 +78,7 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    markSubmitAttempt();
 
     if (!validateForm()) return;
 
@@ -138,20 +111,15 @@ const Contact = () => {
         body: formDataEncoded.toString()
       });
 
-      formSubmitted.current = true;
-      trackGenerateLead({
-        form_id: 'contact_form',
-        lead_type: 'contact_form',
-        method: 'form',
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        service_name: 'Contact'
-      });
+      markSubmitted(
+        {name: formData.name, email: formData.email},
+        {name: formData.name, email: formData.email, message: formData.message}
+      );
 
       navigate('/thank-you/');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error submitting form:', error);
+      markNetworkError(error);
       setAlertMessage(
         'There was an error sending your message. Please try again.'
       );
@@ -203,7 +171,7 @@ const Contact = () => {
                   </Alert>
                 )}
 
-                <Form onSubmit={handleSubmit}>
+                <Form ref={formRef} onSubmit={handleSubmit}>
                   <Form.Group className="mb-3">
                     <Form.Label
                       htmlFor="name"

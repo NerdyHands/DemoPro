@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Construction debris removal</title>
+  <desc id="desc">Black line illustration of a debris cart holding broken construction material</desc>
+  <g fill="none" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 34h12l10 48h54l12-34H36"/>
+    <path d="M42 48h60"/>
+    <path d="M48 48V31l16-9 13 10 18-8 8 24"/>
+    <path d="M54 34l10 7 13-9 10 8"/>
+    <path d="M44 82h54"/>
+    <path d="M46 82l-8 13h65"/>
+    <circle cx="52" cy="103" r="8"/>
+    <circle cx="92" cy="103" r="8"/>
+    <path d="M56 64h30M59 73h24"/>
+  </g>
+</svg>

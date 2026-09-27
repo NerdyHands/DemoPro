@@ -38,7 +38,7 @@ export const SERVICE_LEAVES: SiteLink[] = [
   {label: 'Junk Removal', path: '/services/junk-removal/'}
 ];
 
-/** City / location pages nested under /service-area/ */}
+/** City / location pages nested under /service-area/ */
 export const CITY_LEAVES: SiteLink[] = [
   {label: 'Hampton, VA', path: CITY_PATHS.hampton},
   {label: 'Newport News, VA', path: CITY_PATHS.newportNews},
@@ -56,6 +56,20 @@ export const PRIMARY_NAV_LINKS: SiteLink[] = [
   {label: 'Blog', path: '/blog/'},
   {label: 'FAQs', path: '/faqs/'}
 ];
+
+/** Header and footer links to homepage sections */
+export const HOME_SECTION_LINKS: SiteLink[] = [
+  {label: 'Services', path: '/#services'},
+  {label: 'Who We Serve', path: '/#audiences'},
+  {label: 'Pricing', path: '/#pricing'},
+  {label: 'Process', path: '/#process'},
+  {label: 'Service Area', path: '/#service-area'}
+];
+
+export const HOME_QUOTE_LINK: SiteLink = {
+  label: 'Request a Quote',
+  path: '/#quote'
+};
 
 /** Footer: Company column */
 export const COMPANY_LINKS: SiteLink[] = [

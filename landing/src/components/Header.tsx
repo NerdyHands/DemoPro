@@ -1,12 +1,8 @@
 import {useState, useEffect, useRef, type MouseEvent as ReactMouseEvent} from 'react';
-import {Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
+import {Navbar, Nav, Container} from 'react-bootstrap';
 import {Link, useLocation} from 'react-router-dom';
-import {
-  HUBS,
-  PRIMARY_NAV_LINKS,
-  SERVICE_LEAVES,
-  CITY_LEAVES
-} from '../config/siteStructure';
+import {trackPhoneClick} from '../config/gtm';
+import {HOME_SECTION_LINKS} from '../config/siteStructure';
 
 const navLinkStyle = {
   fontWeight: 600,
@@ -16,11 +12,6 @@ const navLinkStyle = {
   borderRadius: '0.5rem',
   textDecoration: 'none',
   transition: 'all 0.3s ease'
-} as const;
-
-const dropdownItemStyle = {
-  fontWeight: 500,
-  padding: '0.5rem 1rem'
 } as const;
 
 const Header = () => {
@@ -92,6 +83,9 @@ const Header = () => {
   return (
     <>
       <header>
+        <a href="#main-content" className="visually-hidden-focusable">
+          Skip to main content
+        </a>
         <Navbar
           ref={navRef}
           bg="white"
@@ -153,7 +147,10 @@ const Header = () => {
             <Navbar.Collapse id="main-navigation">
               <div className="ms-auto">
                 <nav aria-label="Primary navigation">
-                  <Nav className="text-center" style={{gap: '0.5rem'}}>
+                  <Nav
+                    className="text-center align-items-lg-center"
+                    style={{gap: '0.5rem'}}
+                  >
                     <Nav.Link
                       as={Link}
                       to="/"
@@ -168,77 +165,12 @@ const Header = () => {
                       Home
                     </Nav.Link>
 
-                    <NavDropdown
-                      title="Services"
-                      id="services-dropdown"
-                      style={{
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        color: '#1a202c'
-                      }}
-                    >
-                      <NavDropdown.Item
-                        as={Link}
-                        to={HUBS.services.path}
-                        onClick={handleNavClick}
-                        style={dropdownItemStyle}
-                      >
-                        All Services
-                      </NavDropdown.Item>
-                      <NavDropdown.Divider />
-                      {SERVICE_LEAVES.map(service => (
-                        <NavDropdown.Item
-                          key={service.path}
-                          as={Link}
-                          to={service.path}
-                          onClick={handleNavClick}
-                          style={dropdownItemStyle}
-                        >
-                          {service.label}
-                        </NavDropdown.Item>
-                      ))}
-                    </NavDropdown>
-
-                    <NavDropdown
-                      title="Service Areas"
-                      id="service-areas-dropdown"
-                      style={{
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        color: '#1a202c'
-                      }}
-                    >
-                      <NavDropdown.Item
-                        as={Link}
-                        to={HUBS.serviceAreas.path}
-                        onClick={handleNavClick}
-                        style={dropdownItemStyle}
-                      >
-                        All Service Areas
-                      </NavDropdown.Item>
-                      <NavDropdown.Divider />
-                      {CITY_LEAVES.map(city => (
-                        <NavDropdown.Item
-                          key={city.path}
-                          as={Link}
-                          to={city.path}
-                          onClick={handleNavClick}
-                          style={dropdownItemStyle}
-                        >
-                          {city.label}
-                        </NavDropdown.Item>
-                      ))}
-                    </NavDropdown>
-
-                    {PRIMARY_NAV_LINKS.map(item => (
+                    {HOME_SECTION_LINKS.map(item => (
                       <Nav.Link
                         key={item.path}
                         as={Link}
                         to={item.path}
-                        onClick={handleNavClick}
-                        aria-current={
-                          location.pathname === item.path ? 'page' : undefined
-                        }
+                        onClick={() => setExpanded(false)}
                         style={navLinkStyle}
                         onMouseEnter={applyHoverIn}
                         onMouseLeave={applyHoverOut}
@@ -246,6 +178,25 @@ const Header = () => {
                         {item.label}
                       </Nav.Link>
                     ))}
+
+                    <Nav.Link
+                      href="tel:757-848-4559"
+                      aria-label="Call Mr Demo Pro at 757-848-4559"
+                      onClick={() =>
+                        trackPhoneClick({
+                          cta_location: 'site_header',
+                          cta_label: 'Header phone'
+                        })
+                      }
+                      style={{
+                        ...navLinkStyle,
+                        color: '#fff',
+                        backgroundColor: 'rgb(236, 65, 0)',
+                        padding: '0.75rem 1.25rem'
+                      }}
+                    >
+                      757-848-4559
+                    </Nav.Link>
                   </Nav>
                 </nav>
               </div>

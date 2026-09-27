@@ -7,6 +7,7 @@ import {
   trackCalculatorInteraction,
   trackGenerateLead
 } from '../config/gtm';
+import { identifyPostHogLead } from '../config/posthog';
 import PhoneLink from '../components/PhoneLink';
 import { useScrollDepth } from '../hooks/useScrollDepth';
 import { GOOGLE_APPS_SCRIPT_URL } from '../config/googleAppsScript';
@@ -198,6 +199,13 @@ const DiyVsProDemolition = () => {
         outcome: quizResult.riskLevel
       });
 
+      identifyPostHogLead({
+        name: formData.name,
+        email: formData.email,
+        lead_type: 'quiz_submission',
+        service_name: 'DIY vs Pro Demo Risk Quiz',
+        form_id: 'diy_quiz_lead'
+      });
       trackGenerateLead({
         form_id: 'diy_quiz_lead',
         lead_type: 'quiz_submission',
@@ -227,7 +235,7 @@ const DiyVsProDemolition = () => {
 
       closeQuiz();
       navigate('/diy-vs-pro-demolition/thank-you/', { state: payload });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error submitting quiz:', error);
       alert('There was an error submitting your information. Please try again or call us at 757-848-4559.');
     } finally {
