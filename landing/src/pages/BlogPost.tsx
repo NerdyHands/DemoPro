@@ -3,7 +3,9 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { fetchPost, fetchRelated, sendBlogEvent } from '../api/blog';
 import type { PostDetail, PostSummary } from '../api/blog';
 import SEO from '../components/SEO';
+import Breadcrumbs from '../components/Breadcrumbs';
 import {trackEmailClick} from '../config/gtm';
+import { getBreadcrumbsForPath } from '../utils/breadcrumbs';
 import { blogIndexPath, blogPostCanonical, blogPostPath, blogTagPath } from '../utils/blogPaths';
 import './Blog.css';
 
@@ -146,6 +148,9 @@ const BlogPost: React.FC = () => {
 
   const canonical = post.canonicalUrl || blogPostCanonical(post.slug);
   const shareUrl = typeof window !== 'undefined' ? window.location.href : canonical;
+  const breadcrumbItems = getBreadcrumbsForPath(`/blog/${post.slug}/`, {
+    blogPostTitle: post.title
+  });
 
   return (
     <div className="blog-post-layout">
@@ -159,6 +164,7 @@ const BlogPost: React.FC = () => {
       />
 
       <article className="blog-article">
+        <Breadcrumbs items={breadcrumbItems} />
         <Link to={blogIndexPath()} className="back-to-blog">
           ← Back to Blog
         </Link>

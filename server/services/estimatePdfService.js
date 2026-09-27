@@ -1,6 +1,16 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+const { renderHouseDemolitionProposal } = require('./houseDemolitionPdfRenderer');
+const { sanitizeFilename } = require('./documentOutputs/sendDocxResponse');
+
+const BRAND = {
+  legalName: 'Castleton Real Estate, LLC dba Mr Demo Pro',
+  brandName: 'Mr Demo Pro',
+  license: 'Class A - Residential Building Contractor, DPOR License #2705161677',
+  address: '24922 Castleton Dr Chantilly VA 20152',
+  phone: '757-848-4559',
+};
 
 class EstimatePdfService {
   constructor() {
@@ -8,6 +18,15 @@ class EstimatePdfService {
     if (!fs.existsSync(this.uploadsDir)) {
       fs.mkdirSync(this.uploadsDir, { recursive: true });
     }
+  }
+
+  isHouseDemolition(estimate) {
+    return estimate?.templateType === 'house_demolition'
+      || /house\s+demolition/i.test(estimate?.title || '');
+  }
+
+  brandColor(estimate) {
+    return this.isHouseDemolition(estimate) ? '#F58220' : '#08a171';
   }
 
   formatPrice(price) {
@@ -39,43 +58,71 @@ class EstimatePdfService {
     });
   }
 
+  drawCompanyHeader(doc, estimate) {
+    if (this.isHouseDemolition(estimate)) {
+      // House demolition proposals render their own compact header.
+      return;
+    }
+
+    const primary = this.brandColor(estimate);
+    const logoPath = path.join(__dirname, '../../client/public/logo.png');
+
+    try {
+      if (fs.existsSync(logoPath)) {
+        const logoWidth = 110;
+        const xPosition = (612 - logoWidth) / 2;
+        doc.image(logoPath, xPosition, doc.y, { width: logoWidth });
+        doc.y += 95;
+      }
+    } catch (error) {
+      console.log('⚠️ Could not load logo for estimate PDF:', error.message);
+    }
+
+    doc.fontSize(16)
+       .font('Helvetica-Bold')
+       .fillColor(primary)
+       .text(BRAND.legalName, { align: 'center' });
+
+    doc.fontSize(11)
+       .font('Helvetica-Bold')
+       .fillColor('#1a202c')
+       .text(BRAND.brandName, { align: 'center' });
+
+    doc.fontSize(10)
+       .font('Helvetica')
+       .fillColor('#666666')
+       .text(BRAND.license, { align: 'center' });
+
+    doc.fontSize(10)
+       .font('Helvetica')
+       .fillColor('#333333')
+       .text(`${BRAND.address} · ${BRAND.phone}`, { align: 'center' });
+
+    doc.moveDown(1);
+  }
+
   async generateEstimatePdf(estimate) {
     return new Promise((resolve, reject) => {
       try {
         const doc = new PDFDocument({ size: 'LETTER', margin: 50, bufferPages: false });
 
-        const customerName = estimate.customer ? `${estimate.customer.firstName || ''} ${estimate.customer.lastName || ''}`.trim().replace(/\s+/g, '_') : 'Client';
-        const dateStr = new Date().toISOString().slice(0,10).replace(/-/g, '');
-        const fileName = `Estimate_${customerName}_${estimate.estimateNumber || estimate._id}_${dateStr}.pdf`;
+        const docNumber = estimate.estimateNumber || String(estimate._id);
+        const prefix = this.isHouseDemolition(estimate) ? 'HouseDemoProposal' : 'Estimate';
+        const fileName = `${sanitizeFilename(`${prefix}_${docNumber}`)}.pdf`;
         const filePath = path.join(this.uploadsDir, fileName);
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
+        this.drawCompanyHeader(doc, estimate);
 
-        // Company name and title (centered)
-        doc.fontSize(16)
-           .font('Helvetica-Bold')
-           .fillColor('#08a171')
-           .text('Castleton Real Estate, LLC dba Mr Demo Pro', { align: 'center' });
-        
-        doc.fontSize(12)
-           .font('Helvetica')
-           .fillColor('#666666')
-           .text('Class A - Residential Building Contractor, DPOR License #2705161677', { align: 'center' });
-        
-        doc.fontSize(12)
-           .font('Helvetica')
-           .fillColor('#333333')
-           .text('24922 Castleton Dr Chantilly VA 20152', { align: 'center' });
-
-        // Empty line after address
-        doc.moveDown(1);
-
-
-
-
-        // Render estimate page
-        this.addEstimatePage(doc, estimate);
+        if (this.isHouseDemolition(estimate)) {
+          renderHouseDemolitionProposal(doc, estimate, {
+            primaryColor: this.brandColor(estimate),
+            logoPath: path.join(__dirname, '../../client/public/logo.png'),
+          });
+        } else {
+          this.addEstimatePage(doc, estimate);
+        }
 
         doc.end();
 
@@ -88,10 +135,11 @@ class EstimatePdfService {
   }
 
   addEstimatePage(doc, estimate) {
+    const primary = this.brandColor(estimate);
     // Estimate title (company info already added above)
     doc.fontSize(16)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor(primary)
        .text(estimate.title || 'PICRA Repair Estimate', { align: 'center' });
 
     doc.moveDown(1.25);
@@ -166,8 +214,8 @@ class EstimatePdfService {
     const drawHeaderRow = () => {
       const headerTop = doc.y;
       doc.rect(50, headerTop - 5, 490, 25)
-         .fill('#08a171')
-         .strokeColor('#08a171')
+         .fill(primary)
+         .strokeColor(primary)
          .stroke();
       doc.fontSize(10)
          .font('Helvetica-Bold')
@@ -212,7 +260,7 @@ class EstimatePdfService {
         const validNotes = notes.filter(note => note && note.trim());
         if (validNotes.length > 0) {
           doc.fontSize(9).font('Times-Italic');
-          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          const notesText = validNotes.map((note) => `• ${note.trim()}`).join('\n');
           notesHeight = doc.heightOfString(notesText, {
             width: descriptionWidth
           }) + rowPaddingY;
@@ -254,7 +302,7 @@ class EstimatePdfService {
           doc.fontSize(9)
              .font('Times-Italic')
              .fillColor('#666666');
-          const notesText = validNotes.map((note, idx) => `• ${note.trim()}`).join('\n');
+          const notesText = validNotes.map((note) => `• ${note.trim()}`).join('\n');
           doc.text(notesText, colX[1], currentY, {
             width: descriptionWidth,
             height: notesHeight
@@ -314,12 +362,12 @@ class EstimatePdfService {
     const totalsBoxX = centerX - (totalsBoxWidth / 2);
     doc.rect(totalsBoxX, totalsY - 10, totalsBoxWidth, totalsBoxHeight)
        .fill('#f3f4f6')
-       .strokeColor('#08a171')
+       .strokeColor(primary)
        .lineWidth(1)
        .stroke();
     doc.fontSize(16)
        .font('Helvetica-Bold')
-       .fillColor('#08a171')
+       .fillColor(primary)
        .text('TOTAL:', totalsBoxX + 10, totalsY + 20)
        .text(this.formatPrice(estimate.totalAmount || 0), totalsBoxX + totalsBoxWidth - 10, totalsY + 20, { align: 'right' });
 
@@ -349,16 +397,12 @@ class EstimatePdfService {
     addTextSection('Description', descriptionText);
     addTextSection('Notes', notesText);
 
-    // Footer note
     doc.moveDown(2);
     doc.fontSize(9)
        .font('Helvetica')
        .fillColor('#666666')
        .text('This estimate is valid for 30 days from the date of issue. Please contact us for any questions or clarifications.', { align: 'center' });
-    
   }
 }
 
 module.exports = EstimatePdfService;
-
-

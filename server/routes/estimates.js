@@ -2,8 +2,8 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Estimate = require('../models/Estimate');
 const Customer = require('../models/Customer');
-const Counter = require('../models/Counter');
 const fs = require('fs');
+const { generateEstimateNumber } = require('../utils/documentNumbers');
 const ContractPdfService = require('../services/contractPdfService');
 const EstimatePdfService = require('../services/estimatePdfService');
 const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
@@ -43,18 +43,14 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-// Generate estimate number with improved numbering system using counter
-const generateEstimateNumber = async () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  
-  // Generate a unique sequence number using counter
-  const sequence = await Counter.generateNumber('estimates', '', '0000');
-  
-  // Format: EST-YYYYMMDD-XXXX (e.g., EST-20241201-0001)
-  return `EST-${year}${month}${day}-${sequence}`;
+// Generate estimate number from property street number + customer name
+const createEstimateNumber = async (payload, customer) => {
+  return generateEstimateNumber(Estimate, {
+    propertyAddress: payload.propertyAddress,
+    clientAddress: payload.clientAddress,
+    customer,
+    title: payload.title,
+  });
 };
 
 // GET /api/estimates
@@ -106,14 +102,15 @@ router.get('/mine', authenticateUser, async (req, res) => {
 router.post('/', authenticateUser, [
   body('customer').isMongoId().withMessage('Valid customer ID is required'),
   body('title').trim().isLength({ min: 1, max: 200 }).withMessage('Title is required and must be 1-200 characters'),
-  body('description').optional().trim().isLength({ max: 2000 }).withMessage('Description must be 2000 characters or less'),
+  body('description').optional().trim().isLength({ max: 4000 }).withMessage('Description must be 4000 characters or less'),
   body('propertyAddress').optional().trim().isLength({ max: 500 }).withMessage('Property address must be 500 characters or less'),
   body('clientAddress').optional().trim().isLength({ max: 500 }).withMessage('Client address must be 500 characters or less'),
   body('lineItems').isArray().withMessage('Line items must be an array'),
   body('lineItems.*.description').trim().isLength({ min: 1, max: 2000 }).withMessage('Line item description is required and must be 1-2000 characters'),
   body('lineItems.*.quantity').isFloat({ min: 0 }).withMessage('Quantity must be a positive number'),
   body('lineItems.*.unitPrice').isFloat({ min: 0 }).withMessage('Unit price must be a positive number'),
-  body('notes').optional().trim().isLength({ max: 1000 }).withMessage('Notes must be 1000 characters or less')
+  body('notes').optional().trim().isLength({ max: 8000 }).withMessage('Notes must be 8000 characters or less'),
+  body('templateType').optional().isIn(['standard', 'house_demolition']).withMessage('Invalid template type')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -138,7 +135,7 @@ router.post('/', authenticateUser, [
     }
 
     // Generate estimate number
-    const estimateNumber = await generateEstimateNumber();
+    const estimateNumber = await createEstimateNumber(req.body, customer);
 
     // Check if estimate number already exists (shouldn't happen with counter, but safety check)
     const existingEstimate = await Estimate.findOne({ estimateNumber });
@@ -210,7 +207,7 @@ router.get('/:id', authenticateUser, async (req, res) => {
 // PUT /api/estimates/:id
 router.put('/:id', authenticateUser, [
   body('title').optional().trim().isLength({ min: 1, max: 200 }).withMessage('Title must be 1-200 characters'),
-  body('description').optional().trim().isLength({ max: 2000 }).withMessage('Description must be 2000 characters or less'),
+  body('description').optional().trim().isLength({ max: 4000 }).withMessage('Description must be 4000 characters or less'),
   body('propertyAddress').optional().trim().isLength({ max: 500 }).withMessage('Property address must be 500 characters or less'),
   body('clientAddress').optional().trim().isLength({ max: 500 }).withMessage('Client address must be 500 characters or less'),
   body('lineItems').optional().isArray().withMessage('Line items must be an array'),
@@ -218,7 +215,8 @@ router.put('/:id', authenticateUser, [
   body('lineItems.*.quantity').optional().isFloat({ min: 0 }).withMessage('Quantity must be a positive number'),
   body('lineItems.*.unitPrice').optional().isFloat({ min: 0 }).withMessage('Unit price must be a positive number'),
   body('status').optional().isIn(['Draft', 'Sent', 'Approved', 'Rejected', 'Expired']).withMessage('Invalid status'),
-  body('notes').optional().trim().isLength({ max: 1000 }).withMessage('Notes must be 1000 characters or less')
+  body('notes').optional().trim().isLength({ max: 8000 }).withMessage('Notes must be 8000 characters or less'),
+  body('templateType').optional().isIn(['standard', 'house_demolition']).withMessage('Invalid template type')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

@@ -1,6 +1,7 @@
 import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
 import {Button, Col, Container, Row} from 'react-bootstrap';
+import {CITY_LEAVES, HUBS} from '../config/siteStructure';
 
 const Services = () => {
   const scrollTop = () => window.scrollTo({top: 0, behavior: 'smooth'});
@@ -135,16 +136,16 @@ const Services = () => {
                 margin: '0 auto'
               }}
             >
-              Looking for a full overview? Visit our{' '}
+              Browse our specialty services below, then jump to the{' '}
+              <Link to={HUBS.serviceAreas.path} onClick={scrollTop}>
+                service areas hub
+              </Link>{' '}
+              for city-specific demolition pages across Hampton Roads. For a
+              broader overview, see{' '}
               <Link to="/demolition-services/" onClick={scrollTop}>
-                demolition services page
-              </Link>{' '}
-              for more options, or see our{' '}
-              <Link to="/service-area/" onClick={scrollTop}>
-                local service area hub
-              </Link>{' '}
-              (Hampton, Newport News, Norfolk, Virginia Beach, Chesapeake,
-              Portsmouth, and Suffolk) for city-specific demolition intent.
+                demolition services
+              </Link>
+              .
             </motion.p>
           </Col>
         </Row>
@@ -170,24 +171,10 @@ const Services = () => {
               </h2>
               <p style={{color: 'var(--color-text-secondary)', lineHeight: 1.65}}>
                 Need a demolition contractor by city? Start with{' '}
-                {[
-                  {label: 'Hampton', to: '/demolition-contractor-hampton-va/'},
-                  {
-                    label: 'Newport News',
-                    to: '/demolition-contractor-newport-news-va/'
-                  },
-                  {label: 'Norfolk', to: '/demolition-contractor-norfolk-va/'},
-                  {
-                    label: 'Virginia Beach',
-                    to: '/demolition-contractor-virginia-beach-va/'
-                  },
-                  {label: 'Chesapeake', to: '/demolition-contractor-chesapeake-va/'},
-                  {label: 'Portsmouth', to: '/demolition-contractor-portsmouth-va/'},
-                  {label: 'Suffolk', to: '/demolition-contractor-suffolk-va/'}
-                ].map((city, index, list) => (
-                  <span key={city.to}>
-                    <Link to={city.to} onClick={scrollTop}>
-                      {city.label}
+                {CITY_LEAVES.map((city, index, list) => (
+                  <span key={city.path}>
+                    <Link to={city.path} onClick={scrollTop}>
+                      {city.label.replace(', VA', '')}
                     </Link>
                     {index < list.length - 1 ? ', ' : '.'}
                   </span>
@@ -219,7 +206,6 @@ const Services = () => {
               >
                 <img
                   src={service.img}
-                  // alt={`${service.title} service by MrDemoPro`}
                   alt={`${service.title} in Hampton Roads by MrDemoPro`}
                   width="128"
                   height="128"
@@ -227,9 +213,13 @@ const Services = () => {
                   className="mb-3 mx-auto"
                 />
 
-                <h3 itemProp="name" style={{color: 'var(--color-primary)'}}>{service.title}</h3>
+                <h3 itemProp="name" style={{color: 'var(--color-primary)'}}>
+                  {service.title}
+                </h3>
 
-                <p itemProp="description" className="flex-grow-1">{service.desc}</p>
+                <p itemProp="description" className="flex-grow-1">
+                  {service.desc}
+                </p>
 
                 <Link
                   to={service.link}

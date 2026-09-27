@@ -116,7 +116,8 @@ export function getPageTypeFromPath(pathname: string): PageType {
     p.startsWith('/demolition-contractor-') ||
     p.startsWith('/building-demolition') ||
     p.startsWith('/demolition-services') ||
-    p.startsWith('/service-area')
+    p === '/service-area' ||
+    p.startsWith('/service-area/')
   ) {
     return 'location';
   }
@@ -150,7 +151,8 @@ export function getMarketingPageType(pathname: string): MarketingPageType {
   if (p === '/thank-you' || p.includes('/thank-you')) return 'conversion';
   if (
     p.startsWith('/demolition-contractor-') ||
-    p.startsWith('/service-area')
+    p === '/service-area' ||
+    p.startsWith('/service-area/')
   ) {
     return 'location';
   }

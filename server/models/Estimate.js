@@ -25,6 +25,11 @@ const lineItemSchema = new mongoose.Schema({
     min: 0,
     default: 0
   },
+  category: {
+    type: String,
+    trim: true,
+    maxlength: 100
+  },
   notes: {
     type: [String],
     default: []
@@ -59,7 +64,7 @@ const estimateSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true,
-    maxlength: 2000
+    maxlength: 4000
   },
   propertyAddress: {
     type: String,
@@ -115,6 +120,11 @@ const estimateSchema = new mongoose.Schema({
     type: String,
     enum: ['mongodb', 'appsheet', 'manual'],
     default: 'mongodb'
+  },
+  templateType: {
+    type: String,
+    enum: ['standard', 'house_demolition'],
+    default: 'standard'
   },
   notes: String
 }, {

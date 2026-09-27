@@ -5,6 +5,7 @@ import {Container} from 'react-bootstrap';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import SEO from './components/SEO';
+import Breadcrumbs from './components/Breadcrumbs';
 import Home from './pages/Home';
 import Prices from './pages/Prices';
 import Services from './pages/Services';
@@ -63,6 +64,10 @@ function AppContent() {
   const isLandingPage = /^\/diy-vs-pro-demolition\/?$/.test(
     location.pathname
   );
+  // Blog posts render their own breadcrumbs with the post title
+  const isBlogPostPage = /^\/blog\/(?!tag\/)[^/]+\/?$/.test(location.pathname);
+  const showGlobalBreadcrumbs =
+    !isLandingPage && location.pathname !== '/' && !isBlogPostPage;
 
   const lastServiceViewPath = React.useRef<string | null>(null);
 
@@ -175,6 +180,7 @@ function AppContent() {
     <div className="App">
       {!isLandingPage && <Header />}
       <main>
+        {showGlobalBreadcrumbs && <Breadcrumbs withContainer />}
         <Routes>
             <Route
               path="/"
@@ -243,24 +249,6 @@ function AppContent() {
               }
             />
             <Route
-              path="/demolition-contractor-hampton-va"
-              element={
-                <Navigate to="/demolition-contractor-hampton-va/" replace />
-              }
-            />
-            <Route
-              path="/demolition-contractor-hampton-va/"
-              element={
-                <>
-                  <SEO
-                    {...seoConfig.demolitionContractorHamptonVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-hampton-va/"
-                  />
-                  <DemolitionContractorHamptonVa />
-                </>
-              }
-            />
-            <Route
               path="/service-area"
               element={<Navigate to="/service-area/" replace />}
             />
@@ -277,112 +265,173 @@ function AppContent() {
               }
             />
             <Route
-              path="/demolition-contractor-newport-news-va"
+              path="/service-area/hampton-va"
+              element={<Navigate to="/service-area/hampton-va/" replace />}
+            />
+            <Route
+              path="/service-area/hampton-va/"
               element={
-                <Navigate to="/demolition-contractor-newport-news-va/" replace />
+                <>
+                  <SEO
+                    {...seoConfig.demolitionContractorHamptonVa}
+                    canonicalUrl="https://mrdemopro.com/service-area/hampton-va/"
+                  />
+                  <DemolitionContractorHamptonVa />
+                </>
               }
             />
             <Route
-              path="/demolition-contractor-newport-news-va/"
+              path="/service-area/newport-news-va"
+              element={<Navigate to="/service-area/newport-news-va/" replace />}
+            />
+            <Route
+              path="/service-area/newport-news-va/"
               element={
                 <>
                   <SEO
                     {...seoConfig.demolitionContractorNewportNewsVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-newport-news-va/"
+                    canonicalUrl="https://mrdemopro.com/service-area/newport-news-va/"
                   />
                   <DemolitionContractorNewportNewsVa />
                 </>
               }
             />
             <Route
-              path="/demolition-contractor-norfolk-va"
-              element={
-                <Navigate to="/demolition-contractor-norfolk-va/" replace />
-              }
+              path="/service-area/norfolk-va"
+              element={<Navigate to="/service-area/norfolk-va/" replace />}
             />
             <Route
-              path="/demolition-contractor-norfolk-va/"
+              path="/service-area/norfolk-va/"
               element={
                 <>
                   <SEO
                     {...seoConfig.demolitionContractorNorfolkVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-norfolk-va/"
+                    canonicalUrl="https://mrdemopro.com/service-area/norfolk-va/"
                   />
                   <DemolitionContractorNorfolkVa />
                 </>
               }
             />
             <Route
-              path="/demolition-contractor-virginia-beach-va"
-              element={
-                <Navigate to="/demolition-contractor-virginia-beach-va/" replace />
-              }
+              path="/service-area/virginia-beach-va"
+              element={<Navigate to="/service-area/virginia-beach-va/" replace />}
             />
             <Route
-              path="/demolition-contractor-virginia-beach-va/"
+              path="/service-area/virginia-beach-va/"
               element={
                 <>
                   <SEO
                     {...seoConfig.demolitionContractorVirginiaBeachVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-virginia-beach-va/"
+                    canonicalUrl="https://mrdemopro.com/service-area/virginia-beach-va/"
                   />
                   <DemolitionContractorVirginiaBeachVa />
                 </>
               }
             />
             <Route
-              path="/demolition-contractor-chesapeake-va"
-              element={
-                <Navigate to="/demolition-contractor-chesapeake-va/" replace />
-              }
+              path="/service-area/chesapeake-va"
+              element={<Navigate to="/service-area/chesapeake-va/" replace />}
             />
             <Route
-              path="/demolition-contractor-chesapeake-va/"
+              path="/service-area/chesapeake-va/"
               element={
                 <>
                   <SEO
                     {...seoConfig.demolitionContractorChesapeakeVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-chesapeake-va/"
+                    canonicalUrl="https://mrdemopro.com/service-area/chesapeake-va/"
                   />
                   <DemolitionContractorChesapeakeVa />
                 </>
               }
             />
             <Route
-              path="/demolition-contractor-portsmouth-va"
-              element={
-                <Navigate to="/demolition-contractor-portsmouth-va/" replace />
-              }
+              path="/service-area/portsmouth-va"
+              element={<Navigate to="/service-area/portsmouth-va/" replace />}
             />
             <Route
-              path="/demolition-contractor-portsmouth-va/"
+              path="/service-area/portsmouth-va/"
               element={
                 <>
                   <SEO
                     {...seoConfig.demolitionContractorPortsmouthVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-portsmouth-va/"
+                    canonicalUrl="https://mrdemopro.com/service-area/portsmouth-va/"
                   />
                   <DemolitionContractorPortsmouthVa />
                 </>
               }
             />
             <Route
-              path="/demolition-contractor-suffolk-va"
-              element={
-                <Navigate to="/demolition-contractor-suffolk-va/" replace />
-              }
+              path="/service-area/suffolk-va"
+              element={<Navigate to="/service-area/suffolk-va/" replace />}
             />
             <Route
-              path="/demolition-contractor-suffolk-va/"
+              path="/service-area/suffolk-va/"
               element={
                 <>
                   <SEO
                     {...seoConfig.demolitionContractorSuffolkVa}
-                    canonicalUrl="https://mrdemopro.com/demolition-contractor-suffolk-va/"
+                    canonicalUrl="https://mrdemopro.com/service-area/suffolk-va/"
                   />
                   <DemolitionContractorSuffolkVa />
                 </>
               }
+            />
+            {/* Legacy flat city URLs → nested /service-area/{city}-va/ */}
+            <Route
+              path="/demolition-contractor-hampton-va"
+              element={<Navigate to="/service-area/hampton-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-hampton-va/"
+              element={<Navigate to="/service-area/hampton-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-newport-news-va"
+              element={<Navigate to="/service-area/newport-news-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-newport-news-va/"
+              element={<Navigate to="/service-area/newport-news-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-norfolk-va"
+              element={<Navigate to="/service-area/norfolk-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-norfolk-va/"
+              element={<Navigate to="/service-area/norfolk-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-virginia-beach-va"
+              element={<Navigate to="/service-area/virginia-beach-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-virginia-beach-va/"
+              element={<Navigate to="/service-area/virginia-beach-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-chesapeake-va"
+              element={<Navigate to="/service-area/chesapeake-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-chesapeake-va/"
+              element={<Navigate to="/service-area/chesapeake-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-portsmouth-va"
+              element={<Navigate to="/service-area/portsmouth-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-portsmouth-va/"
+              element={<Navigate to="/service-area/portsmouth-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-suffolk-va"
+              element={<Navigate to="/service-area/suffolk-va/" replace />}
+            />
+            <Route
+              path="/demolition-contractor-suffolk-va/"
+              element={<Navigate to="/service-area/suffolk-va/" replace />}
             />
             <Route
               path="/concrete-demolition"

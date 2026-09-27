@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../../components/Layout/Layout.jsx';
 import { contractApi, customerApi, estimateApi } from '../../services/contractsApi';
 import { milestoneApi } from '../../services/jobApi';
+import { previewContractNumber } from '../../utils/documentNumbers.js';
 import './Contracts.css';
 
 /** Parse numeric input; preserves "-" and "" while typing negative values */
@@ -195,8 +196,13 @@ This document represents the complete and entire agreement between the parties a
         }
       }
     
-      // Generate a temporary contract number
-      const tempContractNumber = `CON-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-TEMP`;
+      // Preview the contract number that will be assigned on save
+      const previewNumber = previewContractNumber({
+        propertyAddress: estimate.propertyAddress,
+        clientAddress: clientAddress,
+        customer: estimate.customer,
+        title: estimate.title,
+      }, estimate.estimateNumber);
       
       setFormData(prev => ({
         ...prev,
@@ -205,7 +211,7 @@ This document represents the complete and entire agreement between the parties a
         propertyAddress: estimate.propertyAddress || '',
         customerId: estimate.customerId || '',
         estimateId: estimateId,
-        contractNumber: tempContractNumber,
+        contractNumber: previewNumber,
         totalAmount: estimate.totalAmount || '',
         startDate: new Date().toISOString().split('T')[0], // Today's date
         endDate: estimate.validUntil ? estimate.validUntil.split('T')[0] : '',
@@ -1017,8 +1023,14 @@ This document represents the complete and entire agreement between the parties a
                   value={formData.contractNumber}
                   onChange={handleInputChange}
                   className="form-input"
-                  placeholder="Enter contract number"
+                  placeholder="Auto-generated (e.g., CON-252-Bay-Colony-Drive)"
+                  readOnly={!isEditing}
                 />
+                {!isEditing && (
+                  <small className="form-help-text">
+                    Contract number is generated from the property street number and street name
+                  </small>
+                )}
               </div>
             </div>
 

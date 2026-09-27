@@ -2,6 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import Layout from '../../components/Layout/Layout.jsx';
 import { estimateApi, customerApi } from '../../services/contractsApi';
+import {
+  COMPANY,
+  HOUSE_DEMO_TEMPLATE_TYPE,
+  HOUSE_DEMO_CATEGORIES,
+  categoryIdFromLegacyNote,
+  stripCategoryNotes,
+  getHouseDemoTemplateDefaults,
+} from '../../data/houseDemolitionTemplate.js';
+import { previewEstimateNumber } from '../../utils/documentNumbers.js';
 import './Estimates.css';
 
 const getCustomerDisplayName = (customer) => {
@@ -19,6 +28,26 @@ const getCustomerDisplayName = (customer) => {
   return customer.email || 'Customer';
 };
 
+const emptyLineItem = (id, category = '') => ({
+  id,
+  category,
+  description: '',
+  quantity: 1,
+  unitPrice: 0,
+  total: 0,
+  notes: [],
+});
+
+const mapLineItemFromApi = (item, index) => ({
+  id: index + 1,
+  category: item.category || categoryIdFromLegacyNote(item.notes),
+  description: item.description || '',
+  quantity: item.quantity || 1,
+  unitPrice: item.unitPrice || 0,
+  total: item.totalPrice || 0,
+  notes: stripCategoryNotes(item.notes),
+});
+
 const EstimateEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -33,6 +62,12 @@ const EstimateEdit = () => {
   
   // Check if we're creating from customer page (customer is hardcoded)
   const isFromCustomerPage = !!customerIdFromUrl;
+
+  // New estimates start on a template selection screen (skip when editing or prefilled from prework)
+  const [templateSelected, setTemplateSelected] = useState(
+    () => isEditing || !!(prefillFromPrework && prefillFromPrework.length)
+  );
+  const [templateType, setTemplateType] = useState('standard');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -50,16 +85,9 @@ const EstimateEdit = () => {
 
   const [lineItems, setLineItems] = useState(() => {
     if (prefillFromPrework && Array.isArray(prefillFromPrework) && prefillFromPrework.length > 0) {
-      return prefillFromPrework.map((li, idx) => ({
-        id: idx + 1,
-        description: li.description || '',
-        quantity: li.quantity || 1,
-        unitPrice: li.unitPrice || 0,
-        total: li.total || 0,
-        notes: li.notes || []
-      }));
+      return prefillFromPrework.map((li, idx) => mapLineItemFromApi(li, idx));
     }
-    return [{ id: 1, description: '', quantity: 1, unitPrice: 0, total: 0, notes: [] }];
+    return [emptyLineItem(1)];
   });
 
   const [customers, setCustomers] = useState([]);
@@ -68,6 +96,30 @@ const EstimateEdit = () => {
   const [success, setSuccess] = useState(null);
   const [initialSnapshot, setInitialSnapshot] = useState(null);
   const resolvedCustomerId = formData.customerId || customerIdFromUrl || '';
+
+  const applyTemplateChoice = (choice) => {
+    if (choice === HOUSE_DEMO_TEMPLATE_TYPE) {
+      const defaults = getHouseDemoTemplateDefaults();
+      setTemplateType(HOUSE_DEMO_TEMPLATE_TYPE);
+      setFormData(prev => ({
+        ...prev,
+        title: defaults.title,
+        description: defaults.description,
+        notes: defaults.notes,
+      }));
+      setLineItems(defaults.lineItems);
+    } else {
+      setTemplateType('standard');
+      setFormData(prev => ({
+        ...prev,
+        title: prev.title === 'House Demolition Proposal' ? '' : prev.title,
+        description: '',
+        notes: '',
+      }));
+      setLineItems([emptyLineItem(1)]);
+    }
+    setTemplateSelected(true);
+  };
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -101,6 +153,8 @@ const EstimateEdit = () => {
         notes: estimate.notes || ''
       });
 
+      setTemplateType(estimate.templateType || 'standard');
+
       setInitialSnapshot({
         propertyAddress: estimate.propertyAddress || '',
         clientAddress: estimate.clientAddress || '',
@@ -109,14 +163,7 @@ const EstimateEdit = () => {
       
       // Load line items if they exist
       if (estimate.lineItems && estimate.lineItems.length > 0) {
-        setLineItems(estimate.lineItems.map((item, index) => ({
-          id: index + 1,
-          description: item.description || '',
-          quantity: item.quantity || 1,
-          unitPrice: item.unitPrice || 0,
-          total: item.totalPrice || 0,
-          notes: item.notes || []
-        })));
+        setLineItems(estimate.lineItems.map((item, index) => mapLineItemFromApi(item, index)));
       }
     } catch (err) {
       console.error('Error fetching estimate:', err);
@@ -202,27 +249,19 @@ const EstimateEdit = () => {
 
   const addLineItem = () => {
     const newId = Math.max(...lineItems.map(item => item.id), 0) + 1;
-    setLineItems(prev => [...prev, {
-      id: newId,
-      description: '',
-      quantity: 1,
-      unitPrice: 0,
-      total: 0,
-      notes: []
-    }]);
+    const defaultCategory = templateType === HOUSE_DEMO_TEMPLATE_TYPE
+      ? HOUSE_DEMO_CATEGORIES[0].id
+      : '';
+    setLineItems(prev => [...prev, emptyLineItem(newId, defaultCategory)]);
   };
 
   const insertLineItemBelow = (id) => {
     const index = lineItems.findIndex(item => item.id === id);
     const newId = Math.max(...lineItems.map(item => item.id), 0) + 1;
-    const newItem = {
-      id: newId,
-      description: '',
-      quantity: 1,
-      unitPrice: 0,
-      total: 0,
-      notes: []
-    };
+    const defaultCategory = templateType === HOUSE_DEMO_TEMPLATE_TYPE
+      ? (lineItems[index]?.category || HOUSE_DEMO_CATEGORIES[0].id)
+      : '';
+    const newItem = emptyLineItem(newId, defaultCategory);
     const newLineItems = [...lineItems];
     newLineItems.splice(index + 1, 0, newItem);
     setLineItems(newLineItems);
@@ -317,6 +356,10 @@ const EstimateEdit = () => {
         setError('All line items must have a description');
         return false;
       }
+      if (templateType === HOUSE_DEMO_TEMPLATE_TYPE && !item.category) {
+        setError('All line items must have a category');
+        return false;
+      }
       if (item.quantity <= 0) {
         setError('Quantity must be greater than 0');
         return false;
@@ -394,11 +437,13 @@ const EstimateEdit = () => {
         validUntil: dateToISO(formData.validUntil),
         status: formData.status,
         notes: formData.notes,
+        templateType: templateType || 'standard',
         lineItems: lineItems.filter(item => item.description.trim() && item.quantity > 0).map(item => ({
           description: item.description,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           totalPrice: item.total,
+          category: item.category || undefined,
           notes: (item.notes || []).filter(note => note && note.trim())
         })),
         totalAmount: calculateTotal()
@@ -430,6 +475,14 @@ const EstimateEdit = () => {
   };
 
   const currentCustomer = customers.find(c => c._id === resolvedCustomerId);
+  const estimateNumberPreview = (!isEditing && !formData.estimateNumber)
+    ? previewEstimateNumber({
+        propertyAddress: formData.propertyAddress,
+        clientAddress: formData.clientAddress,
+        customer: currentCustomer,
+        title: formData.title,
+      })
+    : formData.estimateNumber;
 
   if (loading && isEditing) {
     return (
@@ -439,6 +492,69 @@ const EstimateEdit = () => {
             <div className="loading-spinner"></div>
             <p>Loading estimate data...</p>
           </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!isEditing && !templateSelected) {
+    return (
+      <Layout>
+        <div className="estimate-edit-container estimate-template-select-container">
+          {isFromCustomerPage && (
+            <div className="back-to-customer">
+              <Link to={`/customers/edit/${customerIdFromUrl}`} className="back-link">
+                ← Back to Customer
+              </Link>
+            </div>
+          )}
+
+          <div className="estimate-template-brand">
+            <img src="/logo.png" alt="Mr Demo Pro" className="estimate-template-logo" />
+            <div className="estimate-template-brand-text">
+              <h1 className="estimate-template-brand-name">{COMPANY.brandName}</h1>
+              <p className="estimate-template-legal">{COMPANY.legalName}</p>
+              <p className="estimate-template-meta">{COMPANY.license}</p>
+              <p className="estimate-template-meta">{COMPANY.address} · {COMPANY.phone}</p>
+            </div>
+          </div>
+
+          <div className="estimate-template-select-header">
+            <h2>Create New Estimate</h2>
+            <p>Choose the type of quote to start with.</p>
+          </div>
+
+          <div className="estimate-template-options">
+            <button
+              type="button"
+              className="estimate-template-card"
+              onClick={() => applyTemplateChoice('standard')}
+            >
+              <span className="estimate-template-card-eyebrow">Flexible</span>
+              <h3>Custom Estimate</h3>
+              <p>Start blank and build line items for sheds, decks, interior demo, junk removal, or other scoped work.</p>
+              <span className="estimate-template-card-cta">Start custom estimate →</span>
+            </button>
+
+            <button
+              type="button"
+              className="estimate-template-card estimate-template-card-featured"
+              onClick={() => applyTemplateChoice(HOUSE_DEMO_TEMPLATE_TYPE)}
+            >
+              <span className="estimate-template-card-eyebrow">Full teardown</span>
+              <h3>Complete House Demolition</h3>
+              <p>Prefills the house demolition proposal template — utilities, permits, erosion control, structure demo, site restoration, payment schedule, and exclusions.</p>
+              <span className="estimate-template-card-cta">Use house demo template →</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="btn btn-secondary estimate-template-cancel"
+            onClick={() => navigate('/estimates')}
+          >
+            Cancel
+          </button>
         </div>
       </Layout>
     );
@@ -455,8 +571,17 @@ const EstimateEdit = () => {
               </Link>
             </div>
           )}
+          {!isEditing && (
+            <button
+              type="button"
+              className="back-link estimate-change-template"
+              onClick={() => setTemplateSelected(false)}
+            >
+              ← Change estimate type
+            </button>
+          )}
           <h1 className="estimate-edit-title">
-            {isEditing ? 'Edit Estimate' : 'Create New Estimate'}
+            {isEditing ? 'Edit Estimate' : templateType === HOUSE_DEMO_TEMPLATE_TYPE ? 'House Demolition Proposal' : 'Create New Estimate'}
             {!isEditing && fromPreworkId && (
               <span className="customer-context"> (from Pre-Work Inspection)</span>
             )}
@@ -467,9 +592,23 @@ const EstimateEdit = () => {
             )}
           </h1>
           <p className="estimate-edit-subtitle">
-            {isEditing ? 'Update estimate information' : 
-             isFromCustomerPage ? 'Create a new estimate for this customer' : 'Create a new estimate'}
+            {isEditing
+              ? 'Update estimate information'
+              : templateType === HOUSE_DEMO_TEMPLATE_TYPE
+                ? 'Review and adjust the complete house demolition template before sending'
+                : isFromCustomerPage
+                  ? 'Create a new estimate for this customer'
+                  : 'Create a new estimate'}
           </p>
+          {templateType === HOUSE_DEMO_TEMPLATE_TYPE && (
+            <div className="estimate-house-demo-banner">
+              <img src="/logo.png" alt="" className="estimate-house-demo-banner-logo" />
+              <div>
+                <strong>{COMPANY.brandName}</strong>
+                <span>Complete house demolition proposal template</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -511,16 +650,16 @@ const EstimateEdit = () => {
                   type="text"
                   id="estimateNumber"
                   name="estimateNumber"
-                  value={formData.estimateNumber}
+                  value={estimateNumberPreview}
                   onChange={handleInputChange}
                   className="form-input"
-                  placeholder="Auto-generated (e.g., EST-20241201-0001)"
+                  placeholder="Auto-generated (e.g., EST-252-Bay-Colony-Drive)"
                   readOnly={!isEditing}
                   title={!isEditing ? "Estimate number is automatically generated" : ""}
                 />
                 {!isEditing && (
                   <small className="form-help-text">
-                    Estimate number will be automatically generated when saved
+                    Generated from the property street number and street name when saved
                   </small>
                 )}
               </div>
@@ -679,6 +818,24 @@ const EstimateEdit = () => {
               <div className="line-items-table-new">
                 {lineItems.map((item, index) => (
                   <div key={item.id} className="line-item-card">
+                    {templateType === HOUSE_DEMO_TEMPLATE_TYPE && (
+                      <div className="line-item-category-row">
+                        <label className="line-item-label">Category *</label>
+                        <select
+                          value={item.category || ''}
+                          onChange={(e) => handleLineItemChange(item.id, 'category', e.target.value)}
+                          className="form-input line-item-category-select"
+                          required
+                        >
+                          <option value="">Select category</option>
+                          {HOUSE_DEMO_CATEGORIES.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                     <div className="line-item-description-row">
                       <label className="line-item-label">Description</label>
                       <textarea
@@ -822,7 +979,7 @@ const EstimateEdit = () => {
                 onChange={handleInputChange}
                 className="form-input"
                 placeholder="Enter additional notes"
-                rows="3"
+                rows={templateType === HOUSE_DEMO_TEMPLATE_TYPE ? 12 : 3}
               />
             </div>
 

@@ -25,6 +25,7 @@ export function loadScriptEnv() {
   const workRoot = resolve(process.cwd());
   applyEnvFile(resolve(workRoot, '.env.local'));
   applyEnvFile(resolve(workRoot, '.env'));
+  applyEnvFile(resolve(workRoot, '../landing/.env'));
   applyEnvFile(resolve(workRoot, '../server/.env.development'));
   applyEnvFile(resolve(workRoot, '../server/.env'));
 }

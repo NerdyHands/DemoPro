@@ -14,120 +14,170 @@ const __dirname = path.dirname(__filename);
 
 const APP_TSX_PATH = path.join(__dirname, '../src/App.tsx');
 
-/** SEO keys for city / service-area landing pages (local intent cluster). */
-const LOCATION_SEO_KEYS = new Set([
+/** SEO keys for city landing pages (not the service-area hub). */
+const CITY_SEO_KEYS = new Set([
   'demolitionContractorHamptonVa',
   'demolitionContractorNewportNewsVa',
   'demolitionContractorNorfolkVa',
   'demolitionContractorVirginiaBeachVa',
   'demolitionContractorChesapeakeVa',
   'demolitionContractorPortsmouthVa',
-  'demolitionContractorSuffolkVa',
-  'serviceAreas'
+  'demolitionContractorSuffolkVa'
 ]);
 
-/**
- * Priority mapping based on route type
- */
-function getPriorityForRoute(routePath, seoKey) {
-  // Homepage gets highest priority
-  if (routePath === '/') return '1.0';
-  
-  // Services page gets high priority
-  if (routePath === '/services') return '0.9';
+/** Nested service leaf SEO keys under /services/ */
+const SERVICE_LEAF_SEO_KEYS = new Set([
+  'shedRemoval',
+  'deckRemoval',
+  'fenceRemoval',
+  'interiorDemo',
+  'kitchenDemolition',
+  'bathroomDemolition',
+  'serviceGarageDemolition',
+  'concreteRemoval',
+  'commercialInteriorDemolition',
+  'cabinetRemoval',
+  'cleanout',
+  'hoardingCleanout',
+  'junkRemoval',
+  'houseDemolition',
+  'constructionDebrisRemoval'
+]);
 
-  // Location/service-area hub pages
-  if (seoKey && LOCATION_SEO_KEYS.has(seoKey)) return '0.7';
-  
-  // Service pages get high priority
-  if ([
-    'shedRemoval',
-    'deckRemoval',
-    'fenceRemoval',
-    'interiorDemo',
-    'kitchenDemolition',
-    'bathroomDemolition',
-    'serviceGarageDemolition',
-    'concreteRemoval',
-    'commercialInteriorDemolition',
-    'cabinetRemoval',
-    'cleanout',
-    'hoardingCleanout',
-    'junkRemoval',
-    'houseDemolition',
-    'buildingDemolition',
-    'demolitionServices',
-    'concreteDemolition',
-    'residentialDemolition',
-    'garageDemolition',
-    'commercialDemolition',
-    'tenantCleanOut'
-  ].includes(seoKey)) {
+/** Flat category / overview service pages at root */
+const CATEGORY_SERVICE_SEO_KEYS = new Set([
+  'buildingDemolition',
+  'demolitionServices',
+  'concreteDemolition',
+  'residentialDemolition',
+  'garageDemolition',
+  'commercialDemolition',
+  'tenantCleanOut'
+]);
+
+/** Normalize path for priority/changefreq matching (strip trailing slash except home). */
+function normalizeRoutePath(routePath) {
+  if (!routePath || routePath === '/') return '/';
+  return routePath.endsWith('/') ? routePath.slice(0, -1) : routePath;
+}
+
+/**
+ * Priority mapping based on site hierarchy:
+ * home 1.0 → hubs 0.9 → service leaves / core 0.8 → cities / company 0.7 → FAQs 0.7 → legal 0.3
+ */
+function isNestedCityPath(path) {
+  // /service-area/{city}-va (hub itself is /service-area)
+  return path.startsWith('/service-area/') && path !== '/service-area';
+}
+
+function getPriorityForRoute(routePath, seoKey) {
+  const path = normalizeRoutePath(routePath);
+
+  if (path === '/') return '1.0';
+
+  // Section hubs
+  if (
+    path === '/services' ||
+    path === '/service-area' ||
+    path === '/blog' ||
+    seoKey === 'services' ||
+    seoKey === 'serviceAreas'
+  ) {
+    return '0.9';
+  }
+
+  // Core commercial pages
+  if (
+    path === '/prices' ||
+    path === '/demolition-cost-virginia' ||
+    seoKey === 'demolitionCostVirginia'
+  ) {
     return '0.8';
   }
-  
-  // Contact and About pages get medium-high priority
-  if (routePath === '/contact' || routePath === '/about') return '0.7';
-  
-  // FAQs get medium priority
-  if (routePath === '/faqs') return '0.6';
-  
-  // Thank you page gets lower priority
-  if (routePath === '/thank-you') return '0.5';
-  
-  // Legal pages get lowest priority
-  if (['/terms', '/privacy'].includes(routePath)) return '0.3';
-  
-  // Default priority
+
+  // Nested service leaves (/services/...)
+  if (path.startsWith('/services/') || (seoKey && SERVICE_LEAF_SEO_KEYS.has(seoKey))) {
+    return '0.8';
+  }
+
+  // Flat category service pages
+  if (seoKey && CATEGORY_SERVICE_SEO_KEYS.has(seoKey)) return '0.8';
+
+  // Nested city leaves under /service-area/{city}-va
+  if (isNestedCityPath(path) || (seoKey && CITY_SEO_KEYS.has(seoKey))) {
+    return '0.7';
+  }
+
+  // Company
+  if (path === '/contact' || path === '/about') return '0.7';
+
+  // FAQs
+  if (path === '/faqs') return '0.7';
+
+  // Thank you
+  if (path === '/thank-you' || path === '/diy-vs-pro-demolition/thank-you') {
+    return '0.5';
+  }
+
+  // Legal
+  if (path === '/terms' || path === '/privacy') return '0.3';
+
+  // DIY quiz landing
+  if (path === '/diy-vs-pro-demolition') return '0.6';
+
   return '0.6';
 }
 
 /**
- * Change frequency mapping based on route type
+ * Change frequency mapping based on site hierarchy
  */
 function getChangeFreqForRoute(routePath, seoKey) {
-  // Homepage changes more frequently
-  if (routePath === '/') return 'weekly';
+  const path = normalizeRoutePath(routePath);
 
-  // Location/service-area hub pages
-  if (seoKey && LOCATION_SEO_KEYS.has(seoKey)) return 'monthly';
-  
-  // Service pages change monthly
-  if ([
-    'services',
-    'shedRemoval',
-    'deckRemoval',
-    'fenceRemoval',
-    'interiorDemo',
-    'kitchenDemolition',
-    'bathroomDemolition',
-    'serviceGarageDemolition',
-    'concreteRemoval',
-    'commercialInteriorDemolition',
-    'cabinetRemoval',
-    'cleanout',
-    'hoardingCleanout',
-    'junkRemoval',
-    'houseDemolition',
-    'buildingDemolition',
-    'demolitionServices',
-    'concreteDemolition',
-    'residentialDemolition',
-    'garageDemolition',
-    'commercialDemolition',
-    'tenantCleanOut',
-    'about'
-  ].includes(seoKey)) {
+  if (path === '/') return 'weekly';
+
+  if (path === '/blog') return 'weekly';
+
+  if (
+    path === '/services' ||
+    path === '/service-area' ||
+    seoKey === 'services' ||
+    seoKey === 'serviceAreas'
+  ) {
     return 'monthly';
   }
-  
-  // Contact and FAQs change monthly
-  if (['/contact', '/faqs'].includes(routePath)) return 'monthly';
-  
-  // Legal and thank you pages change rarely
-  if (['/thank-you', '/terms', '/privacy'].includes(routePath)) return 'yearly';
-  
-  // Default
+
+  if (isNestedCityPath(path) || (seoKey && CITY_SEO_KEYS.has(seoKey))) {
+    return 'monthly';
+  }
+
+  if (
+    path.startsWith('/services/') ||
+    (seoKey && SERVICE_LEAF_SEO_KEYS.has(seoKey)) ||
+    (seoKey && CATEGORY_SERVICE_SEO_KEYS.has(seoKey))
+  ) {
+    return 'monthly';
+  }
+
+  if (
+    path === '/contact' ||
+    path === '/about' ||
+    path === '/faqs' ||
+    path === '/prices' ||
+    path === '/demolition-cost-virginia'
+  ) {
+    return 'monthly';
+  }
+
+  if (
+    path === '/thank-you' ||
+    path === '/diy-vs-pro-demolition/thank-you' ||
+    path === '/terms' ||
+    path === '/privacy'
+  ) {
+    return 'yearly';
+  }
+
   return 'monthly';
 }
 

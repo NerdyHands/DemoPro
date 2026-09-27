@@ -26,7 +26,14 @@ const LEGACY_REDIRECTS = [
   ['/services/cleanout-services/', '/services/cleanout/'],
   ['/services/cabinet-removal/', '/services/kitchen-demolition/'],
   ['/cabinet-removal/', '/services/kitchen-demolition/'],
-  ['/blog/tag/', '/blog/']
+  ['/blog/tag/', '/blog/'],
+  ['/demolition-contractor-hampton-va/', '/service-area/hampton-va/'],
+  ['/demolition-contractor-newport-news-va/', '/service-area/newport-news-va/'],
+  ['/demolition-contractor-norfolk-va/', '/service-area/norfolk-va/'],
+  ['/demolition-contractor-virginia-beach-va/', '/service-area/virginia-beach-va/'],
+  ['/demolition-contractor-chesapeake-va/', '/service-area/chesapeake-va/'],
+  ['/demolition-contractor-portsmouth-va/', '/service-area/portsmouth-va/'],
+  ['/demolition-contractor-suffolk-va/', '/service-area/suffolk-va/']
 ];
 
 function redirectHtml(toPath) {

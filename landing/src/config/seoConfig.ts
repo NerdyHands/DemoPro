@@ -191,7 +191,7 @@ export const seoConfig = {
     title: "Demolition Contractor Hampton VA | Mr Demo Pro",
     description: "Looking for a demolition contractor in Hampton, VA? Mr Demo Pro is a local demolition company serving Hampton with professional demolition services, clear quotes, and haul-off included. Call 757-848-4559.",
     keywords: "demolition contractor Hampton VA, Hampton demolition company, demolition services Hampton VA, demolition company Hampton VA, local demolition contractor Hampton",
-    canonicalUrl: "https://mrdemopro.com/demolition-contractor-hampton-va/",
+    canonicalUrl: "https://mrdemopro.com/service-area/hampton-va/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -202,7 +202,7 @@ export const seoConfig = {
         "telephone": "757-848-4559"
       },
       "areaServed": "Hampton, VA",
-      "url": "https://mrdemopro.com/demolition-contractor-hampton-va/"
+      "url": "https://mrdemopro.com/service-area/hampton-va/"
     }
   },
 
@@ -229,7 +229,7 @@ export const seoConfig = {
     title: "Demolition Contractor Newport News VA | Mr Demo Pro",
     description: "Demolition contractor in Newport News, VA for interior demo, garage removal, concrete tear-out, and debris haul-off. Local Hampton Roads crew. Call 757-848-4559 for a free quote.",
     keywords: "demolition contractor Newport News VA, Newport News demolition company, demolition services Newport News, concrete removal Newport News, garage demolition Newport News",
-    canonicalUrl: "https://mrdemopro.com/demolition-contractor-newport-news-va/",
+    canonicalUrl: "https://mrdemopro.com/service-area/newport-news-va/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -240,7 +240,7 @@ export const seoConfig = {
         "telephone": "757-848-4559"
       },
       "areaServed": "Newport News, VA",
-      "url": "https://mrdemopro.com/demolition-contractor-newport-news-va/"
+      "url": "https://mrdemopro.com/service-area/newport-news-va/"
     }
   },
 
@@ -248,7 +248,7 @@ export const seoConfig = {
     title: "Demolition Contractor Norfolk VA | Mr Demo Pro",
     description: "Demolition contractor in Norfolk, VA: selective interior demolition, garage and concrete removal, commercial strip-outs, and debris disposal. Serving Hampton Roads. Call 757-848-4559.",
     keywords: "demolition contractor Norfolk VA, Norfolk demolition company, demolition services Norfolk, concrete removal Norfolk, interior demolition Norfolk",
-    canonicalUrl: "https://mrdemopro.com/demolition-contractor-norfolk-va/",
+    canonicalUrl: "https://mrdemopro.com/service-area/norfolk-va/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -259,7 +259,7 @@ export const seoConfig = {
         "telephone": "757-848-4559"
       },
       "areaServed": "Norfolk, VA",
-      "url": "https://mrdemopro.com/demolition-contractor-norfolk-va/"
+      "url": "https://mrdemopro.com/service-area/norfolk-va/"
     }
   },
 
@@ -267,7 +267,7 @@ export const seoConfig = {
     title: "Demolition Contractor Virginia Beach VA | Mr Demo Pro",
     description: "Demolition contractor in Virginia Beach, VA for interior demo, concrete removal, garage demolition, commercial strip-outs, and debris haul-off. Call 757-848-4559.",
     keywords: "demolition contractor Virginia Beach VA, Virginia Beach demolition company, demolition services Virginia Beach, concrete removal Virginia Beach, interior demolition Virginia Beach",
-    canonicalUrl: "https://mrdemopro.com/demolition-contractor-virginia-beach-va/",
+    canonicalUrl: "https://mrdemopro.com/service-area/virginia-beach-va/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -278,7 +278,7 @@ export const seoConfig = {
         "telephone": "757-848-4559"
       },
       "areaServed": "Virginia Beach, VA",
-      "url": "https://mrdemopro.com/demolition-contractor-virginia-beach-va/"
+      "url": "https://mrdemopro.com/service-area/virginia-beach-va/"
     }
   },
 
@@ -286,7 +286,7 @@ export const seoConfig = {
     title: "Demolition Contractor Chesapeake VA | Mr Demo Pro",
     description: "Demolition contractor in Chesapeake, VA for selective interior demolition, concrete removal, garage and shed demolition, and debris hauling. Call 757-848-4559.",
     keywords: "demolition contractor Chesapeake VA, Chesapeake demolition company, demolition services Chesapeake, concrete removal Chesapeake, garage demolition Chesapeake",
-    canonicalUrl: "https://mrdemopro.com/demolition-contractor-chesapeake-va/",
+    canonicalUrl: "https://mrdemopro.com/service-area/chesapeake-va/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -297,7 +297,7 @@ export const seoConfig = {
         "telephone": "757-848-4559"
       },
       "areaServed": "Chesapeake, VA",
-      "url": "https://mrdemopro.com/demolition-contractor-chesapeake-va/"
+      "url": "https://mrdemopro.com/service-area/chesapeake-va/"
     }
   },
 
@@ -305,7 +305,7 @@ export const seoConfig = {
     title: "Demolition Contractor Portsmouth VA | Mr Demo Pro",
     description: "Demolition contractor in Portsmouth, VA for remodel tear-outs, concrete removal, garage demolition, commercial strip-outs, and debris haul-off. Call 757-848-4559.",
     keywords: "demolition contractor Portsmouth VA, Portsmouth demolition company, demolition services Portsmouth, concrete removal Portsmouth, interior demolition Portsmouth",
-    canonicalUrl: "https://mrdemopro.com/demolition-contractor-portsmouth-va/",
+    canonicalUrl: "https://mrdemopro.com/service-area/portsmouth-va/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -316,7 +316,7 @@ export const seoConfig = {
         "telephone": "757-848-4559"
       },
       "areaServed": "Portsmouth, VA",
-      "url": "https://mrdemopro.com/demolition-contractor-portsmouth-va/"
+      "url": "https://mrdemopro.com/service-area/portsmouth-va/"
     }
   },
 
@@ -324,7 +324,7 @@ export const seoConfig = {
     title: "Demolition Contractor Suffolk VA | Mr Demo Pro",
     description: "Demolition contractor in Suffolk, VA for selective demolition, concrete and garage removal, small-structure teardown, and debris hauling. Call 757-848-4559.",
     keywords: "demolition contractor Suffolk VA, Suffolk demolition company, demolition services Suffolk, concrete removal Suffolk, garage demolition Suffolk",
-    canonicalUrl: "https://mrdemopro.com/demolition-contractor-suffolk-va/",
+    canonicalUrl: "https://mrdemopro.com/service-area/suffolk-va/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -335,7 +335,7 @@ export const seoConfig = {
         "telephone": "757-848-4559"
       },
       "areaServed": "Suffolk, VA",
-      "url": "https://mrdemopro.com/demolition-contractor-suffolk-va/"
+      "url": "https://mrdemopro.com/service-area/suffolk-va/"
     }
   },
 
@@ -405,7 +405,7 @@ export const seoConfig = {
     title: "Garage Demolition and Removal in Hampton Roads | Mr Demo Pro",
     description: "Garage demolition services in Hampton Roads, VA. We handle demolition of garage structures, slabs, and full debris removal. Call 757-848-4559.",
     keywords: "garage demolition, demolition of garage, garage removal, garage tear down, Hampton Roads demolition",
-    canonicalUrl: "https://mrdemopro.com/garage-demolition/",
+    canonicalUrl: "https://mrdemopro.com/services/garage-demolition/",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Service",

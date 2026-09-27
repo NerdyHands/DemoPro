@@ -1,6 +1,27 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, type MouseEvent as ReactMouseEvent} from 'react';
 import {Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
 import {Link, useLocation} from 'react-router-dom';
+import {
+  HUBS,
+  PRIMARY_NAV_LINKS,
+  SERVICE_LEAVES,
+  CITY_LEAVES
+} from '../config/siteStructure';
+
+const navLinkStyle = {
+  fontWeight: 600,
+  fontSize: '1rem',
+  color: '#1a202c',
+  padding: '0.75rem 1rem',
+  borderRadius: '0.5rem',
+  textDecoration: 'none',
+  transition: 'all 0.3s ease'
+} as const;
+
+const dropdownItemStyle = {
+  fontWeight: 500,
+  padding: '0.5rem 1rem'
+} as const;
 
 const Header = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -9,19 +30,18 @@ const Header = () => {
 
   const location = useLocation();
 
- useEffect(() => {
-  const handleScroll = () => {
-    setShowBackToTop(window.scrollY > 20);
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 20);
 
-    if (expanded && window.scrollY > 10) {
-      setExpanded(false); // 🔥 auto close on scroll
-    }
-  };
+      if (expanded && window.scrollY > 10) {
+        setExpanded(false);
+      }
+    };
 
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, [expanded]);
-
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [expanded]);
 
   const scrollToTop = () => {
     window.scrollTo({top: 0, behavior: 'smooth'});
@@ -52,13 +72,22 @@ const Header = () => {
   const isOpen = expanded;
 
   useEffect(() => {
-  const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') setExpanded(false);
-  };
-  document.addEventListener('keydown', onKey);
-  return () => document.removeEventListener('keydown', onKey);
-}, []);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpanded(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
+  const applyHoverIn = (e: ReactMouseEvent<HTMLElement>) => {
+    e.currentTarget.style.color = 'rgb(236, 65, 0)';
+    e.currentTarget.style.backgroundColor = 'rgba(236, 65, 0, 0.1)';
+  };
+
+  const applyHoverOut = (e: ReactMouseEvent<HTMLElement>) => {
+    e.currentTarget.style.color = '#1a202c';
+    e.currentTarget.style.backgroundColor = 'transparent';
+  };
 
   return (
     <>
@@ -105,8 +134,6 @@ const Header = () => {
               />
             </Navbar.Brand>
 
-   
-
             <Navbar.Toggle
               aria-controls="main-navigation"
               aria-label="Toggle navigation"
@@ -134,29 +161,13 @@ const Header = () => {
                       aria-current={
                         location.pathname === '/' ? 'page' : undefined
                       }
-                      style={{
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        color: '#1a202c',
-                        padding: '0.75rem 1rem',
-                        borderRadius: '0.5rem',
-                        textDecoration: 'none',
-                        transition: 'all 0.3s ease'
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.color = 'rgb(236, 65, 0)';
-                        e.currentTarget.style.backgroundColor =
-                          'rgba(236, 65, 0, 0.1)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.color = '#1a202c';
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
+                      style={navLinkStyle}
+                      onMouseEnter={applyHoverIn}
+                      onMouseLeave={applyHoverOut}
                     >
                       Home
                     </Nav.Link>
 
-                    {/* Services dropdown: matches sitemap order (shed, deck, fence, interior-demo, cleanout, junk-removal) */}
                     <NavDropdown
                       title="Services"
                       id="services-dropdown"
@@ -168,190 +179,58 @@ const Header = () => {
                     >
                       <NavDropdown.Item
                         as={Link}
-                        to="/services/"
+                        to={HUBS.services.path}
                         onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
+                        style={dropdownItemStyle}
                       >
                         All Services
                       </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/service-area/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Service areas
-                      </NavDropdown.Item>
                       <NavDropdown.Divider />
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/shed-removal/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Shed Removal
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/deck-removal/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Deck Removal
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/fence-removal/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Fence Removal
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/interior-demo/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Interior Demolition
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/kitchen-demolition/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Kitchen Demolition
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/bathroom-demolition/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Bathroom Demolition
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/garage-demolition/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Garage Demolition
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/house-demolition/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        House Demolition
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/concrete-removal/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Concrete Removal
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/commercial-interior-demolition/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Commercial Interior Demolition
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/cleanout/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Cleanout Services
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/construction-debris-removal/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Construction Debris Removal
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/hoarding-cleanout/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Hoarding Cleanout
-                      </NavDropdown.Item>
-                      <NavDropdown.Item
-                        as={Link}
-                        to="/services/junk-removal/"
-                        onClick={handleNavClick}
-                        style={{
-                          fontWeight: 500,
-                          padding: '0.5rem 1rem'
-                        }}
-                      >
-                        Junk Removal
-                      </NavDropdown.Item>
+                      {SERVICE_LEAVES.map(service => (
+                        <NavDropdown.Item
+                          key={service.path}
+                          as={Link}
+                          to={service.path}
+                          onClick={handleNavClick}
+                          style={dropdownItemStyle}
+                        >
+                          {service.label}
+                        </NavDropdown.Item>
+                      ))}
                     </NavDropdown>
 
-                    {/* Top-level nav: Home, Services, Prices, Blog, FAQs (sitemap order) */}
-                    {[
-                      { name: 'Prices', path: '/prices/' },
-                      { name: 'Cost Guide', path: '/demolition-cost-virginia/' },
-                      { name: 'Blog', path: '/blog/' },
-                      { name: 'FAQs', path: '/faqs/' }
-                    ].map(item => (
+                    <NavDropdown
+                      title="Service Areas"
+                      id="service-areas-dropdown"
+                      style={{
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        color: '#1a202c'
+                      }}
+                    >
+                      <NavDropdown.Item
+                        as={Link}
+                        to={HUBS.serviceAreas.path}
+                        onClick={handleNavClick}
+                        style={dropdownItemStyle}
+                      >
+                        All Service Areas
+                      </NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      {CITY_LEAVES.map(city => (
+                        <NavDropdown.Item
+                          key={city.path}
+                          as={Link}
+                          to={city.path}
+                          onClick={handleNavClick}
+                          style={dropdownItemStyle}
+                        >
+                          {city.label}
+                        </NavDropdown.Item>
+                      ))}
+                    </NavDropdown>
+
+                    {PRIMARY_NAV_LINKS.map(item => (
                       <Nav.Link
                         key={item.path}
                         as={Link}
@@ -360,29 +239,13 @@ const Header = () => {
                         aria-current={
                           location.pathname === item.path ? 'page' : undefined
                         }
-                        style={{
-                          fontWeight: 600,
-                          fontSize: '1rem',
-                          color: '#1a202c',
-                          padding: '0.75rem 1rem',
-                          borderRadius: '0.5rem',
-                          textDecoration: 'none',
-                          transition: 'all 0.3s ease'
-                        }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.color = 'rgb(236, 65, 0)';
-                          e.currentTarget.style.backgroundColor =
-                            'rgba(236, 65, 0, 0.1)';
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.color = '#1a202c';
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }}
+                        style={navLinkStyle}
+                        onMouseEnter={applyHoverIn}
+                        onMouseLeave={applyHoverOut}
                       >
-                        {item.name}
+                        {item.label}
                       </Nav.Link>
                     ))}
-
                   </Nav>
                 </nav>
               </div>
@@ -391,10 +254,8 @@ const Header = () => {
         </Navbar>
       </header>
 
-      {/* Spacer to prevent content from being hidden behind fixed navbar */}
       <div style={{height: '100px'}}></div>
 
-      {/* Enhanced Back to Top Button */}
       <button
         onClick={scrollToTop}
         title="Go to top"

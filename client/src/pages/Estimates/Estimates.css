@@ -687,6 +687,171 @@
   padding: 2rem;
 }
 
+.estimate-template-select-container {
+  max-width: 920px;
+}
+
+.estimate-template-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  padding: 1.75rem 1.5rem;
+  background: linear-gradient(135deg, rgba(245, 130, 32, 0.12) 0%, #ffffff 55%, #f8fafc 100%);
+  border: 1px solid rgba(245, 130, 32, 0.25);
+  border-radius: 12px;
+}
+
+.estimate-template-logo {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+}
+
+.estimate-template-brand-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #F58220;
+  margin: 0 0 0.25rem;
+}
+
+.estimate-template-legal {
+  margin: 0;
+  color: #1a202c;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.estimate-template-meta {
+  margin: 0.15rem 0 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.estimate-template-select-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.estimate-template-select-header h2 {
+  margin: 0 0 0.35rem;
+  color: #1a202c;
+  font-size: 1.5rem;
+}
+
+.estimate-template-select-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.estimate-template-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.estimate-template-card {
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.estimate-template-card:hover {
+  border-color: #F58220;
+  box-shadow: 0 8px 20px rgba(245, 130, 32, 0.15);
+  transform: translateY(-2px);
+}
+
+.estimate-template-card-featured {
+  border-color: rgba(245, 130, 32, 0.45);
+  background: linear-gradient(180deg, rgba(245, 130, 32, 0.08) 0%, #ffffff 40%);
+}
+
+.estimate-template-card-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #F58220;
+  margin-bottom: 0.5rem;
+}
+
+.estimate-template-card h3 {
+  margin: 0 0 0.5rem;
+  color: #1a202c;
+  font-size: 1.2rem;
+}
+
+.estimate-template-card p {
+  margin: 0 0 1rem;
+  color: #4a5568;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.estimate-template-card-cta {
+  color: #F58220;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.estimate-template-cancel {
+  display: block;
+  margin: 0 auto;
+}
+
+.estimate-change-template {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+}
+
+.estimate-house-demo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 130, 32, 0.1);
+  border: 1px solid rgba(245, 130, 32, 0.25);
+  border-radius: 8px;
+  color: #1a202c;
+}
+
+.estimate-house-demo-banner-logo {
+  width: 40px;
+  height: auto;
+}
+
+.estimate-house-demo-banner strong {
+  display: block;
+  color: #F58220;
+}
+
+.estimate-house-demo-banner span {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .estimate-template-options {
+    grid-template-columns: 1fr;
+  }
+}
+
 .estimate-edit-header {
   margin-bottom: 2rem;
   text-align: center;
@@ -1267,6 +1432,52 @@
 .estimate-section p {
   color: #666;
   line-height: 1.6;
+}
+
+.estimate-preline {
+  white-space: pre-line;
+}
+
+.line-item-category-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.line-item-category-select {
+  width: 100%;
+}
+
+.estimate-category-group {
+  margin-bottom: 1.5rem;
+}
+
+.estimate-category-heading {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(245, 130, 32, 0.1);
+  border-left: 4px solid #F58220;
+  color: #1a202c;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.estimate-category-subtotal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 4px;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.estimate-view-brand-banner {
+  margin-top: 1rem;
+  justify-content: flex-start;
 }
 
 /* Line Items View Styles */

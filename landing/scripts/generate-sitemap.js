@@ -4,6 +4,12 @@
  * Sitemap Generator for Mr Demo Pro
  * Builds sitemap as: canonical routes from App.tsx + blog post URLs from
  * public/blog-data/posts.json (written by sync-opinly-blog.js).
+ *
+ * Priorities/changefreq come from parse-routes.js and reflect IA hierarchy:
+ * home (1.0) → hubs /services|/service-area|/blog (0.9) → service leaves (0.8)
+ * → nested cities /service-area/{city}-va (0.7) / company (0.7) → legal (0.3).
+ * Blog post URLs use priority 0.6. Legacy /demolition-contractor-*-va/ redirects
+ * are excluded (Navigate-only routes are not canonical).
  */
 
 import fs from 'fs';
@@ -89,7 +95,7 @@ function buildBlogUrlEntries(posts) {
     <loc>${BASE_URL}/blog/${encodeURIComponent(p.slug)}/</loc>
     <lastmod>${toLastmod(p.updatedAt || p.publishedAt)}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>`
     )
     .join('\n');

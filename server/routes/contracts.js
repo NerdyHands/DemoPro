@@ -4,6 +4,7 @@ const fs = require('fs');
 const Contract = require('../models/Contract');
 const Estimate = require('../models/Estimate');
 const Customer = require('../models/Customer');
+const { generateContractNumber: buildContractNumber } = require('../utils/documentNumbers');
 const ContractPdfService = require('../services/contractPdfService');
 const BoldSignService = require('../services/boldSignService');
 const { buildDocxBuffer } = require('../services/documentOutputs/docxBuilder');
@@ -50,26 +51,6 @@ const authenticateUser = async (req, res, next) => {
   } catch (error) {
     res.status(401).json({ error: 'Invalid token' });
   }
-};
-
-// Generate contract number
-const generateContractNumber = async () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  
-  // Get count of contracts for today
-  const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  
-  const count = await Contract.countDocuments({
-    createdAt: { $gte: today, $lt: tomorrow }
-  });
-  
-  const sequence = String(count + 1).padStart(3, '0');
-  return `CON-${year}${month}${day}-${sequence}`;
 };
 
 // GET /api/contracts
@@ -181,8 +162,14 @@ router.post('/', authenticateUser, [
       });
     }
 
-    // Generate contract number
-    const contractNumber = await generateContractNumber();
+    // Generate contract number from estimate number or address + customer name
+    const contractNumber = await buildContractNumber(Contract, {
+      propertyAddress: req.body.propertyAddress || estimate?.propertyAddress,
+      clientAddress: req.body.clientAddress || estimate?.clientAddress,
+      customer,
+      title: req.body.title || estimate?.title,
+      estimateNumber: estimate?.estimateNumber,
+    });
 
     // Create the contract, using line items from estimate when available
     const contractData = {

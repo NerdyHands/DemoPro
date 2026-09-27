@@ -1,6 +1,7 @@
 import {Container, Row, Col} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import ServiceLandingPage from '../components/ServiceLandingPage';
+import {CITY_PATHS} from '../content/locationCluster';
 
 const ConcreteRemoval = () => (
   <ServiceLandingPage
@@ -94,7 +95,7 @@ const ConcreteRemoval = () => (
                 {label: 'Commercial Interior Demolition', to: '/services/commercial-interior-demolition/'},
                 {
                   label: 'Demolition Contractor Hampton, VA',
-                  to: '/demolition-contractor-hampton-va/'
+                  to: CITY_PATHS.hampton
                 },
                 {label: 'Demolition Services Overview', to: '/demolition-services/'},
                 {label: 'Contact for a Quote', to: '/contact/'}

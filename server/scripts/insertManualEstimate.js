@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const Estimate = require('../models/Estimate');
 const Customer = require('../models/Customer');
-const Counter = require('../models/Counter');
+const { generateEstimateNumber } = require('../utils/documentNumbers');
 
 /**
  * Helper to build the payload we want to insert.
@@ -64,14 +64,13 @@ const estimatePayload = {
   ]
 };
 
-async function generateEstimateNumber() {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  const sequence = await Counter.generateNumber('estimates', '', '0000');
-  return `EST-${year}${month}${day}-${sequence}`;
+async function createEstimateNumber(payload, customer) {
+  return generateEstimateNumber(Estimate, {
+    propertyAddress: payload.propertyAddress,
+    clientAddress: payload.clientAddress,
+    customer,
+    title: payload.title,
+  });
 }
 
 async function insertEstimate() {
@@ -94,7 +93,7 @@ async function insertEstimate() {
     return existingEstimate;
   }
 
-  const estimateNumber = await generateEstimateNumber();
+  const estimateNumber = await createEstimateNumber(estimatePayload, customer);
   console.log('🆕 Generated estimate number', estimateNumber);
 
   const estimateData = {

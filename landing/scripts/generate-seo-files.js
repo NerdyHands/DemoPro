@@ -177,8 +177,11 @@ async function main() {
   }
 }
 
-// Run the script
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run the script when executed directly (Windows-safe path compare)
+const entry = fileURLToPath(import.meta.url);
+const runDirect =
+  process.argv[1] && path.resolve(process.cwd(), process.argv[1]) === entry;
+if (runDirect) {
   main().catch((err) => {
     console.error(err);
     process.exit(1);

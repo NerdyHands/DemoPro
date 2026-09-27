@@ -10,10 +10,15 @@
     "typecheck": "tsc --noEmit",
     "inspect:airtable": "tsx scripts/inspect-airtable.ts",
     "setup:airtable": "tsx scripts/setup-airtable-schema.ts",
+    "setup:airtable-blog": "tsx scripts/setup-airtable-blog-schema.ts",
+    "sync:opinly-airtable": "tsx scripts/sync-opinly-to-airtable.ts",
+    "sync:opinly-airtable:dry": "tsx scripts/sync-opinly-to-airtable.ts --dry-run",
     "migrate:airtable": "tsx scripts/migrate-mongo-to-airtable.ts",
     "migrate:airtable:dry": "tsx scripts/migrate-mongo-to-airtable.ts --dry-run"
   },
   "dependencies": {
+    "@opinly/backend": "^1.4.0",
+    "@opinly/shared": "^1.4.0",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-dropdown-menu": "^2.1.24",
     "@radix-ui/react-label": "^2.1.15",

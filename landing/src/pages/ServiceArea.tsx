@@ -2,6 +2,7 @@ import {Container, Row, Col} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
 import {CITY_PATHS, SERVICE_AREA_HUB_PATH} from '../content/locationCluster';
+import {HUBS} from '../config/siteStructure';
 import {useScrollDepth} from '../hooks/useScrollDepth';
 
 const scrollTop = () => window.scrollTo({top: 0, behavior: 'smooth'});
@@ -193,14 +194,18 @@ const ServiceArea = () => {
                 </Link>{' '}
                 from our Hampton Roads base. If you are comparing contractors,
                 start on your city page, then browse{' '}
+                <Link to={HUBS.services.path} onClick={scrollTop}>
+                  all specialty services
+                </Link>
+                ,{' '}
                 <Link to="/demolition-services/" onClick={scrollTop}>
-                  full demolition services
-                </Link>{' '}
-                or{' '}
-                <Link to="/services/" onClick={scrollTop}>
-                  specialty service pages
-                </Link>{' '}
-                (shed removal, deck removal, kitchen demo, and more).
+                  full demolition services overview
+                </Link>
+                , or jump straight to{' '}
+                <Link to="/services/house-demolition/" onClick={scrollTop}>
+                  house demolition
+                </Link>
+                .
               </p>
               <p style={{color: 'var(--color-text-secondary)', marginBottom: 0, lineHeight: 1.65}}>
                 This hub lives at{' '}

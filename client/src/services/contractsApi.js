@@ -22,8 +22,19 @@ const downloadBlobAsFile = (blob, filename) => {
   window.URL.revokeObjectURL(url);
 };
 
-const downloadEndpoint = async (endpoint, filename) => {
+const filenameFromContentDisposition = (header, fallback) => {
+  if (!header) return fallback;
+  const match = header.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
+  if (!match?.[1]) return fallback;
+  return decodeURIComponent(match[1].replace(/"/g, ''));
+};
+
+const downloadEndpoint = async (endpoint, fallbackFilename) => {
   const response = await api.get(endpoint, { responseType: 'blob' });
+  const filename = filenameFromContentDisposition(
+    response.headers['content-disposition'],
+    fallbackFilename
+  );
   downloadBlobAsFile(new Blob([response.data]), filename);
   return { success: true };
 };
