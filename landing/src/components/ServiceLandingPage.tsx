@@ -26,6 +26,7 @@ export interface BeforeAfterExample {
 
 interface ServiceLandingPageProps {
   title: string;
+  tagline?: string;
   description: string;
   serviceType: string;
   /** Used in schema microdata and CTA aria-labels. Defaults to Hampton Roads regional wording. */
@@ -73,6 +74,7 @@ const surfaceBgStyle = {
 
 const ServiceLandingPage = ({
   title,
+  tagline,
   description,
   serviceType,
   areaServed = 'Hampton Roads, VA',
@@ -182,6 +184,21 @@ const ServiceLandingPage = ({
                 >
                   {h1Title}
                 </motion.h1>
+                {tagline && (
+                  <motion.p
+                    className="fw-bold"
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{delay: 0.2, duration: 0.6}}
+                    style={{
+                      fontSize: 'var(--font-size-xl)',
+                      color: 'var(--color-text-primary)',
+                      marginBottom: '20px'
+                    }}
+                  >
+                    {tagline}
+                  </motion.p>
+                )}
                 <motion.p
                   itemProp="description"
                   className="lead"
@@ -422,7 +439,7 @@ const ServiceLandingPage = ({
                 </motion.h2>
               </Col>
             </Row>
-            <Row>
+            <Row className="justify-content-center">
               {processSteps.map((step, idx) => (
                 <Col key={step.title} lg={3} md={6} sm={6} xs={12} className="mb-5">
                   <motion.div

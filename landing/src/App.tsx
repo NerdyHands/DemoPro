@@ -24,6 +24,8 @@ import ConcreteDemolition from './pages/ConcreteDemolition';
 import ResidentialDemolition from './pages/ResidentialDemolition';
 import CommercialDemolition from './pages/CommercialDemolition';
 import TenantCleanOut from './pages/TenantCleanOut';
+import PropertyManagers from './pages/PropertyManagers';
+import Contractors from './pages/Contractors';
 import KitchenDemolition from './pages/KitchenDemolition';
 import BathroomDemolition from './pages/BathroomDemolition';
 import ServiceGarageDemolition from './pages/ServiceGarageDemolition';
@@ -559,6 +561,38 @@ function AppContent() {
                     canonicalUrl="https://mrdemopro.com/tenant-clean-out/"
                   />
                   <TenantCleanOut />
+                </>
+              }
+            />
+            <Route
+              path="/property-managers"
+              element={<Navigate to="/property-managers/" replace />}
+            />
+            <Route
+              path="/property-managers/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.propertyManagers}
+                    canonicalUrl="https://mrdemopro.com/property-managers/"
+                  />
+                  <PropertyManagers />
+                </>
+              }
+            />
+            <Route
+              path="/contractors"
+              element={<Navigate to="/contractors/" replace />}
+            />
+            <Route
+              path="/contractors/"
+              element={
+                <>
+                  <SEO
+                    {...seoConfig.contractors}
+                    canonicalUrl="https://mrdemopro.com/contractors/"
+                  />
+                  <Contractors />
                 </>
               }
             />

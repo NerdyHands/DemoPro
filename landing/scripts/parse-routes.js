@@ -52,7 +52,9 @@ const CATEGORY_SERVICE_SEO_KEYS = new Set([
   'residentialDemolition',
   'garageDemolition',
   'commercialDemolition',
-  'tenantCleanOut'
+  'tenantCleanOut',
+  'propertyManagers',
+  'contractors'
 ]);
 
 /** Normalize path for priority/changefreq matching (strip trailing slash except home). */

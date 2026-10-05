@@ -129,7 +129,9 @@ export function getPageTypeFromPath(pathname: string): PageType {
       '/residential-demolition',
       '/garage-demolition',
       '/commercial-demolition',
-      '/tenant-clean-out'
+      '/tenant-clean-out',
+      '/property-managers',
+      '/contractors'
     ].some(x => p === x || p.startsWith(`${x}/`))
   ) {
     return 'service';
@@ -166,7 +168,9 @@ export function getMarketingPageType(pathname: string): MarketingPageType {
       '/residential-demolition',
       '/garage-demolition',
       '/commercial-demolition',
-      '/tenant-clean-out'
+      '/tenant-clean-out',
+      '/property-managers',
+      '/contractors'
     ].some(x => p === x || p.startsWith(`${x}/`))
   ) {
     return 'service';
@@ -202,7 +206,9 @@ const SERVICE_PATH_SLUGS: Record<string, string> = {
   '/residential-demolition': 'residential_demolition',
   '/garage-demolition': 'garage_demolition',
   '/commercial-demolition': 'commercial_demolition',
-  '/tenant-clean-out': 'tenant_clean_out'
+  '/tenant-clean-out': 'tenant_clean_out',
+  '/property-managers': 'property_managers',
+  '/contractors': 'contractors'
 };
 
 export function getServiceNameFromPath(pathname: string): string | null {

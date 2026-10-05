@@ -455,6 +455,50 @@ export const seoConfig = {
     }
   },
 
+  propertyManagers: {
+    title: "Property Cleanouts for Managers and Landlords | Mr Demo Pro",
+    description: "Property cleanouts for Hampton Roads property managers and landlords. Turnover cleanouts, junk and debris removal, and interior removal with cleanup included. Call 757-848-4559.",
+    keywords: "property management cleanout, landlord cleanout, turnover cleanout, rental property cleanout, vacant property cleanout, Hampton Roads cleanout",
+    canonicalUrl: "https://mrdemopro.com/property-managers/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Property Cleanout",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA",
+      "audience": {
+        "@type": "BusinessAudience",
+        "audienceType": "Property managers and landlords"
+      }
+    }
+  },
+
+  contractors: {
+    title: "Selective Demolition for Contractors | Mr Demo Pro",
+    description: "Selective demolition, construction debris removal, and jobsite cleanouts for Hampton Roads contractors, remodelers, and restoration teams. Call 757-848-4559.",
+    keywords: "selective demolition, demolition subcontractor, interior stripping, construction debris removal, jobsite cleanout, Hampton Roads demolition contractor",
+    canonicalUrl: "https://mrdemopro.com/contractors/",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Selective Demolition",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Mr Demo Pro",
+        "telephone": "757-848-4559"
+      },
+      "areaServed": "Hampton Roads, VA",
+      "audience": {
+        "@type": "BusinessAudience",
+        "audienceType": "Contractors, remodelers, and restoration teams"
+      }
+    }
+  },
+
   shedRemoval: {
     title: "Shed Removal Services in Hampton Roads, VA | Mr Demo Pro",
     description: "Professional shed removal in Hampton Roads, VA. Fast, safe demolition with cleanup included. Free estimate. Call 757-848-4559.",
