@@ -171,7 +171,7 @@ const Home = () => {
     padding: '18px',
     fontSize: '1.1rem',
     borderRadius: '8px',
-    border: '2px solid var(--color-border)',
+    border: '2px solid var(--color-primary)',
     fontFamily: 'var(--font-family-primary)',
     fontWeight: '400'
   } as const;
@@ -327,16 +327,6 @@ const Home = () => {
                   </span>
                   {PHONE}
                 </a>
-                <a
-                  href="#services"
-                  className="home-hero-secondary"
-                  onClick={e => {
-                    e.preventDefault();
-                    scrollToSection('services');
-                  }}
-                >
-                  See Our Services
-                </a>
               </div>
             </motion.div>
 
@@ -361,6 +351,7 @@ const Home = () => {
                     aria-label="Select type of work"
                     style={{
                       ...fieldStyle,
+                      paddingRight: '48px',
                       color: formData.serviceType ? 'inherit' : '#6c757d'
                     }}
                   >
@@ -439,7 +430,11 @@ const Home = () => {
                     required
                     requireCompleteSelection
                     error={addressError || undefined}
-                    style={fieldStyle}
+                    style={
+                      addressError
+                        ? {...fieldStyle, border: '2px solid #dc3545'}
+                        : fieldStyle
+                    }
                   />
                 </div>
 
@@ -472,6 +467,19 @@ const Home = () => {
                 </button>
               </form>
             </motion.div>
+          </div>
+
+          <div className="home-hero-more">
+            <a
+              href="#services"
+              className="home-hero-secondary"
+              onClick={e => {
+                e.preventDefault();
+                scrollToSection('services');
+              }}
+            >
+              See Our Services
+            </a>
           </div>
         </div>
       </section>

@@ -31,7 +31,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 36px 0 48px;
+  padding: 36px 0 0;
 }
 
 .home-hero-bg {
@@ -54,8 +54,13 @@
 .home-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: 24px;
+  gap: 40px;
   align-items: center;
+}
+
+.home-hero-more {
+  margin-top: 12px;
+  text-align: center;
 }
 
 .home-hero-left {
@@ -70,8 +75,8 @@
 .home-hero-left h1 {
   font-family: var(--font-family-secondary);
   font-weight: 600;
-  font-size: 2.25rem;
-  line-height: 1.5;
+  font-size: 2.5rem;
+  line-height: 1.4;
   letter-spacing: -0.025em;
   color: #fff;
   margin-bottom: 20px;
@@ -86,7 +91,7 @@
 }
 
 .home-hero-left p {
-  font-size: 1.05rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: #fff;
   margin-bottom: 24px;
@@ -104,7 +109,7 @@
   align-items: center;
   gap: 15px;
   background: rgba(255, 255, 255, 0.2);
-  padding: 16px 30px;
+  padding: 18px 30px;
   border-radius: 12px;
   color: #fff;
   font-size: 1.1rem;
@@ -126,15 +131,24 @@
 }
 
 .home-hero-secondary {
+  display: inline-block;
+  padding: 8px 6px 6px;
+  border-bottom: 2px solid #fff;
+  border-radius: 8px 8px 0 0;
+  background: rgba(236, 65, 0, 0.75);
   color: #fff;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  font-weight: 400;
+  text-decoration: none;
 }
 
 .home-hero-secondary:hover {
   color: #fff;
-  opacity: 0.85;
+  background: var(--color-primary);
+}
+
+.home-hero-secondary:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
 }
 
 .home-hero-form {
@@ -147,21 +161,47 @@
 
 .home-hero-form h3 {
   font-size: 1.4rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.4;
   text-align: center;
   margin-bottom: 14px;
 }
 
+.home-hero-form select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  background-size: 14px 10px;
+}
+
+.home-hero-form gmp-place-autocomplete.gmp-place-autocomplete-field::part(input) {
+  padding: 18px 8px;
+}
+
+.home-hero-form .quote-form .form-control:focus,
+.home-hero-form .quote-form gmp-place-autocomplete:focus-within {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(236, 65, 0, 0.2);
+}
+
 .home-submit {
   width: 100%;
+  margin-top: 24px;
   padding: 18px;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
   border: none;
   border-radius: 8px;
   background: var(--color-primary);
   color: #fff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.home-submit:focus-visible {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 2px;
 }
 
 .home-submit:hover:not(:disabled) {
@@ -179,9 +219,9 @@
   text-align: center;
 }
 
-.home-problem .home-h2 {
-  font-size: 30px;
-  line-height: 37.5px;
+.home-problem .home-lead {
+  font-size: 16px;
+  line-height: 1.55;
 }
 
 .home-narrow {
@@ -214,6 +254,8 @@
 }
 
 .home-service-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -225,6 +267,16 @@
   background: #fff;
 }
 
+.home-service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ec4100, #f27c50);
+}
+
 .home-service-card img {
   width: 128px;
   height: 128px;
@@ -234,9 +286,9 @@
 
 .home-service-card h3 {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-primary);
-  margin: 24px 0;
+  margin: 36px 0 24px;
 }
 
 .home-service-card p {
@@ -255,7 +307,7 @@
   border-radius: 5px;
   background: var(--color-primary);
   color: #fff;
-  font-weight: 700;
+  font-weight: 500;
   text-transform: uppercase;
   text-decoration: none;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -378,7 +430,7 @@
   background: var(--color-primary);
   color: #fff;
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 400;
   box-shadow: 0 4px 12px rgba(242, 124, 80, 0.3);
 }
 
@@ -403,11 +455,15 @@
 .home-area-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 48px;
+  gap: 32px;
   align-items: center;
 }
 
 .home-area-copy {
+  text-align: left;
+}
+
+.home-area-copy .home-h2 {
   text-align: center;
 }
 
@@ -428,7 +484,7 @@
   background: var(--color-primary);
   color: #fff;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-decoration: none;
@@ -486,11 +542,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 62px;
+  height: 60px;
   padding: 0 18px;
   border-radius: 8px;
-  font-size: 17.6px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -513,6 +569,37 @@
 .home-cta-outline:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.12);
+}
+
+@media (min-width: 992px) {
+  .home-hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    padding-top: 8px;
+  }
+
+  .home-hero-left {
+    padding: 40px 48px;
+  }
+
+  .home-lead,
+  .home-checklist,
+  .home-audience p,
+  .home-outcome p,
+  .home-cta p {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .home-process .home-h2 {
+    margin-bottom: 90px;
+  }
+
+  .home-step-number {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 991px) {
@@ -538,18 +625,28 @@
 }
 
 @media (max-width: 767px) {
-  .home-h2 {
-    font-size: 1.75rem;
-    line-height: 2.25rem;
+  .home-problem .home-h2,
+  .home-process .home-h2,
+  .home-area-copy .home-h2 {
+    font-size: 20px;
+    line-height: 1.35;
   }
 
-  .home-problem .home-h2 {
-    font-size: 24px;
-    line-height: 30px;
+  .home-area-copy .home-lead {
+    font-size: 14px;
+    line-height: 2.25;
   }
 
   .home-hero-left h1 {
-    font-size: 1.75rem;
+    font-size: 2rem;
+  }
+
+  .home-hero-left h2 {
+    font-size: 1.15rem;
+  }
+
+  .home-hero-form h3 {
+    font-size: 1.1rem;
   }
 
   .home-services,
