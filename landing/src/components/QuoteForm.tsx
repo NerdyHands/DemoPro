@@ -15,9 +15,10 @@ interface QuoteFormProps {
   serviceType: string;
   showTitle?: boolean;
   inline?: boolean;
+  accentFields?: boolean;
 }
 
-const fieldStyle = {
+const baseFieldStyle = {
   padding: '18px',
   fontSize: '1.1rem',
   borderRadius: '8px',
@@ -26,7 +27,18 @@ const fieldStyle = {
   fontWeight: '400'
 } as const;
 
-const QuoteForm = ({ serviceType, showTitle = true, inline = false }: QuoteFormProps) => {
+const accentFieldStyle = {
+  ...baseFieldStyle,
+  border: '2px solid var(--color-primary)'
+} as const;
+
+const QuoteForm = ({
+  serviceType,
+  showTitle = true,
+  inline = false,
+  accentFields = false
+}: QuoteFormProps) => {
+  const fieldStyle = accentFields ? accentFieldStyle : baseFieldStyle;
   const navigate = useNavigate();
   const serviceOptions = getServiceOptionsForForm(serviceType);
   const [formData, setFormData] = useState({

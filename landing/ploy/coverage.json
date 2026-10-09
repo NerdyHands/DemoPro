@@ -1,0 +1,541 @@
+{
+  "date": "2026-10-09",
+  "sitemap_unique": 50,
+  "instruction_sheets": 52,
+  "matched": 3,
+  "live_only": 49,
+  "excluded": [
+    "/private/design-system",
+    "/example-page",
+    "/case-studies/example-shed-removal (unpublished, unverified placeholder)"
+  ],
+  "pages": [
+    {
+      "path": "/",
+      "url": "https://mrdemopro.com/",
+      "sheet": "homepage.md",
+      "status": "Ploy counterpart available",
+      "repo_sources": [
+        "landing/src/pages/Home.tsx",
+        "landing/src/pages/Home.css"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/about/",
+      "url": "https://mrdemopro.com/about/",
+      "sheet": "about.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/About.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/",
+      "url": "https://mrdemopro.com/blog/",
+      "sheet": "blog.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/Blog.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/bulk-trash-pickup/",
+      "url": "https://mrdemopro.com/blog/bulk-trash-pickup/",
+      "sheet": "blog--bulk-trash-pickup.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/concrete-demo-and-removal/",
+      "url": "https://mrdemopro.com/blog/concrete-demo-and-removal/",
+      "sheet": "blog--concrete-demo-and-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/concrete-driveway-cost/",
+      "url": "https://mrdemopro.com/blog/concrete-driveway-cost/",
+      "sheet": "blog--concrete-driveway-cost.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/cost-to-demo-a-house/",
+      "url": "https://mrdemopro.com/blog/cost-to-demo-a-house/",
+      "sheet": "blog--cost-to-demo-a-house.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/haul-away-junk-removal/",
+      "url": "https://mrdemopro.com/blog/haul-away-junk-removal/",
+      "sheet": "blog--haul-away-junk-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/junk-furniture-removal/",
+      "url": "https://mrdemopro.com/blog/junk-furniture-removal/",
+      "sheet": "blog--junk-furniture-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/mr-demolition/",
+      "url": "https://mrdemopro.com/blog/mr-demolition/",
+      "sheet": "blog--mr-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/residential-junk-removal/",
+      "url": "https://mrdemopro.com/blog/residential-junk-removal/",
+      "sheet": "blog--residential-junk-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/blog/shed-demo/",
+      "url": "https://mrdemopro.com/blog/shed-demo/",
+      "sheet": "blog--shed-demo.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/App.tsx (resolve the referenced page or local dynamic route before editing)"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/building-demolition/",
+      "url": "https://mrdemopro.com/building-demolition/",
+      "sheet": "building-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/BuildingDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/commercial-demolition/",
+      "url": "https://mrdemopro.com/commercial-demolition/",
+      "sheet": "commercial-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/CommercialDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/concrete-demolition/",
+      "url": "https://mrdemopro.com/concrete-demolition/",
+      "sheet": "concrete-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ConcreteDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/contact/",
+      "url": "https://mrdemopro.com/contact/",
+      "sheet": "contact.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/Contact.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/contractors/",
+      "url": "https://mrdemopro.com/contractors/",
+      "sheet": "contractors.md",
+      "status": "Ploy counterpart available",
+      "repo_sources": [
+        "landing/src/pages/Contractors.tsx",
+        "landing/src/components/ServiceLandingPage.tsx",
+        "landing/src/components/AudienceHighlights.tsx",
+        "landing/src/components/QuoteForm.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/demolition-cost-virginia/",
+      "url": "https://mrdemopro.com/demolition-cost-virginia/",
+      "sheet": "demolition-cost-virginia.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionCostVirginia.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/demolition-services/",
+      "url": "https://mrdemopro.com/demolition-services/",
+      "sheet": "demolition-services.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionServices.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/diy-vs-pro-demolition/",
+      "url": "https://mrdemopro.com/diy-vs-pro-demolition/",
+      "sheet": "diy-vs-pro-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DiyVsProDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/faqs/",
+      "url": "https://mrdemopro.com/faqs/",
+      "sheet": "faqs.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/FAQs.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/prices/",
+      "url": "https://mrdemopro.com/prices/",
+      "sheet": "prices.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/Prices.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/privacy/",
+      "url": "https://mrdemopro.com/privacy/",
+      "sheet": "privacy.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/Privacy.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/property-managers/",
+      "url": "https://mrdemopro.com/property-managers/",
+      "sheet": "property-managers.md",
+      "status": "Ploy counterpart available",
+      "repo_sources": [
+        "landing/src/pages/PropertyManagers.tsx",
+        "landing/src/components/ServiceLandingPage.tsx",
+        "landing/src/components/AudienceHighlights.tsx",
+        "landing/src/components/QuoteForm.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/residential-demolition/",
+      "url": "https://mrdemopro.com/residential-demolition/",
+      "sheet": "residential-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ResidentialDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/",
+      "url": "https://mrdemopro.com/service-area/",
+      "sheet": "service-area.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ServiceArea.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/chesapeake-va/",
+      "url": "https://mrdemopro.com/service-area/chesapeake-va/",
+      "sheet": "service-area--chesapeake-va.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionContractorChesapeakeVa.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/hampton-va/",
+      "url": "https://mrdemopro.com/service-area/hampton-va/",
+      "sheet": "service-area--hampton-va.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionContractorHamptonVa.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/newport-news-va/",
+      "url": "https://mrdemopro.com/service-area/newport-news-va/",
+      "sheet": "service-area--newport-news-va.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionContractorNewportNewsVa.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/norfolk-va/",
+      "url": "https://mrdemopro.com/service-area/norfolk-va/",
+      "sheet": "service-area--norfolk-va.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionContractorNorfolkVa.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/portsmouth-va/",
+      "url": "https://mrdemopro.com/service-area/portsmouth-va/",
+      "sheet": "service-area--portsmouth-va.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionContractorPortsmouthVa.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/suffolk-va/",
+      "url": "https://mrdemopro.com/service-area/suffolk-va/",
+      "sheet": "service-area--suffolk-va.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionContractorSuffolkVa.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/service-area/virginia-beach-va/",
+      "url": "https://mrdemopro.com/service-area/virginia-beach-va/",
+      "sheet": "service-area--virginia-beach-va.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DemolitionContractorVirginiaBeachVa.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/",
+      "url": "https://mrdemopro.com/services/",
+      "sheet": "services.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/Services.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/bathroom-demolition/",
+      "url": "https://mrdemopro.com/services/bathroom-demolition/",
+      "sheet": "services--bathroom-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/BathroomDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/cleanout/",
+      "url": "https://mrdemopro.com/services/cleanout/",
+      "sheet": "services--cleanout.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/Cleanout.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/commercial-interior-demolition/",
+      "url": "https://mrdemopro.com/services/commercial-interior-demolition/",
+      "sheet": "services--commercial-interior-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/CommercialInteriorDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/concrete-removal/",
+      "url": "https://mrdemopro.com/services/concrete-removal/",
+      "sheet": "services--concrete-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ConcreteRemoval.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/construction-debris-removal/",
+      "url": "https://mrdemopro.com/services/construction-debris-removal/",
+      "sheet": "services--construction-debris-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ConstructionDebrisRemoval.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/deck-removal/",
+      "url": "https://mrdemopro.com/services/deck-removal/",
+      "sheet": "services--deck-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DeckRemoval.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/fence-removal/",
+      "url": "https://mrdemopro.com/services/fence-removal/",
+      "sheet": "services--fence-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/FenceRemoval.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/garage-demolition/",
+      "url": "https://mrdemopro.com/services/garage-demolition/",
+      "sheet": "services--garage-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ServiceGarageDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/hoarding-cleanout/",
+      "url": "https://mrdemopro.com/services/hoarding-cleanout/",
+      "sheet": "services--hoarding-cleanout.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/HoardingCleanout.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/house-demolition/",
+      "url": "https://mrdemopro.com/services/house-demolition/",
+      "sheet": "services--house-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/HouseDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/interior-demo/",
+      "url": "https://mrdemopro.com/services/interior-demo/",
+      "sheet": "services--interior-demo.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/InteriorDemo.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/junk-removal/",
+      "url": "https://mrdemopro.com/services/junk-removal/",
+      "sheet": "services--junk-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/JunkRemoval.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/kitchen-demolition/",
+      "url": "https://mrdemopro.com/services/kitchen-demolition/",
+      "sheet": "services--kitchen-demolition.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/KitchenDemolition.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/services/shed-removal/",
+      "url": "https://mrdemopro.com/services/shed-removal/",
+      "sheet": "services--shed-removal.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ShedRemoval.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/tenant-clean-out/",
+      "url": "https://mrdemopro.com/tenant-clean-out/",
+      "sheet": "tenant-clean-out.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/TenantCleanOut.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/terms/",
+      "url": "https://mrdemopro.com/terms/",
+      "sheet": "terms.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/Terms.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/thank-you/",
+      "url": "https://mrdemopro.com/thank-you/",
+      "sheet": "thank-you.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/ThankYou.tsx"
+      ],
+      "http_status": 200
+    },
+    {
+      "path": "/diy-vs-pro-demolition/thank-you/",
+      "url": "https://mrdemopro.com/diy-vs-pro-demolition/thank-you/",
+      "sheet": "diy-vs-pro-demolition--thank-you.md",
+      "status": "Live-only; no Ploy counterpart found",
+      "repo_sources": [
+        "landing/src/pages/DiyQuizThankYou.tsx"
+      ],
+      "http_status": 200
+    }
+  ]
+}

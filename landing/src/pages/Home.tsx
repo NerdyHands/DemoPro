@@ -557,7 +557,11 @@ const Home = () => {
         <div className="home-container">
           <div className="home-audiences-grid">
             <div className="home-audiences-intro">
-              <h2 className="home-h2">One crew for the heavy work</h2>
+              <h2 className="home-h2">
+                One crew for
+                <br />
+                the heavy work
+              </h2>
               <p className="home-lead" style={{maxWidth: '520px'}}>
                 Mr Demo Pro works with the people responsible for getting a
                 property cleared, safe, and ready for its next use.

@@ -1,33 +1,72 @@
-import ServiceLandingPage from '../components/ServiceLandingPage';
-import AudienceHighlights from '../components/AudienceHighlights';
+import AudienceLandingPage from '../components/AudienceLandingPage';
 
 const PropertyManagers = () => (
-  <ServiceLandingPage
+  <AudienceLandingPage
     title="Property Cleanouts That Keep Turnovers Moving in Hampton Roads"
     tagline="Clear scope. Responsive scheduling. Cleanup included."
     description="Mr Demo Pro helps Hampton Roads property managers and landlords clear vacant, inherited, and time-sensitive properties for inspection, repair, listing, or occupancy."
     serviceType="Property Cleanout"
     heroImage={{
       src: '/assets/Icons/cleanout.webp',
-      alt: 'Property cleanout services for property managers by Mr Demo Pro',
-      maxWidth: 320
+      alt: 'Property cleanout services for property managers by Mr Demo Pro'
+    }}
+    audience={{
+      problemTitle:
+        'A delayed cleanout can hold up inspections, repairs, listings, and move-ins.',
+      problemText:
+        'You need a crew that confirms the scope, communicates clearly, arrives when scheduled, and leaves the property accessible for the next step.',
+      supportTitle: 'Cleanout support built for property operations',
+      supportIntro:
+        'Use one local crew for removal, hauling, and final cleanup across routine turnovers and urgent property situations.',
+      supportItems: [
+        'Published cleanout price guidance for faster planning',
+        'Whole-property clearing and debris haul-off',
+        'Same-day response available when scheduling allows',
+        'One accountable contact for scope and timing'
+      ],
+      supportNote:
+        'Final pricing depends on volume, access, materials, disposal requirements, and the confirmed scope.',
+      outcomes: [
+        {
+          title: 'Keep the next vendor on schedule',
+          description:
+            'A clearly scoped cleanout gives inspectors, maintenance teams, and contractors a workable property sooner.'
+        },
+        {
+          title: 'Get the property ready for what comes next',
+          description:
+            'Move from problem property to inspection, repair, listing, or occupancy with removal and cleanup handled by one crew.'
+        }
+      ]
     }}
     benefitsTitle="Services for property managers and landlords"
     benefits={[
       {
         title: 'Turnover Cleanouts',
         description:
-          'Clear furniture, household items, accumulated junk, and debris so inspection, repair, or occupancy work can begin.'
+          'Clear furniture, household items, accumulated junk, and debris so inspection, repair, or occupancy work can begin.',
+        image: {
+          src: '/assets/Icons/cleanout.webp',
+          alt: 'Line illustration of a sofa for turnover cleanouts'
+        }
       },
       {
         title: 'Junk and Debris Removal',
         description:
-          'Remove unwanted furniture, appliances, loose materials, and general debris from homes and light commercial properties.'
+          'Remove unwanted furniture, appliances, loose materials, and general debris from homes and light commercial properties.',
+        image: {
+          src: '/assets/Icons/trash.webp',
+          alt: 'Line illustration of a trash bag for junk removal'
+        }
       },
       {
         title: 'Interior Removal',
         description:
-          'Remove agreed fixtures, finishes, and interior structures before repairs, restoration, or remodeling begins.'
+          'Remove agreed fixtures, finishes, and interior structures before repairs, restoration, or remodeling begins.',
+        image: {
+          src: '/assets/Icons/hammer.webp',
+          alt: 'Line illustration of a hammer for interior removal'
+        }
       }
     ]}
     processTitle="A straightforward property cleanout process"
@@ -64,33 +103,7 @@ const PropertyManagers = () => (
     ]}
     ctaTitle="Turnover that can't wait?"
     ctaDescription="When a vacancy, safety issue, or turnover cannot wait, call to check the crew's current capacity. Same-day completion depends on the job and schedule."
-  >
-    <AudienceHighlights
-      problemTitle="A delayed cleanout can hold up inspections, repairs, listings, and move-ins."
-      problemText="You need a crew that confirms the scope, communicates clearly, arrives when scheduled, and leaves the property accessible for the next step."
-      supportTitle="Cleanout support built for property operations"
-      supportIntro="Use one local crew for removal, hauling, and final cleanup across routine turnovers and urgent property situations."
-      supportItems={[
-        'Published cleanout price guidance for faster planning',
-        'Whole-property clearing and debris haul-off',
-        'Same-day response available when scheduling allows',
-        'One accountable contact for scope and timing'
-      ]}
-      supportNote="Final pricing depends on volume, access, materials, disposal requirements, and the confirmed scope."
-      outcomes={[
-        {
-          title: 'Keep the next vendor on schedule',
-          description:
-            'A clearly scoped cleanout gives inspectors, maintenance teams, and contractors a workable property sooner.'
-        },
-        {
-          title: 'Get the property ready for what comes next',
-          description:
-            'Move from problem property to inspection, repair, listing, or occupancy with removal and cleanup handled by one crew.'
-        }
-      ]}
-    />
-  </ServiceLandingPage>
+  />
 );
 
 export default PropertyManagers;
