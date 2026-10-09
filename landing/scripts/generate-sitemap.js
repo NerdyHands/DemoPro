@@ -3,7 +3,7 @@
 /**
  * Sitemap Generator for Mr Demo Pro
  * Builds sitemap as: canonical routes from App.tsx + blog post URLs from
- * public/blog-data/posts.json (written by sync-opinly-blog.js).
+ * public/blog-data/posts.json.
  *
  * Priorities/changefreq come from parse-routes.js and reflect IA hierarchy:
  * home (1.0) → hubs /services|/service-area|/blog (0.9) → service leaves (0.8)
@@ -66,7 +66,7 @@ function readLocalBlogPosts() {
 }
 
 /**
- * Read published posts from local public/blog-data/posts.json (Opinly sync output).
+ * Read published posts from local public/blog-data/posts.json.
  */
 async function fetchBlogPosts() {
   return readLocalBlogPosts();
@@ -184,7 +184,7 @@ function validateSitemapCompleteness(sitemapContent) {
 }
 
 /**
- * Generate or update sitemap: base URLs from routes + blog post URLs from Opinly sync output
+ * Generate or update sitemap: base URLs from routes + blog post URLs from public/blog-data
  */
 async function generateSitemap() {
   // Always generate base sitemap from canonical routes in App.tsx

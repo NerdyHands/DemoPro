@@ -26,7 +26,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 const USE_STATIC_DATA = import.meta.env.VITE_USE_STATIC_BLOG_DATA !== 'false';
 
 /**
- * Fetch blog JSON written at build time by scripts/sync-opinly-blog.js.
+ * Fetch static blog JSON from public/blog-data.
  */
 async function fetchStaticJson<T>(file: string): Promise<T | null> {
   try {

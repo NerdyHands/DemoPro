@@ -89,7 +89,17 @@ async function prerenderRoute(page, routePath) {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: RENDER_TIMEOUT_MS });
   }
   await page.waitForSelector('#root > *', { timeout: RENDER_TIMEOUT_MS });
-  // Give Helmet a beat to flush route-specific meta after hydration.
+  // Helmet flushes route-specific meta after hydration; cold first loads can take seconds.
+  await page
+    .waitForFunction(
+      () =>
+        Array.from(document.querySelectorAll('meta[name="description"]')).some(
+          (meta) => (meta.getAttribute('content')?.trim().length ?? 0) >= 50
+        ),
+      undefined,
+      { timeout: RENDER_TIMEOUT_MS }
+    )
+    .catch(() => {});
   await new Promise((resolve) => setTimeout(resolve, 250));
 
   const seo = await page.evaluate((expectedCanon) => {
