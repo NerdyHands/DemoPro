@@ -43,7 +43,12 @@ export async function POST(request: Request) {
       { status: 503 }
     );
   }
-  if (!env.RESEND_API_KEY) {
+
+  const requestUrl = new URL(request.url);
+  const isLocalHost =
+    requestUrl.hostname === 'localhost' || requestUrl.hostname === '127.0.0.1';
+
+  if (!isLocalHost && !env.RESEND_API_KEY) {
     return NextResponse.json(
       { error: 'Resend is not configured' },
       { status: 503 }
@@ -67,7 +72,17 @@ export async function POST(request: Request) {
       new Date(Date.now() + 20 * 60 * 1000)
     );
 
-    const verifyUrl = `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')}/verify?token=${encodeURIComponent(token)}`;
+    const appBase = isLocalHost
+      ? requestUrl.origin
+      : env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
+    const verifyUrl = `${appBase}/verify?token=${encodeURIComponent(token)}`;
+
+    // Localhost only: return the link on-page and skip email.
+    // Live site never returns the link in the JSON response.
+    if (isLocalHost) {
+      return NextResponse.json({ ok: true, magicLink: verifyUrl, localDev: true });
+    }
+
     await sendEmail({
       to: admin.email,
       subject: 'Sign in to Mr Demo Pro Admin',

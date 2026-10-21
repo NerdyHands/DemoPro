@@ -10,11 +10,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const [magicLink, setMagicLink] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function sendMagicLink() {
     setError('');
     setSent(false);
+    setMagicLink('');
     setLoading(true);
     try {
       const response = await fetch('/api/auth/magic-link', {
@@ -26,12 +28,17 @@ export default function LoginPage() {
       const data = (await response.json()) as {
         error?: string;
         fields?: { email?: string };
+        magicLink?: string;
       };
       if (!response.ok) {
         setError(data.fields?.email || data.error || 'Unable to send magic link');
         return;
       }
-      setSent(true);
+      if (data.magicLink) {
+        setMagicLink(data.magicLink);
+      } else {
+        setSent(true);
+      }
     } catch {
       setError('Unable to send magic link');
     } finally {
@@ -69,6 +76,20 @@ export default function LoginPage() {
           />
         </Field>
         {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
+        {magicLink ? (
+          <div className="mt-3 rounded-lg border border-border bg-surface px-3 py-3">
+            <p className="text-sm font-semibold text-navy">Local sign-in link</p>
+            <p className="mt-1 text-xs text-muted">
+              Email is skipped on localhost. Open this link to continue.
+            </p>
+            <a
+              href={magicLink}
+              className="mt-2 block break-all text-sm text-primary underline"
+            >
+              {magicLink}
+            </a>
+          </div>
+        ) : null}
         {sent ? (
           <p className="mt-3 text-sm text-primary">Check your inbox for the sign-in link.</p>
         ) : null}
