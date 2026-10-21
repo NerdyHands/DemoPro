@@ -1,8 +1,10 @@
 import { Card } from '@/components/ui/card';
 import { ContractForm } from '@/components/crm/ContractForm';
 import { PageHeader } from '@/components/crm/PageHeader';
+import { DEFAULT_CONTRACT_TERMS } from '@/lib/crm/contract-defaults';
 import { listCustomers } from '@/lib/crm/customers';
 import { getEstimate, listEstimates } from '@/lib/crm/estimates';
+import { defaultDeposit, prefillPaymentSchedule } from '@/lib/crm/payment-schedule';
 import type { Contract } from '@/lib/crm/types';
 
 export const dynamic = 'force-dynamic';
@@ -15,9 +17,15 @@ export default async function NewContractPage({
   const params = await searchParams;
   const [customers, estimates] = await Promise.all([listCustomers(), listEstimates()]);
   const fromEstimate = params.estimateId ? await getEstimate(params.estimateId) : null;
+  const linkedCustomer = fromEstimate
+    ? customers.find(customer => customer.id === fromEstimate.customerId)
+    : params.customerId
+      ? customers.find(customer => customer.id === params.customerId)
+      : undefined;
 
   let draft: Contract | undefined;
   if (fromEstimate) {
+    const deposit = defaultDeposit(fromEstimate.total);
     draft = {
       id: '',
       mongoId: '',
@@ -31,11 +39,15 @@ export default async function NewContractPage({
       status: 'Draft',
       lineItems: fromEstimate.lineItems,
       total: fromEstimate.total,
-      deposit: 0,
+      deposit,
       startDate: '',
       endDate: '',
-      terms: '',
+      terms: DEFAULT_CONTRACT_TERMS,
       notes: fromEstimate.notes,
+      clientName: linkedCustomer?.name || fromEstimate.customerName,
+      clientAddress: linkedCustomer?.address || '',
+      drawScheduleType: 'regular',
+      paymentSchedule: prefillPaymentSchedule('regular', fromEstimate.total, deposit),
       createdTime: ''
     };
   } else if (params.customerId) {
@@ -47,7 +59,7 @@ export default async function NewContractPage({
       description: '',
       propertyAddress: '',
       customerId: params.customerId,
-      customerName: '',
+      customerName: linkedCustomer?.name || '',
       estimateId: '',
       status: 'Draft',
       lineItems: [],
@@ -55,8 +67,12 @@ export default async function NewContractPage({
       deposit: 0,
       startDate: '',
       endDate: '',
-      terms: '',
+      terms: DEFAULT_CONTRACT_TERMS,
       notes: '',
+      clientName: linkedCustomer?.name || '',
+      clientAddress: linkedCustomer?.address || '',
+      drawScheduleType: 'regular',
+      paymentSchedule: prefillPaymentSchedule('regular', 0, 0),
       createdTime: ''
     };
   }

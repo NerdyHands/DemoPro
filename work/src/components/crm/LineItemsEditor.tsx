@@ -67,7 +67,6 @@ export function LineItemsEditor({
                 <td className="py-2 pr-2">
                   <Input
                     type="number"
-                    min="0"
                     step="0.01"
                     value={item.unitPrice}
                     onChange={event => {

@@ -40,11 +40,11 @@ export default async function ContractDetailPage({
         enabled={opsReady && Boolean(contract.mongoId)}
         missingReason={
           opsReady
-            ? 'This contract has no MongoId, so PDF, invoice, and BoldSign actions are unavailable until it is linked.'
-            : 'Set OPS_API_URL and OPS_SERVICE_TOKEN to export documents and send for signature.'
+            ? 'Invoice, DOCX, and BoldSign still need a MongoId. The Contract PDF is generated from this record.'
+            : 'Set OPS_API_URL and OPS_SERVICE_TOKEN for invoice, DOCX, and signature actions. The Contract PDF works without Express.'
         }
         downloads={[
-          { label: 'Contract PDF', href: `/api/ops-files/contracts/${id}/pdf` },
+          { label: 'Contract PDF', href: `/api/contracts/${id}/pdf`, always: true },
           { label: 'Contract DOCX', href: `/api/ops-files/contracts/${id}/docx` },
           { label: 'Final invoice PDF', href: `/api/ops-files/contracts/${id}/final-invoice` },
           { label: 'Final invoice DOCX', href: `/api/ops-files/contracts/${id}/final-invoice/docx` },

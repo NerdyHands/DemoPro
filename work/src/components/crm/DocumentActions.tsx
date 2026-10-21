@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-type DownloadAction = { label: string; href: string };
+type DownloadAction = { label: string; href: string; always?: boolean };
 type JsonAction = { label: string; href: string; openUrl?: boolean; prompt?: string; promptField?: string };
 
 export function DocumentActions({
@@ -74,15 +74,19 @@ export function DocumentActions({
     }
   }
 
-  if (!enabled) {
+  const alwaysDownloads = downloads.filter(action => action.always);
+  const visibleDownloads = enabled ? downloads : alwaysDownloads;
+
+  if (!enabled && alwaysDownloads.length === 0) {
     return <p className="mb-4 text-sm text-muted">{missingReason}</p>;
   }
 
   return (
     <div className="mb-4">
+      {!enabled && missingReason ? <p className="mb-2 text-sm text-muted">{missingReason}</p> : null}
       {error ? <p className="mb-2 text-sm text-danger">{error}</p> : null}
       <div className="flex flex-wrap gap-2">
-        {downloads.map(action => (
+        {visibleDownloads.map(action => (
           <Button
             key={action.href}
             type="button"
@@ -94,17 +98,19 @@ export function DocumentActions({
             {busy === action.label ? 'Working…' : action.label}
           </Button>
         ))}
-        {posts.map(action => (
-          <Button
-            key={action.href}
-            type="button"
-            size="sm"
-            disabled={Boolean(busy)}
-            onClick={() => void post(action)}
-          >
-            {busy === action.label ? 'Working…' : action.label}
-          </Button>
-        ))}
+        {enabled
+          ? posts.map(action => (
+              <Button
+                key={action.href}
+                type="button"
+                size="sm"
+                disabled={Boolean(busy)}
+                onClick={() => void post(action)}
+              >
+                {busy === action.label ? 'Working…' : action.label}
+              </Button>
+            ))
+          : null}
       </div>
     </div>
   );

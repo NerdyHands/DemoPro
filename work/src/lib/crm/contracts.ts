@@ -1,4 +1,5 @@
 import {
+  AirtableError,
   createRecord,
   deleteRecord,
   getRecord,
@@ -12,12 +13,24 @@ import { normalizeLineItems, serializeLineItems, sumLineItems } from './line-ite
 import { customerNameMap } from './names';
 import { nextNumber } from './numbers';
 import {
+  asDrawScheduleType,
+  normalizePaymentSchedule,
+  serializePaymentSchedule
+} from './payment-schedule';
+import {
   CONTRACT_LIST_FIELDS,
   CONTRACT_STATUSES,
   type Contract,
   type ContractInput,
   type ContractStatus
 } from './types';
+
+const OPTIONAL_CONTRACT_FIELDS = [
+  'Client Name',
+  'Client Address',
+  'Draw Schedule Type',
+  'Payment Schedule'
+];
 
 function crm() {
   const env = assertCrmConfigured();
@@ -56,6 +69,10 @@ function mapContract(record: AirtableRecord, names?: Map<string, string>): Contr
     endDate: fieldString(record.fields, 'End Date'),
     terms: fieldString(record.fields, 'Terms'),
     notes: fieldString(record.fields, 'Notes'),
+    clientName: fieldString(record.fields, 'Client Name'),
+    clientAddress: fieldString(record.fields, 'Client Address'),
+    drawScheduleType: asDrawScheduleType(fieldString(record.fields, 'Draw Schedule Type')),
+    paymentSchedule: normalizePaymentSchedule(record.fields['Payment Schedule']),
     createdTime: record.createdTime || ''
   };
 }
@@ -74,13 +91,42 @@ async function contractFields(input: ContractInput): Promise<Record<string, unkn
     Total: total,
     Deposit: input.deposit ?? 0,
     Terms: input.terms?.trim() || '',
-    Notes: input.notes?.trim() || ''
+    Notes: input.notes?.trim() || '',
+    'Client Name': input.clientName?.trim() || '',
+    'Client Address': input.clientAddress?.trim() || '',
+    'Draw Schedule Type': asDrawScheduleType(input.drawScheduleType),
+    'Payment Schedule': serializePaymentSchedule(input.paymentSchedule ?? [])
   };
   if (input.contractNumber) fields['Contract Number'] = input.contractNumber;
   if (input.startDate) fields['Start Date'] = input.startDate;
   if (input.endDate) fields['End Date'] = input.endDate;
   if (input.mongoId) fields.MongoId = input.mongoId;
   return fields;
+}
+
+function withoutOptionalFields(fields: Record<string, unknown>): Record<string, unknown> {
+  const next = { ...fields };
+  for (const name of OPTIONAL_CONTRACT_FIELDS) {
+    delete next[name];
+  }
+  return next;
+}
+
+function isUnknownFieldError(error: unknown): boolean {
+  return error instanceof AirtableError && /UNKNOWN_FIELD_NAME|UNKNOWN_FIELD/i.test(error.body);
+}
+
+async function writeContract(
+  writer: (fields: Record<string, unknown>) => Promise<AirtableRecord>,
+  fields: Record<string, unknown>,
+  names?: Map<string, string>
+): Promise<Contract> {
+  try {
+    return mapContract(await writer(fields), names);
+  } catch (error) {
+    if (!isUnknownFieldError(error)) throw error;
+    return mapContract(await writer(withoutOptionalFields(fields)), names);
+  }
 }
 
 export async function listContracts(options?: {
@@ -129,23 +175,16 @@ export async function getContract(id: string): Promise<Contract | null> {
 export async function createContract(input: ContractInput): Promise<Contract> {
   const number = input.contractNumber || (await nextNumber('CON'));
   const names = await customerNameMap();
-  return mapContract(
-    await createRecord({
-      ...crm(),
-      fields: await contractFields({ ...input, contractNumber: number })
-    }),
-    names
-  );
+  const fields = await contractFields({ ...input, contractNumber: number });
+  return writeContract(next => createRecord({ ...crm(), fields: next }), fields, names);
 }
 
 export async function updateContract(id: string, input: ContractInput): Promise<Contract> {
   const names = await customerNameMap();
-  return mapContract(
-    await updateRecord({
-      ...crm(),
-      recordId: id,
-      fields: await contractFields(input)
-    }),
+  const fields = await contractFields(input);
+  return writeContract(
+    next => updateRecord({ ...crm(), recordId: id, fields: next }),
+    fields,
     names
   );
 }

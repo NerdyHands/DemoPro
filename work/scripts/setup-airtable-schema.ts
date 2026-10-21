@@ -169,6 +169,10 @@ async function main() {
         dateField('End Date'),
         { name: 'Terms', type: 'multilineText' },
         { name: 'Notes', type: 'multilineText' },
+        { name: 'Client Name', type: 'singleLineText' },
+        { name: 'Client Address', type: 'multilineText' },
+        select('Draw Schedule Type', ['regular', 'demolition']),
+        { name: 'Payment Schedule', type: 'multilineText' },
         { name: 'MongoId', type: 'singleLineText' }
       ],
       'Operator CRM contracts'
@@ -176,6 +180,30 @@ async function main() {
     console.log(`Created ${name}`, contracts.id);
   } else {
     console.log('Contracts exists', contracts.id);
+  }
+
+  const refreshedTables = await listBaseTables({ token: env.AIRTABLE_TOKEN, baseId });
+  const currentContracts = refreshedTables.find(table => table.id === contracts.id);
+  const contractFieldNames = new Set(currentContracts?.fields.map(field => field.name) ?? []);
+  const extraContractFields: FieldDef[] = [
+    { name: 'Client Name', type: 'singleLineText' },
+    { name: 'Client Address', type: 'multilineText' },
+    select('Draw Schedule Type', ['regular', 'demolition']),
+    { name: 'Payment Schedule', type: 'multilineText' }
+  ];
+  for (const field of extraContractFields) {
+    const name = String(field.name);
+    if (contractFieldNames.has(name)) continue;
+    const response = await airtableFetch(`/meta/bases/${baseId}/tables/${contracts.id}/fields`, {
+      method: 'POST',
+      token: env.AIRTABLE_TOKEN,
+      body: JSON.stringify(field)
+    });
+    if (!response.ok) {
+      throw new Error(`Add field ${name} failed (${response.status}): ${await response.text()}`);
+    }
+    contractFieldNames.add(name);
+    console.log('Added contract field', name);
   }
 
   console.log('\nPut these in work/.env.local:');

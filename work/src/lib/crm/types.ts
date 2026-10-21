@@ -8,10 +8,18 @@ export const CONTRACT_STATUSES = [
   'Completed',
   'Cancelled'
 ] as const;
+export const DRAW_SCHEDULE_TYPES = ['regular', 'demolition'] as const;
 
 export type CustomerStatus = (typeof CUSTOMER_STATUSES)[number];
 export type EstimateStatus = (typeof ESTIMATE_STATUSES)[number];
 export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
+export type DrawScheduleType = (typeof DRAW_SCHEDULE_TYPES)[number];
+
+export type PaymentScheduleItem = {
+  title: string;
+  description: string;
+  amount: number;
+};
 
 export type LineItem = {
   description: string;
@@ -71,6 +79,10 @@ export type Contract = {
   endDate: string;
   terms: string;
   notes: string;
+  clientName: string;
+  clientAddress: string;
+  drawScheduleType: DrawScheduleType;
+  paymentSchedule: PaymentScheduleItem[];
   createdTime: string;
 };
 
@@ -113,6 +125,10 @@ export type ContractInput = {
   endDate?: string;
   terms?: string;
   notes?: string;
+  clientName?: string;
+  clientAddress?: string;
+  drawScheduleType?: DrawScheduleType;
+  paymentSchedule?: PaymentScheduleItem[];
   mongoId?: string;
 };
 

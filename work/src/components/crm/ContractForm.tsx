@@ -7,13 +7,25 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/input';
 import { Field } from '@/components/crm/PageHeader';
 import { LineItemsEditor } from '@/components/crm/LineItemsEditor';
+import { PaymentScheduleEditor } from '@/components/crm/PaymentScheduleEditor';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle
 } from '@/components/ui/dialog';
-import type { Contract, ContractStatus, Customer, Estimate, LineItem } from '@/lib/crm/types';
+import { DEFAULT_CONTRACT_TERMS } from '@/lib/crm/contract-defaults';
+import { sumLineItems } from '@/lib/crm/line-items';
+import { defaultDeposit, prefillPaymentSchedule } from '@/lib/crm/payment-schedule';
+import type {
+  Contract,
+  ContractStatus,
+  Customer,
+  DrawScheduleType,
+  Estimate,
+  LineItem,
+  PaymentScheduleItem
+} from '@/lib/crm/types';
 import { CONTRACT_STATUSES } from '@/lib/crm/types';
 
 export function ContractForm({
@@ -31,7 +43,17 @@ export function ContractForm({
   const [error, setError] = useState('');
   const [fields, setFields] = useState<Record<string, string>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const initialCustomer = customers.find(item => item.id === (contract?.customerId ?? ''));
   const [lineItems, setLineItems] = useState<LineItem[]>(contract?.lineItems ?? []);
+  const [paymentSchedule, setPaymentSchedule] = useState<PaymentScheduleItem[]>(
+    contract?.paymentSchedule?.length
+      ? contract.paymentSchedule
+      : prefillPaymentSchedule(
+          contract?.drawScheduleType ?? 'regular',
+          contract?.total ?? sumLineItems(contract?.lineItems ?? []),
+          contract?.deposit ?? 0
+        )
+  );
   const [form, setForm] = useState({
     title: contract?.title ?? '',
     description: contract?.description ?? '',
@@ -39,23 +61,48 @@ export function ContractForm({
     customerId: contract?.customerId ?? '',
     estimateId: contract?.estimateId ?? '',
     status: (contract?.status ?? 'Draft') as ContractStatus,
-    deposit: contract?.deposit ?? 0,
+    deposit: contract?.deposit ?? defaultDeposit(contract?.total ?? 0, 0),
     startDate: contract?.startDate?.slice(0, 10) ?? '',
     endDate: contract?.endDate?.slice(0, 10) ?? '',
-    terms: contract?.terms ?? '',
-    notes: contract?.notes ?? ''
+    terms: contract?.terms || DEFAULT_CONTRACT_TERMS,
+    notes: contract?.notes ?? '',
+    clientName: contract?.clientName || initialCustomer?.name || '',
+    clientAddress: contract?.clientAddress || initialCustomer?.address || '',
+    drawScheduleType: (contract?.drawScheduleType ?? 'regular') as DrawScheduleType
   });
+
+  function customerFields(customerId: string) {
+    const customer = customers.find(item => item.id === customerId);
+    return {
+      clientName: customer?.name || '',
+      clientAddress: customer?.address || ''
+    };
+  }
 
   function applyEstimate(id: string) {
     const estimate = estimates.find(item => item.id === id);
-    setForm(current => ({
-      ...current,
-      estimateId: id,
-      customerId: estimate?.customerId || current.customerId,
-      propertyAddress: estimate?.propertyAddress || current.propertyAddress,
-      title: current.title || estimate?.title || ''
-    }));
-    if (estimate?.lineItems.length) setLineItems(estimate.lineItems);
+    const linkedCustomerId = estimate?.customerId || '';
+    const fromCustomer = customerFields(linkedCustomerId);
+    setForm(current => {
+      const nextCustomerId = estimate?.customerId || current.customerId;
+      const nextTotal = estimate?.lineItems.length ? sumLineItems(estimate.lineItems) : sumLineItems(lineItems);
+      const nextDeposit = defaultDeposit(nextTotal, current.deposit);
+      return {
+        ...current,
+        estimateId: id,
+        customerId: nextCustomerId,
+        propertyAddress: estimate?.propertyAddress || current.propertyAddress,
+        title: current.title || estimate?.title || '',
+        clientName: current.clientName || fromCustomer.clientName,
+        clientAddress: current.clientAddress || fromCustomer.clientAddress,
+        deposit: nextDeposit
+      };
+    });
+    if (estimate?.lineItems.length) {
+      setLineItems(estimate.lineItems);
+      const total = sumLineItems(estimate.lineItems);
+      setPaymentSchedule(prefillPaymentSchedule(form.drawScheduleType, total, defaultDeposit(total, form.deposit)));
+    }
   }
 
   async function save() {
@@ -66,7 +113,12 @@ export function ContractForm({
       const response = await fetch(isExisting ? `/api/contracts/${contract?.id}` : '/api/contracts', {
         method: isExisting ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, lineItems, contractNumber: contract?.contractNumber })
+        body: JSON.stringify({
+          ...form,
+          lineItems,
+          paymentSchedule,
+          contractNumber: contract?.contractNumber
+        })
       });
       const data = (await response.json()) as {
         contract?: Contract;
@@ -118,7 +170,16 @@ export function ContractForm({
             id="customerId"
             className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm"
             value={form.customerId}
-            onChange={event => setForm({ ...form, customerId: event.target.value })}
+            onChange={event => {
+              const customerId = event.target.value;
+              const fromCustomer = customerFields(customerId);
+              setForm(current => ({
+                ...current,
+                customerId,
+                clientName: current.clientName || fromCustomer.clientName,
+                clientAddress: current.clientAddress || fromCustomer.clientAddress
+              }));
+            }}
           >
             <option value="">Select a customer</option>
             {customers.map(customer => (
@@ -142,6 +203,22 @@ export function ContractForm({
               </option>
             ))}
           </select>
+        </Field>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field label="Client name" htmlFor="clientName">
+          <Input
+            id="clientName"
+            value={form.clientName}
+            onChange={event => setForm({ ...form, clientName: event.target.value })}
+          />
+        </Field>
+        <Field label="Client address" htmlFor="clientAddress">
+          <Input
+            id="clientAddress"
+            value={form.clientAddress}
+            onChange={event => setForm({ ...form, clientAddress: event.target.value })}
+          />
         </Field>
       </div>
       <Field label="Property address" htmlFor="propertyAddress">
@@ -194,9 +271,50 @@ export function ContractForm({
         />
       </Field>
       <div>
+        <p className="mb-2 text-sm font-semibold text-navy">Draw schedule type</p>
+        <div className="flex flex-col gap-2 md:flex-row md:gap-6">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="drawScheduleType"
+              checked={form.drawScheduleType === 'regular'}
+              onChange={() => {
+                setForm(current => ({ ...current, drawScheduleType: 'regular' }));
+                setPaymentSchedule(prefillPaymentSchedule('regular', sumLineItems(lineItems), form.deposit));
+              }}
+            />
+            Regular (deposit + final payment)
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="drawScheduleType"
+              checked={form.drawScheduleType === 'demolition'}
+              onChange={() => {
+                setForm(current => ({ ...current, drawScheduleType: 'demolition' }));
+                setPaymentSchedule(prefillPaymentSchedule('demolition', sumLineItems(lineItems), form.deposit));
+              }}
+            />
+            Demolition (multi-milestone)
+          </label>
+        </div>
+        <p className="mt-2 text-xs text-muted">
+          {form.drawScheduleType === 'regular'
+            ? 'Payment schedule: deposit before work begins, then final payment upon completion.'
+            : 'Payment schedule: deposit, disassembly, debris removal, and final clean.'}
+        </p>
+      </div>
+      <div>
         <p className="mb-2 text-sm font-semibold text-navy">Line items</p>
         <LineItemsEditor value={lineItems} onChange={setLineItems} />
       </div>
+      <PaymentScheduleEditor
+        value={paymentSchedule}
+        onChange={setPaymentSchedule}
+        scheduleType={form.drawScheduleType}
+        totalAmount={sumLineItems(lineItems)}
+        depositAmount={form.deposit}
+      />
       <Field label="Terms" htmlFor="terms">
         <Textarea
           id="terms"

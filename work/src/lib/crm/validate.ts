@@ -1,4 +1,5 @@
 import { normalizeLineItems } from './line-items';
+import { asDrawScheduleType, normalizePaymentSchedule } from './payment-schedule';
 import {
   CONTRACT_STATUSES,
   CUSTOMER_STATUSES,
@@ -130,7 +131,13 @@ export function parseContract(body: unknown): {
       startDate: typeof raw.startDate === 'string' ? raw.startDate : '',
       endDate: typeof raw.endDate === 'string' ? raw.endDate : '',
       terms: typeof raw.terms === 'string' ? raw.terms : '',
-      notes: typeof raw.notes === 'string' ? raw.notes : ''
+      notes: typeof raw.notes === 'string' ? raw.notes : '',
+      clientName: typeof raw.clientName === 'string' ? raw.clientName : '',
+      clientAddress: typeof raw.clientAddress === 'string' ? raw.clientAddress : '',
+      drawScheduleType: asDrawScheduleType(
+        typeof raw.drawScheduleType === 'string' ? raw.drawScheduleType : ''
+      ),
+      paymentSchedule: normalizePaymentSchedule(raw.paymentSchedule)
     }
   };
 }

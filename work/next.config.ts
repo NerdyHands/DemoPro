@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
-  outputFileTracingRoot: path.join(__dirname)
+  outputFileTracingRoot: path.join(__dirname),
+  serverExternalPackages: ['pdfkit']
 };
 
 export default nextConfig;

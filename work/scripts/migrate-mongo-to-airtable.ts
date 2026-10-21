@@ -272,6 +272,10 @@ async function main() {
           'End Date': isoDate(doc.endDate),
           Terms: String(doc.terms || ''),
           Notes: String(doc.notes || ''),
+          'Client Name': String(doc.clientName || ''),
+          'Client Address': addressFull(doc.clientAddress),
+          'Draw Schedule Type': String(doc.drawScheduleType || 'regular'),
+          'Payment Schedule': JSON.stringify(Array.isArray(doc.paymentSchedule) ? doc.paymentSchedule : []),
           MongoId: mongoId
         }
       }
