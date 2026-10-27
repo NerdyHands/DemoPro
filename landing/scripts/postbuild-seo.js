@@ -67,6 +67,42 @@ function main() {
       allSuccess = false;
     }
   });
+
+  // Standalone 404 shell for Amplify/CloudFront custom error documents.
+  // Prevents missing routes from advertising homepage title/canonical/og:url.
+  try {
+    const notFoundHtml = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Page Not Found | Mr Demo Pro</title>
+    <meta name="description" content="The page you're looking for doesn't exist. Explore our demolition services or contact us for assistance." />
+    <meta name="robots" content="noindex,follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="404 - Page Not Found | Mr Demo Pro" />
+    <meta property="og:description" content="The page you're looking for doesn't exist. Explore our demolition services or contact us for assistance." />
+    <meta property="og:site_name" content="Mr Demo Pro" />
+  </head>
+  <body>
+    <main style="font-family: system-ui, sans-serif; text-align: center; padding: 4rem 1rem;">
+      <h1>404 - Page Not Found</h1>
+      <p>The page you're looking for doesn't exist.</p>
+      <p>
+        <a href="/">Go Home</a> ·
+        <a href="/blog/">View Blog</a> ·
+        <a href="/services/">View Services</a>
+      </p>
+    </main>
+  </body>
+</html>
+`;
+    fs.writeFileSync(path.join(DIST_DIR, '404.html'), notFoundHtml, 'utf8');
+    console.log('✅ Wrote dist/404.html (noindex; no homepage canonical/og:url)');
+  } catch (error) {
+    console.warn(`⚠️  Could not write dist/404.html: ${error.message}`);
+    allSuccess = false;
+  }
   
   console.log('─'.repeat(50));
   
@@ -78,10 +114,8 @@ function main() {
   }
 }
 
-// Run the script
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
+// Always run when invoked via `node scripts/postbuild-seo.js` (Windows-safe).
+main();
 
 export { copyFile };
 export default main;

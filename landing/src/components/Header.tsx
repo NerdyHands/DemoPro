@@ -2,7 +2,7 @@ import {useState, useEffect, useRef, type MouseEvent as ReactMouseEvent} from 'r
 import {Navbar, Nav, Container} from 'react-bootstrap';
 import {Link, useLocation} from 'react-router-dom';
 import {trackPhoneClick} from '../config/gtm';
-import {HOME_SECTION_LINKS} from '../config/siteStructure';
+import {HOME_SECTION_LINKS, HUBS} from '../config/siteStructure';
 
 const navLinkStyle = {
   fontWeight: 600,
@@ -178,6 +178,22 @@ const Header = () => {
                         {item.label}
                       </Nav.Link>
                     ))}
+
+                    <Nav.Link
+                      as={Link}
+                      to={HUBS.blog.path}
+                      onClick={handleNavClick}
+                      aria-current={
+                        location.pathname.startsWith('/blog')
+                          ? 'page'
+                          : undefined
+                      }
+                      style={navLinkStyle}
+                      onMouseEnter={applyHoverIn}
+                      onMouseLeave={applyHoverOut}
+                    >
+                      {HUBS.blog.label}
+                    </Nav.Link>
 
                     <Nav.Link
                       href="tel:757-848-4559"

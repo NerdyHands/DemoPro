@@ -5,6 +5,7 @@ import {trackPhoneClick} from '../config/gtm';
 import {
   HOME_QUOTE_LINK,
   HOME_SECTION_LINKS,
+  HUBS,
   LEGAL_LINKS
 } from '../config/siteStructure';
 
@@ -81,9 +82,15 @@ const Footer = () => {
             <nav aria-label="Footer navigation">
               <h3 style={headingStyle}>Explore</h3>
               <ul style={listStyle}>
-                {[...HOME_SECTION_LINKS, HOME_QUOTE_LINK].map(link => (
-                  <FooterLink key={link.path} to={link.path} label={link.label} />
-                ))}
+                {[...HOME_SECTION_LINKS, HUBS.blog, HOME_QUOTE_LINK].map(
+                  link => (
+                    <FooterLink
+                      key={link.path}
+                      to={link.path}
+                      label={link.label}
+                    />
+                  )
+                )}
               </ul>
             </nav>
           </Col>

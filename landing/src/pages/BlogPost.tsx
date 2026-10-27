@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { fetchPost, fetchRelated, sendBlogEvent } from '../api/blog';
 import type { PostDetail, PostSummary } from '../api/blog';
 import SEO from '../components/SEO';
+import NotFoundPage from '../components/NotFoundPage';
 import Breadcrumbs from '../components/Breadcrumbs';
 import {trackEmailClick} from '../config/gtm';
 import { getBreadcrumbsForPath } from '../utils/breadcrumbs';
@@ -10,6 +11,46 @@ import { blogIndexPath, blogPostCanonical, blogPostPath, blogTagPath } from '../
 import './Blog.css';
 
 type TocItem = { id: string; text: string; level: number };
+
+/** Enrich BlogPosting JSON-LD only with verified post fields (no invented author). */
+function buildPostStructuredData(
+  post: PostDetail,
+  canonical: string
+): Record<string, unknown> {
+  const base: Record<string, unknown> = post.structuredData
+    ? Array.isArray(post.structuredData)
+      ? {...(post.structuredData[0] as Record<string, unknown>)}
+      : {...(post.structuredData as Record<string, unknown>)}
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.excerpt,
+        datePublished: post.publishedAt,
+        dateModified: post.updatedAt || post.publishedAt
+      };
+
+  if (canonical) {
+    base.url = canonical;
+    base.mainEntityOfPage = {
+      '@type': 'WebPage',
+      '@id': canonical
+    };
+  }
+  if (post.coverUrl && !base.image) {
+    base.image = [post.coverUrl];
+  }
+  const namedAuthors = (post.authors || []).filter(
+    (name): name is string => Boolean(name && String(name).trim())
+  );
+  if (namedAuthors.length > 0 && !base.author) {
+    base.author = namedAuthors.map(name => ({
+      '@type': 'Person',
+      name
+    }));
+  }
+  return base;
+}
 
 const formatDate = (value?: string) => {
   if (!value) return '';
@@ -143,7 +184,9 @@ const BlogPost: React.FC = () => {
     return <div className="blog-state">Loading post…</div>;
   }
   if (error || !post) {
-    return <div className="blog-state error">{error || 'Post not found'}</div>;
+    return (
+      <NotFoundPage detail={error || 'This blog post could not be found.'} />
+    );
   }
 
   const canonical = post.canonicalUrl || blogPostCanonical(post.slug);
@@ -151,6 +194,7 @@ const BlogPost: React.FC = () => {
   const breadcrumbItems = getBreadcrumbsForPath(`/blog/${post.slug}/`, {
     blogPostTitle: post.title
   });
+  const structuredData = buildPostStructuredData(post, canonical);
 
   return (
     <div className="blog-post-layout">
@@ -160,7 +204,7 @@ const BlogPost: React.FC = () => {
         canonicalUrl={canonical}
         ogImage={post.coverUrl}
         ogType="article"
-        structuredData={post.structuredData}
+        structuredData={structuredData}
       />
 
       <article className="blog-article">

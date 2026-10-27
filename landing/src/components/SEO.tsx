@@ -105,7 +105,11 @@ const finalStructuredData = structuredData
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={fullTitle} />
-      <meta property="og:url" content={normalizedCanonicalUrl || "https://mrdemopro.com/"} />
+      {/* Never invent homepage og:url for noindex/unknown routes — that made
+          hosting 404 shells advertise mrdemopro.com/ as the page identity. */}
+      {normalizedCanonicalUrl ? (
+        <meta property="og:url" content={normalizedCanonicalUrl} />
+      ) : null}
       <meta property="og:site_name" content="Mr Demo Pro" />
       <meta property="og:locale" content="en_US" />
       {/* <meta property="og:updated_time" content={new Date().toISOString()} /> */}

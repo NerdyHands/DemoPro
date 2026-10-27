@@ -1,10 +1,10 @@
 import React from 'react';
-import {Routes, Route, Link, useLocation, Navigate} from 'react-router-dom';
+import {Routes, Route, useLocation, Navigate} from 'react-router-dom';
 import {HelmetProvider} from 'react-helmet-async';
-import {Container} from 'react-bootstrap';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import SEO from './components/SEO';
+import NotFoundPage from './components/NotFoundPage';
 import Breadcrumbs from './components/Breadcrumbs';
 import Home from './pages/Home';
 import Prices from './pages/Prices';
@@ -1027,51 +1027,7 @@ function AppContent() {
                 </>
               }
             />
-            <Route
-              path="*"
-              element={
-                <>
-                  <SEO
-                    title="404 - Page Not Found | Mr Demo Pro"
-                    description="The page you're looking for doesn't exist. Explore our demolition services or contact us for assistance."
-                    keywords="404, page not found, demolition services, Mr Demo Pro"
-                    noIndex={true}
-                  />
-                  <div
-                    style={{
-                      paddingTop: '100px',
-                      minHeight: '50vh',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <Container>
-                      <h1
-                        style={{
-                          color: 'var(--color-primary)',
-                          marginBottom: '1rem'
-                        }}
-                      >
-                        404 - Page Not Found
-                      </h1>
-                      <p style={{fontSize: '1.2rem', marginBottom: '2rem'}}>
-                        The page you're looking for doesn't exist.
-                      </p>
-                      <div>
-                        <Link to="/" className="btn btn-primary me-3">
-                          Go Home
-                        </Link>
-                        <Link
-                          to="/services/"
-                          className="btn btn-outline-primary"
-                        >
-                          View Services
-                        </Link>
-                      </div>
-                    </Container>
-                  </div>
-                </>
-              }
-            />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         {!isLandingPage && <Footer />}
